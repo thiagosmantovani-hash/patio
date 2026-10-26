@@ -1,0 +1,37 @@
+{
+  "name": "gestao-revenda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pátio — sistema de gestão para revendas de veículos",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:server": "node --watch server/index.ts",
+    "dev:web": "vite",
+    "build": "vite build",
+    "start": "node server/index.ts",
+    "seed": "node server/seed.ts",
+    "test": "node --test \"tests/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "multer": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.7"
+  }
+}
