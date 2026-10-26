@@ -20,7 +20,7 @@ async function call(method: string, path: string, body?: unknown, cookie = '') {
     headers: { 'content-type': 'application/json', cookie },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
-  return { status: res.status, body: await res.json(), cookie: res.headers.get('set-cookie')?.split(';')[0] ?? '' };
+  return { status: res.status, body: (await res.json()) as any, cookie: res.headers.get('set-cookie')?.split(';')[0] ?? '' };
 }
 
 async function login(email: string, password: string) {

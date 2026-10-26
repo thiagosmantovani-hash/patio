@@ -27,7 +27,7 @@ async function api<T = any>(method: string, path: string, body?: unknown): Promi
   });
   const setCookie = res.headers.get('set-cookie');
   if (setCookie) cookie = setCookie.split(';')[0]!;
-  const data = await res.json();
+  const data = (await res.json()) as any;
   if (!res.ok) throw new Error(`${method} ${path}: ${data.error}`);
   return data as T;
 }

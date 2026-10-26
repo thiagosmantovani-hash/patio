@@ -15,7 +15,7 @@ const escapeXml = (s: unknown) =>
 export function publicRoutes(db: DB) {
   const r = Router();
   const photosOf = db.prepare('SELECT filename FROM vehicle_photos WHERE vehicle_id = ? ORDER BY position, id');
-  const shape = (v: Record<string, unknown>) => ({
+  const shape = (v: Record<string, unknown>): Record<string, any> & { photos: string[] } => ({
     ...v,
     features: JSON.parse(String(v.features)),
     photos: (photosOf.all(v.id as number) as { filename: string }[]).map((p) => `/uploads/${p.filename}`),
