@@ -1,0 +1,35 @@
+# Pátio · protótipo navegável
+
+Protótipo de um sistema de gestão para revendas de veículos (garagens de seminovos), usado para validar telas, fluxos e regras antes de construir a versão definitiva.
+
+**Abra o protótipo:** use o link do GitHub Pages que aparece na descrição deste repositório.
+
+Tudo roda no navegador, sem login e sem servidor. Os dados são fictícios e ficam salvos só no seu navegador. Para recomeçar, use **Restaurar exemplo** no canto inferior esquerdo.
+
+## O que dá para testar
+
+| Área | O que existe |
+| --- | --- |
+| **Painel** | Indicadores do estoque, valor de estoque x custo em gráfico, origem dos atendimentos, veículos parados há mais tempo e agenda |
+| **Estoque** | Veículos com a esteira de 8 etapas (avaliação, precificação, negociação de entrada, perícia, recebimento, serviços, anúncios, negociação de saída), avaliação em 9 passos, serviços em quadro, consulta veicular e anúncios por portal |
+| **Comercial** | Atendimentos (CRM) por etapa com distribuição por fila, negociações (venda, troca, compra, consignação) com contratos e NF-e, intermediação entre particulares, clientes e site da loja |
+| **Financeiro** | Títulos a pagar e a receber, recorrência, extrato por conta bancária, adiantamentos, documentação e serviços agregados, ordens de serviço, retorno de financiamento e notas fiscais |
+| **Configurações** | Usuários e perfis de acesso, fornecedores, portais de anúncio, CRM (origens, motivos, tags, quadros), plano de contas, custos, contas bancárias, bancos, notas fiscais, consulta veicular e exportação |
+
+Dica: no topo à direita, troque o usuário para ver o sistema como um vendedor, um avaliador ou o financeiro. Cada perfil enxerga módulos diferentes.
+
+## O que é simulado
+
+Envio de convites, assinatura digital, emissão de NF-e, certificado digital, publicação nos portais e resultados da consulta veicular. Na versão definitiva essas partes se conectam aos serviços reais.
+
+## Como ajudar
+
+1. Navegue como se estivesse trabalhando numa loja: avalie um carro, crie uma negociação, mova um atendimento, dê baixa num título.
+2. Anote o que ficou confuso, o que falta e o que sobra.
+3. Abra uma **Issue** neste repositório (aba Issues › New issue) com:
+   - a tela (ex.: Negociações › etapa Pagamento)
+   - o que você tentou fazer
+   - o que esperava e o que aconteceu
+   - um print, se ajudar
+
+Sugestões de regra de negócio de quem trabalha em revenda são as mais valiosas.
