@@ -418,6 +418,35 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
   h1{font-size:24px}
   .toolbar .search{max-width:none}
 }
+
+/* v4 */
+.audit{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.45;padding-top:10px;margin-top:4px;border-top:1px dashed var(--line)}
+.audit .av{margin-top:2px}
+header .audit{border-top:0;padding-top:0;margin-top:0}
+.vside{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;min-width:220px;align-content:start}
+.ph-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.ph-tile{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+.ph-tile.capa{border-color:var(--green);box-shadow:0 0 0 2px color-mix(in srgb,var(--green) 35%,transparent)}
+.ph-tile .photo{aspect-ratio:4/3}
+.ph-tile .n{position:absolute;top:8px;left:8px;background:var(--ink);color:var(--surface);font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px}
+.ph-tile .cp{position:absolute;top:8px;right:8px;background:var(--green);color:var(--green-ink);font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;display:flex;gap:4px;align-items:center}
+.ph-tile .tl-act{display:flex;gap:4px;padding:8px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.integ-row{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.integ-row .hd{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.integ-row .hd .who{flex:1;min-width:140px;display:flex;flex-direction:column}
+.integ-row .lg{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-weight:800;font-size:12px;color:#fff;flex:none}
+.errbox{display:flex;flex-direction:column;gap:5px;font-size:13px;line-height:1.45;padding:11px 13px;border-radius:12px;background:color-mix(in srgb,var(--bad) 8%,transparent);border:1px solid color-mix(in srgb,var(--bad) 25%,transparent)}
+.errbox>b{color:var(--bad);display:flex;gap:6px;align-items:center}
+.errbox .actions{margin-top:4px}
+.switch.small span{font-size:12.5px}
+.timeline{display:flex;flex-direction:column;gap:0}
+.tl-it{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.tl-it:last-child{border-bottom:0}
+.tl-it p{margin:3px 0 0;color:var(--ink-2)}
+.cabide{border-radius:18px;padding:22px;background:var(--ink);color:var(--surface);display:flex;flex-direction:column;gap:6px;max-width:340px;margin:0 auto}
+.cabide h2{font-size:22px;margin:4px 0 0;color:inherit}
+.cabide ul{margin:8px 0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.cabide .pr{font-size:26px;font-weight:800;color:var(--green);margin-top:6px}
 @media (prefers-reduced-motion:no-preference){.vcard,.btn,.est,.nav a,.switch i{transition:border-color .15s,background .15s}}
 </style>
 </head>
@@ -438,7 +467,7 @@ table.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
 <div id="toast" hidden role="status" aria-live="polite"></div>
 <script>
 /* ================= constantes ================= */
-const KEY='patio-proto-v3';
+const KEY='patio-proto-v4';
 const TODAY=new Date(); TODAY.setHours(12,0,0,0);
 const ISO=d=>{const z=new Date(d);return `${z.getFullYear()}-${String(z.getMonth()+1).padStart(2,'0')}-${String(z.getDate()).padStart(2,'0')}`};
 const TODAY_ISO=ISO(TODAY);
@@ -457,13 +486,13 @@ const vals=o=>Object.values(o||{});
 const slug=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 
-const CORES={Branco:'#f2f3f1',Prata:'#b9bfc4',Preto:'#24272b',Cinza:'#767e86',Azul:'#2d5898',Vermelho:'#b3302b',Verde:'#3c6a4a',Bege:'#cdbb98',Marrom:'#6a4a33',Vinho:'#6b2232',Dourado:'#b89a52'};
+const CORES={Branco:'#f2f3f1',Prata:'#b9bfc4',Preto:'#24272b',Cinza:'#767e86',Azul:'#2d5898',Vermelho:'#b3302b',Verde:'#3c6a4a',Bege:'#cdbb98',Marrom:'#6a4a33',Vinho:'#6b2232',Dourado:'#b89a52',Amarelo:'#e3b62b',Laranja:'#e0752d',Roxo:'#6a3d8f',Rosa:'#d97a9a',Bronze:'#9a6b3f','Várias cores':'#8a8f96','Não informada':'#9aa0a6'};
 const CAMBIOS=['Automático','Manual','Automatizado','CVT'];
-const COMBS=['Flex','Gasolina','Diesel','Híbrido','Elétrico'];
+const COMBS=['Flex','Gasolina','Álcool','Diesel','Elétrico','Híbrido','GNV','Tetrafuel','Gasolina e Elétrico','Diesel e Elétrico','Outros'];
 const CARROC=['Hatch','Sedã','SUV / Utilitário esportivo','Picape','Cupê','Minivan','Van/Utilitário','Wagon/Perua'];
-const OPCIONAIS=['Ar-condicionado','Air bag','Trio elétrico','Direção elétrica','Freio ABS','Turbo','Blindado','7 lugares','Farol de neblina','Teto solar','Câmera de ré','Multimídia','Bancos de couro','Piloto automático'];
+const OPCIONAIS=['7 lugares','Adaptado para deficiente físico','Aerofólio','Airbag cortina','Airbag lateral','Airbag motorista','Airbag passageiro','Ajuste de altura','Ajuste elétrico','Alarme','Alforges/bolsas','Aquecimento dos bancos','Ar-condicionado digital','Ar-condicionado','Ar-quente','Assistente de partida em rampa','Bagageiro','Banco bipartido','Bancos de couro','Bancos dianteiros com aquecimento','Bancos elétricos','Baús laterais','Blindado','Borracha de porta','Calotas','Câmbio automático','Câmera de ré','Capota marítima','Cavalete central','CD player','CD player com MP3','Chamada de assistência de emergência','Chave presença','Comando de áudio e telefone no volante','Computador de bordo','Conexão Bluetooth','Conta-giros','Controle automático de velocidade','Controle de estabilidade','Controle de tração','Desembaçador traseiro','Direção assistida','Direção elétrica','Direção hidráulica','Disqueteira','Distribuição eletrônica de frenagem','Encosto de cabeça traseiro','Engate de reboque','Entrada USB','Escapamento esportivo','Espelhamento de tela no celular','Farol de LED','Farol de milha','Farol de neblina','Farol xenônio','Freio a disco','Freio CBS','Freios ABS','Freio de estacionamento elétrico','Indicador de marcha','ISOFIX','Kit gás','Kit multimídia','Limpador traseiro','Luz diurna de LED','MP3 player','Navegador GPS','Paddle shift','Painel digital','Para-choques na cor do veículo','Para-brisa','Partida elétrica','Piloto automático','Porta-copos','Protetor de caçamba','Protetor de carenagem','Protetor de corrente','Protetor de manopla','Protetor de motor','Rádio FM/AM','Regulagem de altura do banco','Retrovisor fotocrômico','Retrovisores elétricos','Rodas de liga leve','Saída de ar nos bancos traseiros','Sensor de chuva','Sensor de estacionamento','Sensor de farol','Alarme volumétrico e periférico','Som','Start/Stop','Suspensão monoshock','Teto panorâmico','Teto solar','Teto zenith','Toca-fitas','Tração 4x2','Tração 4x4','Tração integral','Travas elétricas','Trio elétrico','Turbo','Turbo intercooler','Vidros elétricos dianteiros','Vidros elétricos traseiros','Volante com regulagem de altura','Volante multifunção','Volante revestido em couro','Xenon'];
 const ETAPAS=[['avaliacao','Avaliação'],['precificacao','Precificação'],['negEntrada','Negociação de entrada'],['pericia','Perícia'],['recebimento','Recebimento'],['servicos','Serviços'],['anuncios','Anúncios'],['negSaida','Negociação de saída']];
-const REC=[['manual','Manual do veículo'],['chave','Chave cópia'],['certificado','Certificado de garantia'],['seguranca','Itens de segurança']];
+const REC=[['manual','Manual do veículo'],['chave','Chave cópia'],['certificado','Certificado de garantia (manual com carimbo das revisões)'],['seguranca','Itens obrigatórios: chave de roda, macaco e estepe']];
 const LADO=s=>['Caixa de ar '+s,'Para-lama dianteiro '+s,'Lanterna lateral '+s,'Pneu dianteiro '+s,'Roda dianteira '+s,'Retrovisor '+s,'Porta dianteira '+s,'Maçaneta dianteira '+s,'Porta traseira '+s,'Pneu traseiro '+s,'Roda traseira '+s,'Lateral traseira '+s];
 const AREAS=[
  {k:'interior',n:'Interior',fotos:['Painel com KM','Interior'],itens:['Banco do motorista','Banco do passageiro','Banco traseiro','Forração de portas','Carpete','Revestimento do painel','Forração do teto','Volante','Manopla do câmbio','Console','Ar-condicionado','Marcadores do painel','Chave','Bateria']},
@@ -540,6 +569,25 @@ const INT_STEPS=['Comprador e vendedor','Veículo','Débitos','Serviços','Pagam
 const CONS_TIPOS=[['basica','Básica (dados e restrições)',18],['completa','Completa (débitos, gravame, recall)',42],['leilao','Leilão e sinistro',36],['roubo','Roubo e furto',12],['proprietarios','Histórico de proprietários',29]];
 const CONS_ST={fila:['Na fila','dot'],progresso:['Em progresso','info dot'],finalizado:['Finalizado','ok dot'],erro:['Erro','bad dot']};
 const AG_TIPOS=['Documento','Serviço'];
+
+/* v4: ficha técnica, anúncios, perícia, cliente */
+const TRACOES=['','4x2 dianteira','4x2 traseira','4x4','AWD (integral)'];
+const CABINES=['','Simples','Estendida','Dupla'];
+const ESPECIES=['','Passageiro','Carga','Misto','Especial','Coleção'];
+const GARANTIAS=['3 meses (loja)','6 meses (loja)','Garantia de fábrica','Sem garantia'];
+const TAGS_ANUNCIO=['Baixa KM','Único dono','Aceita troca','Revisões na concessionária','Oportunidade','Garantia','Veículo periciado','Zero KM','Blindado','Transferência grátis','IPVA pago','Revisado no Agenda do Carro','Veículo alienado','Licenciado','PCD','Abaixo da FIPE'];
+const PRIORIDADES=[['alta','Alta'],['normal','Normal'],['nao','Não publicar']];
+const PERICIA_ST=[['pendente','Pendente',''],['ressalvas','Conforme com ressalvas','warn'],['aprovado','Aprovado','ok'],['reprovado','Reprovado','bad'],['na','Não se aplica','']];
+const REPARO_TIPOS=['Funilaria','Pintura','Martelinho','Mecânica','Elétrica','Suspensão','Pneu','Vidro','Tapeçaria','Estética','Troca de peça','Outro'];
+const SERV_ITEM_ST={pendente:['Aguardando aprovação','dot'],aprovado:['Aprovado','info dot'],recusado:['Recusado','bad dot'],execucao:['Em execução','warn dot'],concluido:['Concluído','ok dot'],vistoriado:['Vistoriado','ok dot']};
+const SEG_VENDA_DIRETA=['','CNPJ','Produtor rural','Taxista','PCD','Frotista'];
+const UFS=['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
+const IND_IE=[['9','9 - Não contribuinte'],['1','1 - Contribuinte ICMS'],['2','2 - Contribuinte isento']];
+const PREF_CONTATO=['WhatsApp','Ligação','E-mail','SMS'];
+const ANUN_ST={publicado:['Publicado','ok dot'],erro:['Com erro','bad dot'],errodest:['Com erro no destaque','bad dot'],errodesp:['Com erro na despublicação','bad dot'],despublicado:['Despublicado','dot'],fila:['Na fila de publicação','info dot'],filadesp:['Na fila de despublicação','info dot'],nao:['Não publicado','dot']};
+/* regras dos portais (simuladas para validar anúncios) */
+const PORTAL_REGRAS={site:{fotos:1,descMax:5000},webmotors:{fotos:8,descMax:3000,destaques:5},olx:{fotos:6,descMax:6000,destaques:3},napista:{fotos:4,descMax:2000,destaques:3},usados:{fotos:5,descMax:2000},icarros:{fotos:6,descMax:3000},mercadolivre:{fotos:6,descMax:5000},_:{fotos:4,descMax:3000}};
+const REL_GRUPOS=[['estoque','Estoque'],['integracoes','Integrações'],['avaliacao','Avaliação'],['leads','Leads'],['clientes','Clientes'],['negociacao','Negociação'],['financeiro','Financeiro']];
 /* ================= dados de exemplo (fictícios) ================= */
 function seed(){
  const S={seq:100,veh:{},cli:{},forn:{},neg:{},lead:{},site:{banners:[],depo:[],dest:[]},fin:{titulos:[],baixas:{},retornos:{},adiant:[]},agreg:[],inter:{},consultas:[],notas:[],cfg:{}};
@@ -611,7 +659,7 @@ function seed(){
   const [placa,marca,modelo,versao,fab,mod,cor,km,cambio,comb,carroc,estoque,neg,compra,venda,fipe,dias,etapa,fotos,ci]=t;
   const id=nid();
   const v={id,placa,zeroKm:km===0,marca,modelo,versao,anoFab:fab,anoMod:mod,cor,km,cambio,combustivel:comb,carroceria:carroc,portas:carroc==='Cupê'?2:4,
-   opcionais:['Ar-condicionado','Air bag','Trio elétrico','Freio ABS','Direção elétrica'].concat(i%3===0?['Multimídia','Câmera de ré']:[]).concat(fipe>150000?['Bancos de couro','Teto solar']:[]),
+   opcionais:['Ar-condicionado','Airbag motorista','Airbag passageiro','Trio elétrico','Freios ABS','Direção elétrica','Computador de bordo'].concat(i%3===0?['Kit multimídia','Câmera de ré','Conexão Bluetooth']:[]).concat(fipe>150000?['Bancos de couro','Teto solar','Sensor de estacionamento']:[]).concat(carroc==='Picape'?['Protetor de caçamba','Tração 4x4']:[]),
    renavam:String(98765400000+id*7919).slice(0,11),chassi:'',tipo:'Carro',estoque,neg,status:etapa==='vendido'?'vendido':'estoque',entrada:dAgo(dias),saida:etapa==='vendido'?dAgo(Math.max(2,Math.round(dias/3))):null,
    compra,venda,promo:(i===6?59900:0),fipe,negEntrada:!['aval','preco'].includes(etapa),clienteId:CI[ci],
    pericia:{status:'pendente',data:'',forn:F[4],obs:''},receb:{manual:'pendente',chave:'pendente',certificado:'pendente',seguranca:'pendente'},garantia:'3 meses (loja)',
@@ -690,6 +738,7 @@ function seed(){
  S.site.banners=[{id:nid(),titulo:'Seminovos com garantia de 3 meses',sub:'Todos os carros periciados e revisados',ativo:true},{id:nid(),titulo:'Avaliamos seu usado na hora',sub:'Traga seu carro e saia com a proposta',ativo:true},{id:nid(),titulo:'Feirão de Novembro',sub:'Condições especiais em SUVs',ativo:false}];
  S.site.depo=[{id:nid(),nome:'Tatiane Moura',texto:'Atendimento rápido e o carro veio exatamente como anunciado.'},{id:nid(),nome:'Gustavo Fiorin',texto:'Deixei meu carro em consignação e vendeu em menos de duas semanas.'}];
  S.site.dest=[V[9],V[8],V[2],V[17]];
+ enrichSeed(S,{U,F,CI,V,VEND,AVAL,NM});
  Object.keys(S.fin.baixas).forEach(k=>{if(typeof S.fin.baixas[k]==='string')S.fin.baixas[k]={d:S.fin.baixas[k],conta:S.cfg.contasBanc[0].id}});
  return S;
 }
@@ -698,6 +747,117 @@ function buildServicosFrom(v,custos){
  Object.entries(v.aval.itens).forEach(([k,o])=>{if(o.s==='reparo')out.push({n:k.split('|')[1],orig:'Avaliação',f:null,prev:+o.v||0,real:0,feito:false,st:'afazer',data:''})});
  Object.entries(v.aval.serv).forEach(([n,val])=>{if(+val>0){const c=(custos||[]).find(x=>x.nome===n);out.push({n,orig:'Preparação',f:c?c.forn:null,prev:+val,real:0,feito:false,st:'afazer',data:''})}});
  return out;
+}
+/* ================= enriquecimento dos dados de exemplo (v4) ================= */
+const DT=(d,h=9,m=0)=>{if(d>=TODAY_ISO){d=TODAY_ISO;h=Math.min(h,7)}return `${d}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`};
+function enrichSeed(S,{U,F,CI,V,VEND,AVAL,NM}){
+ const C=S.cfg;
+ const nid=()=>++S.seq;
+ const st=(por,d,h,m)=>({por,em:DT(d,h,m)});
+ C.loja=Object.assign({impostoPct:2.3,comissaoCompraPct:0.5,comissaoVendaPct:1,custoGarantia:600,margemAlvo:8},C.loja);
+ /* clientes completos */
+ const fem=['Mariana','Luciana','Patrícia','Renata','Helena'];
+ const ruas=['Rua das Palmeiras','Av. Paraná','Rua Ipiranga','Rua Santos Dumont','Av. Tiradentes','Rua Perobal','Rua Jacarandá','Av. Brasil','Rua Pernambuco','Rua São Paulo'];
+ Object.values(S.cli).forEach((c,i)=>{
+  const [cid,uf]=(c.cidade||'Umuarama-PR').split('-');
+  Object.assign(c,{tipo:'PF',sexo:fem.some(n=>c.nome.startsWith(n))?'F':'M',rg:`${String(4+i)}.${String(120+i*17).slice(-3)}.${String(300+i*41).slice(-3)}-${i%9}`,estrangeiro:false,docEstr:'',celular:c.tel,telefone:i%3===0?'(44) 3622-'+String(1000+i*77).slice(-4):'',obs:'',cep:'87'+String(500+i*13).slice(-3)+'-'+String(100+i*7).slice(-3),endereco:ruas[i%ruas.length],numero:String(100+i*37),complemento:i%4===0?'Apto 12':'',bairro:['Centro','Zona I','Zona II','Jardim América','Parque Industrial'][i%5],municipio:cid,uf:uf||'PR',indIE:'9',ie:'',im:'',vendaDireta:false,segmento:'',prefContato:PREF_CONTATO[i%3],aceitaOfertas:i%4!==2,origem:['Loja','Indicação','Instagram','WebMotors','Site'][i%5],resp:null,cad:st(VEND[i%4],c.criado,9+i%8,(i*11)%60),hist:[]});
+  c.hist.push({por:c.cad.por,em:c.cad.em,txt:'Cliente cadastrado'});
+  if(i%3===1)c.hist.unshift({por:VEND[(i+1)%4],em:DT(dAgo(Math.max(1,daysSince(c.criado)-20)),14,(i*13)%60),txt:'E-mail alterado; Celular alterado'});
+ });
+ const pj=nid();S.cli[pj]={id:pj,nome:'Locadora Horizonte Ltda',tel:'(44) 3624-8080',email:'frota@horizonte.exemplo.com',nasc:'',cidade:'Umuarama-PR',doc:'12.345.678/0001-90',criado:dAgo(60),tipo:'PJ',sexo:'',rg:'',estrangeiro:false,docEstr:'',celular:'(44) 99880-1010',telefone:'(44) 3624-8080',obs:'Compra frota a cada 18 meses. Prefere picapes diesel.',cep:'87501-220',endereco:'Av. Rio Grande do Sul',numero:'2100',complemento:'Sala 4',bairro:'Centro',municipio:'Umuarama',uf:'PR',indIE:'1',ie:'9081234567',im:'45123',vendaDireta:true,segmento:'Frotista',prefContato:'E-mail',aceitaOfertas:true,origem:'Prospecção',resp:{nome:'Sérgio Albuquerque',sexo:'M',cpf:'321.654.987-00',email:'sergio@horizonte.exemplo.com',tel:'(44) 99880-2020',nasc:'1975-04-18'},cad:st(VEND[2],dAgo(60),10,15),hist:[]};
+ S.cli[pj].hist.push({por:VEND[2],em:DT(dAgo(60),10,15),txt:'Cliente cadastrado'});
+ /* veículos */
+ const POT={Renegade:185,Amarok:258,S10:207,Ranger:200,X5:265,HB20S:128,Ka:136,'Discovery Sport':180,Q5:367,'911':385,A3:150,'218i':140,Equinox:172,'Haval H6':243,Sandero:118,CrossFox:104,Toro:170,'Corolla Cross':177,'HR-V':177,'Tiggo 7':187};
+ const gerente=VEND[2];
+ Object.values(S.veh).forEach((v,i)=>{
+  const ent=v.entrada, avalDia=v.aval.data;
+  v.cad=st(v.aval.solicitante||VEND[i%4],avalDia,8+i%9,(i*7)%60);
+  v.aval.por=v.aval.avaliador;
+  v.aval.inicio=v.aval.done?DT(avalDia,10+i%6,(i*5)%50):'';
+  v.aval.fim=v.aval.done?DT(avalDia,11+i%6,(i*5)%50):'';
+  v.aval.qtd=v.aval.done?1+(i%4===0?1:0):0;
+  Object.entries(v.aval.itens).forEach(([k,o],j)=>{if(o.s==='reparo'){o.tipo=REPARO_TIPOS[(i+j)%6];o.obs=['Risco profundo','Amassado leve','Desgaste acima do normal','Peça trincada','Folga ao rodar','Mancha no revestimento'][(i+j)%6]}});
+  v.aval.recusados={};
+  v.tracao=v.carroceria==='Picape'?'4x4':/SUV/.test(v.carroceria)&&['Discovery Sport','X5','Q5'].includes(v.modelo)?'AWD (integral)':'4x2 dianteira';
+  v.cabine=v.carroceria==='Picape'?'Dupla':'';
+  v.especie=v.carroceria==='Picape'?'Misto':'Passageiro';
+  v.potencia=POT[v.modelo]||120;
+  v.consumoU=v.combustivel==='Diesel'?'9,8':v.combustivel==='Híbrido'?'15,2':'10,4';
+  v.consumoR=v.combustivel==='Diesel'?'11,9':v.combustivel==='Híbrido'?'14,1':'12,8';
+  v.crv=v.zeroKm?'':String(23000000000+v.id*1013).slice(0,12);
+  v.crlv=v.zeroKm?'':`crlv-${(v.placa||'').toLowerCase()}.pdf`;
+  v.semFipe=false;
+  v.garantiaVenc=v.garantia.includes('3 meses')?addMonths(ent,3).slice(0,7):v.garantia.includes('6 meses')?addMonths(ent,6).slice(0,7):'';
+  v.bloqueado=null;
+  v.tags=[];if(v.km<35000&&!v.zeroKm)v.tags.push('Baixa KM');if(v.pericia.status==='aprovado')v.tags.push('Veículo periciado');if(v.garantia!=='Sem garantia')v.tags.push('Garantia');if(v.venda&&v.fipe&&(v.promo>0?v.promo:v.venda)<v.fipe)v.tags.push('Abaixo da FIPE');if(i%5===0)v.tags.push('Único dono');v.tags=v.tags.slice(0,4);
+  v.site={prioridade:i%6===0?'alta':'normal',video:i===9?'https://www.youtube.com/watch?v=exemplo911':'',versao:'',desc:''};
+  v.cabide=v.opcionais.slice(0,6);
+  v.capa=0;v.destaques={};v.fila={};v.despErr={};
+  /* precificação com histórico */
+  v.prec={simCompra:{venda:v.venda||v.fipe,margemPct:C.loja.margemAlvo,garantia:C.loja.custoGarantia},simVenda:{venda:v.venda||v.fipe},atacado:v.estoque==='atacado'?Math.round((v.venda||v.fipe)*0.96/100)*100:0,promoAtacado:0,promoOn:v.promo>0,atualizarPortais:true,histCompra:[],histVenda:[],aprovadoEm:''};
+  const dPrec=dAgo(Math.max(0,daysSince(ent)));
+  if(v.compra){v.prec.histCompra.push({por:gerente,valor:Math.round(v.compra*0.95/1000)*1000,em:DT(dPrec,9,14)});v.prec.histCompra.push({por:gerente,valor:v.compra,em:DT(dPrec,15,5)})}
+  if(v.venda){v.prec.histVenda.push({por:gerente,showroom:v.venda+5000,atacado:0,em:DT(dPrec,15,5)});if(i%3===0)v.prec.histVenda.push({por:gerente,showroom:v.venda,atacado:v.prec.atacado,em:DT(dAgo(Math.max(0,daysSince(ent)-10)),16,25)})}
+  if(v.negEntrada)v.prec.aprovadoEm=DT(dPrec,16,0);
+  v.obs={precificacao:i%4===0&&v.venda?[{por:gerente,em:DT(dPrec,15,20),txt:'Proprietário aceita baixar até R$ 3 mil se fechar à vista.'}]:[],recebimento:i%5===1?[{por:NM(U[9]),em:DT(dAgo(Math.max(0,daysSince(ent)-1)),11,0),txt:'Chave cópia fica com o proprietário até a transferência.'}]:[],pericia:[]};
+  v.pericia.laudos=v.pericia.status==='aprovado'?[`laudo-cautelar-${(v.placa||'0km').toLowerCase()}.pdf`]:[];
+  v.pericia.hist=v.pericia.status!=='pendente'?[{st:v.pericia.status,por:gerente,em:DT(v.pericia.data||ent,10,52)}]:[];
+  v.receb.fotos={};REC.forEach(([k])=>{if(v.receb[k]==='entregue')v.receb.fotos[k]=true});
+  /* ordens de serviço detalhadas */
+  v.servicos.forEach((s,j)=>{
+   s.status=s.st==='feito'?(j%2?'vistoriado':'concluido'):s.st==='fazendo'?'execucao':'aprovado';
+   s.maoObra={forn:s.f,valor:s.feito?s.real:s.prev,nf:s.feito?'NF '+(4000+(s.os||j)):''};
+   s.pecas={forn:null,valor:0,nf:''};
+   s.local=/Polimento|Higieniza|Limpeza/.test(s.n)?'interno':'externo';
+   s.orcamento=false;s.obsOS='';
+   s.vist=s.status==='vistoriado'?{por:gerente,em:DT(s.data||ent,17,10)}:null;
+  });
+  /* auditoria por etapa */
+  const L={};const add=(k,por,d,h,m)=>L[k]={criado:st(por,d,h,m),atualizado:null};
+  add('ficha',v.cad.por,avalDia,(+v.cad.em.slice(11,13)),+v.cad.em.slice(14,16));
+  add('cliente',v.cad.por,avalDia,(+v.cad.em.slice(11,13)),Math.max(0,+v.cad.em.slice(14,16)-1));
+  if(v.aval.done)L.avaliacao={criado:{por:v.aval.avaliador,em:v.aval.fim},atualizado:null};
+  if(v.venda)add('precificacao',gerente,dPrec,15,5);
+  if(v.negEntrada)add('negEntrada',gerente,dPrec,16,0);
+  if(v.pericia.status!=='pendente')add('pericia',gerente,v.pericia.data||ent,10,52);
+  if(REC.some(([k])=>v.receb[k]!=='pendente'))add('recebimento',NM(U[9]),dAgo(Math.max(0,daysSince(ent)-1)),10,40);
+  if(v.servicos.length)add('servicos',NM(U[6]),dAgo(Math.max(0,daysSince(ent)-1)),8,30);
+  if(Object.values(v.pubs).some(Boolean))add('anuncios',NM(U[10]),dAgo(Math.max(0,daysSince(ent)-3)),14,0);
+  if(L.ficha&&i%3===0)L.ficha.atualizado=st(NM(U[10]),dAgo(Math.max(0,daysSince(ent)-4)),11,30);
+  if(L.precificacao&&v.prec.histVenda.length>1)L.precificacao.atualizado=st(gerente,v.prec.histVenda[1].em.slice(0,10),16,25);
+  v.log=L;
+  v.hist=[];const H=(o,txt)=>o&&v.hist.push({por:o.por,em:o.em,txt});
+  H(L.ficha&&L.ficha.criado,'Veículo cadastrado');
+  H(L.avaliacao&&L.avaliacao.criado,`Avaliação finalizada · previsão de gastos ${brl(v.servicos.reduce((a,s)=>a+s.prev,0))}`);
+  v.prec.histCompra.forEach(h=>v.hist.push({por:h.por,em:h.em,txt:`Precificação de compra: ${brl(h.valor)}`}));
+  v.prec.histVenda.forEach(h=>v.hist.push({por:h.por,em:h.em,txt:`Precificação de venda: ${brl(h.showroom)}`}));
+  H(L.pericia&&L.pericia.criado,`Perícia: ${(PERICIA_ST.find(p=>p[0]===v.pericia.status)||[])[1]}`);
+  H(L.recebimento&&L.recebimento.criado,'Recebimento do veículo registrado');
+  H(L.anuncios&&L.anuncios.criado,'Anúncios publicados');
+  if(v.status==='vendido')v.hist.push({por:VEND[1],em:DT(v.saida,17,0),txt:'Veículo vendido'});
+  v.hist.sort((a,b)=>b.em.localeCompare(a.em));
+ });
+ /* anúncios: destaques, erros de exemplo */
+ const olx=C.portais.find(p=>p.k==='olx');if(olx&&olx.contas[0])olx.contas[0].erro='auth';
+ Object.values(S.veh).filter(v=>v.pubs.webmotors&&v.status==='estoque').slice(0,6).forEach(v=>v.destaques.webmotors=true);
+ const hrv=S.veh[V[18]];if(hrv){hrv.despErr.napista=true}
+ /* histórico de vendas dos últimos 2 meses (painel e relatórios) */
+ const tpl=S.veh[V[0]];
+ const SOLD=[['Volkswagen','Polo','Highline 1.0 TSI Aut.',2022,2023,'Branco',38200,'Hatch',82000,92900,52,4,0],['Jeep','Compass','Longitude T270 Flex Aut.',2021,2022,'Preto',61500,'SUV / Utilitário esportivo',118000,132900,60,12,3],['Toyota','Hilux','SRV 2.8 4x4 Diesel Aut.',2020,2021,'Prata',98300,'Picape',178000,199900,75,18,6],['Hyundai','Creta','Limited 1.0 TGDI Aut.',2023,2023,'Cinza',27400,'SUV / Utilitário esportivo',104000,116900,40,25,8],['Fiat','Pulse','Impetus 1.0 Turbo Aut.',2023,2024,'Vermelho',19800,'SUV / Utilitário esportivo',96000,107500,35,30,9],['Chevrolet','Onix','LTZ 1.0 Turbo Aut.',2022,2022,'Prata',44100,'Hatch',71000,79900,48,33,2],['Honda','Civic','Touring 1.5 Turbo',2021,2021,'Preto',52600,'Sedã',128000,142900,70,2,5],['Nissan','Kicks','Advance 1.6 CVT',2022,2023,'Azul',35800,'SUV / Utilitário esportivo',88000,98900,44,6,7]];
+ SOLD.forEach(([marca,modelo,versao,fab,mod,cor,km,carroc,compra,venda,dEnt,dSai,ci],k)=>{
+  const id=nid();const v=JSON.parse(JSON.stringify(tpl));
+  Object.assign(v,{id,placa:['RHT2A10','SXB4C21','QPC9D32','TAC1E43','TBD5F54','RIO3G65','QKN8H76','SPA6J87'][k],marca,modelo,versao,anoFab:fab,anoMod:mod,cor,km,carroceria:carroc,cambio:'Automático',combustivel:carroc==='Picape'?'Diesel':'Flex',compra,venda,promo:0,fipe:Math.round(venda*1.02/100)*100,status:'vendido',entrada:dAgo(dEnt),saida:dAgo(dSai),neg:'proprio',estoque:'showroom',clienteId:CI[(ci+3)%CI.length]});
+  Object.keys(v.pubs).forEach(p=>v.pubs[p]=false);v.destaques={};v.despErr={};v.fila={};
+  v.hist=[{por:VEND[k%4],em:DT(v.saida,17,0),txt:'Veículo vendido'},{por:VEND[k%4],em:DT(v.entrada,9,0),txt:'Veículo cadastrado'}];
+  v.cad={por:VEND[k%4],em:DT(v.entrada,9,0)};
+  S.veh[id]=v;
+  const nId=nid();const comprador=CI[(ci+5)%CI.length];const fin=k%2===0;
+  const pg=fin?[{forma:'Financiamento',valor:Math.round(venda*0.6/100)*100,data:v.saida,quem:'Banco',banco:['748','237','033','422'][k%4]},{forma:'Pix',valor:venda-Math.round(venda*0.6/100)*100,data:v.saida,quem:'Cliente'}]:[{forma:'Pix',valor:venda,data:v.saida,quem:'Cliente'}];
+  S.neg[nId]={id:nId,tipo:'venda',status:'finalizada',clienteId:comprador,saidaId:id,valorSaida:venda,entradas:[],debitos:[],desconto:0,pagamentos:pg,agenda:{entrega:v.saida,hEntrega:'16:00',receb:'',hReceb:''},vendedor:VEND[k%3],criado:dAgo(dSai+1),hist:[{a:'Finalizada',q:VEND[k%3],d:v.saida},{a:'Aprovada',q:gerente,d:v.saida},{a:'Criada',q:VEND[k%3],d:dAgo(dSai+1)}],coments:[],assin:{}};
+  pg.forEach((p,i)=>S.fin.baixas[`n${nId}p${i}`]={d:p.quem==='Banco'?dAgo(Math.max(0,dSai-3)):p.data,conta:C.contasBanc[0].id});
+  if(fin)S.fin.retornos[`n${nId}p0`]={dataAprov:v.saida,pct:(C.bancos.find(b=>b.cod===pg[0].banco)||{}).pct||1.5,valor:null,plus:k===0?400:0,prest:k===2,prestValor:k===2?280:0,status:dSai>15?'liquidado':'aberto',liq:dSai>15?dAgo(dSai-10):''};
+  if(fin&&dSai>15)S.fin.baixas[`ret-n${nId}p0`]={d:dAgo(dSai-10),conta:C.contasBanc[0].id};
+ });
 }
 /* ================= estado ================= */
 let S;
@@ -781,9 +941,9 @@ const quadroById=id=>CFG().quadros.find(q=>q.id===+id);
 const vehList=()=>vals(S.veh);
 const estoque=()=>vehList().filter(v=>v.status==='estoque');
 const preco=v=>v.promo>0?v.promo:v.venda;
-const pubCount=v=>portaisAtivos().filter(([k])=>v.pubs[k]).length;
-const gastoPrev=v=>v.servicos.reduce((a,s)=>a+(+s.prev||0),0);
-const gastoReal=v=>v.servicos.reduce((a,s)=>a+(s.feito?(+s.real||0):0),0);
+const pubCount=v=>portaisAtivos().filter(([k])=>anunStatus(v,k)==='publicado').length;
+const gastoPrev=v=>v.servicos.reduce((a,s)=>a+(s.status==='recusado'?0:(+s.prev||0)),0);
+const gastoReal=v=>v.servicos.reduce((a,s)=>a+(s.feito&&s.status!=='recusado'?(+s.real||0):0),0);
 const nome=v=>v?`${v.marca} ${v.modelo}`:'—';
 const negsDoVeic=id=>vals(S.neg).filter(n=>n.saidaId===id||n.entradas.some(e=>e.vid===id));
 const negAberta=id=>negsDoVeic(id).find(n=>['rascunho','pendente-contrato'].includes(n.status));
@@ -838,7 +998,7 @@ function negCalc(n){
  return {saida,ent,deb,total,pago,falta:Math.round((Math.abs(total)-pago)*100)/100};
 }
 function buildServicos(v){return buildServicosFrom(v,CFG().custos)}
-function setServSt(s,st){s.st=st;s.feito=st==='feito';if(st==='feito'){if(!(+s.real))s.real=s.prev;s.data=s.data||TODAY_ISO}else s.data=''}
+function setServSt(s,st){normServ(s);s.st=st;s.feito=st==='feito';if(st==='feito'){const tot=(+s.maoObra.valor||0)+(+s.pecas.valor||0);if(!(+s.real))s.real=tot||s.prev;s.data=s.data||TODAY_ISO;if(s.status!=='vistoriado')s.status='concluido'}else{s.data='';s.vist=null;s.status=st==='fazendo'?'execucao':'aprovado'}if(st!=='afazer'&&!s.inicio)s.inicio=TODAY_ISO}
 
 /* ---------- financeiro: títulos ---------- */
 function contaPara(forma,tipo){
@@ -893,8 +1053,10 @@ function titulos(){
   });
  });
  vehList().forEach(v=>v.servicos.forEach((s,i)=>{
-  if(!s.feito||!(+s.real))return;
-  add({key:`s${v.id}_${i}`,tipo:'P',venc:s.prevPag||s.data||v.entrada,pessoa:s.f?fornNome(s.f):'Fornecedor não informado',desc:`OS ${s.os||'—'} · ${s.n} · ${nome(v)} ${v.placa||''}`,conta:contaPorNome('Custo com manutenção - Preparação'),valor:+s.real,origem:'serv',ref:v.id});
+  if(!s.feito||!(+s.real)||s.status==='recusado')return;
+  const pc=s.pecas&&s.pecas.forn&&(+s.pecas.valor)?+s.pecas.valor:0;
+  if(pc)add({key:`s${v.id}_${i}p`,tipo:'P',venc:s.prevPag||s.data||v.entrada,pessoa:fornNome(s.pecas.forn),desc:`OS ${s.os||'—'} · peças · ${s.n} · ${nome(v)} ${v.placa||''}`,conta:contaPorNome('Custo com manutenção - Preparação'),valor:pc,origem:'serv',ref:v.id});
+  add({key:`s${v.id}_${i}`,tipo:'P',venc:s.prevPag||s.data||v.entrada,pessoa:(s.maoObra&&s.maoObra.forn)||s.f?fornNome((s.maoObra&&s.maoObra.forn)||s.f):'Fornecedor não informado',desc:`OS ${s.os||'—'} · ${s.n} · ${nome(v)} ${v.placa||''}`,conta:contaPorNome('Custo com manutenção - Preparação'),valor:Math.max(0,+s.real-pc),origem:'serv',ref:v.id});
  }));
  S.agreg.forEach(g=>{
   const v=S.veh[g.vid];const c=CFG().custos.find(x=>x.id===g.custo);
@@ -1033,6 +1195,90 @@ function lineChart(pts){
   ${pts.map((p,i)=>`<rect x="${x(i)-(W-L-R)/(pts.length-1)/2}" y="${T}" width="${(W-L-R)/(pts.length-1)}" height="${H-T-B}" fill="transparent" data-i="${i}" data-x="${x(i)}" data-y="${y(p.venda)}"/>`).join('')}
  </svg><div class="tip" hidden></div></div>`;
 }
+/* ================= v4: auditoria, anúncios e utilidades ================= */
+const nowISO=()=>{const d=new Date();return `${TODAY_ISO}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
+const fmtDT=em=>em?`${dtf(em.slice(0,10))} às ${em.slice(11,16)||'00:00'}`:'—';
+function relTime(em){if(!em)return '';const d=daysSince(em.slice(0,10));if(d===0)return 'hoje';if(d===1)return 'ontem';if(d<7)return `há ${d} dias`;if(d<30)return `há ${Math.round(d/7)} semana${Math.round(d/7)>1?'s':''}`;return `há ${Math.round(d/30)} ${Math.round(d/30)>1?'meses':'mês'}`}
+const stamp=()=>({por:(typeof me==='function'&&me()?me().nome:'Sistema'),em:nowISO()});
+function touch(v,etapaK,txt){
+ if(!v)return;v.log=v.log||{};v.hist=v.hist||[];const s=stamp();
+ if(etapaK){if(!v.log[etapaK])v.log[etapaK]={criado:s,atualizado:null};else v.log[etapaK].atualizado=s}
+ if(txt)v.hist.unshift({por:s.por,em:s.em,txt});
+}
+const CAMPO_ETAPA=[[/^(placa|renavam|chassi|crv|crlv|tipo|zeroKm|semFipe|marca|modelo|versao|anoFab|anoMod|cor|km|cambio|combustivel|carroceria|portas|tracao|cabine|especie|potencia|consumoU|consumoR|opcionais|garantiaVenc)$/,'ficha'],[/^(compra|venda|promo|fipe|neg|estoque|negEntrada|prec\.)/,'precificacao'],[/^pericia\./,'pericia'],[/^(receb\.|garantia$)/,'recebimento'],[/^servicos\./,'servicos'],[/^(pubs|descricao|fotos|tags|site|cabide|destaques)/,'anuncios'],[/^aval\./,'avaliacao']];
+const etapaDoCampo=sub=>(CAMPO_ETAPA.find(([re])=>re.test(sub))||[])[1]||'ficha';
+const CAMPO_LABEL={placa:'Placa',renavam:'Renavam',chassi:'Chassi',crv:'Número do CRV',marca:'Marca',modelo:'Modelo',versao:'Versão',anoFab:'Ano de fabricação',anoMod:'Ano modelo',cor:'Cor',km:'Quilometragem',cambio:'Câmbio',combustivel:'Combustível',carroceria:'Carroceria',portas:'Portas',tracao:'Tração',cabine:'Cabine',especie:'Espécie',potencia:'Potência',consumoU:'Consumo urbano',consumoR:'Consumo rodoviário',compra:'Valor de compra',venda:'Valor de venda',promo:'Valor promocional',fipe:'FIPE',neg:'Tipo de negociação',estoque:'Tipo de estoque',negEntrada:'Aprovação do proprietário','pericia.status':'Status da perícia','pericia.forn':'Empresa da perícia','pericia.data':'Data do laudo',garantia:'Garantia',garantiaVenc:'Vencimento da garantia','prec.atacado':'Valor de venda atacado','prec.promoAtacado':'Promoção atacado','prec.promoOn':'Promoção','site.prioridade':'Prioridade no site','site.video':'Vídeo do YouTube',descricao:'Descrição do anúncio','aval.avaliador':'Avaliador','aval.feedback':'Feedback do avaliador'};
+const campoLabel=sub=>CAMPO_LABEL[sub]||(sub.startsWith('receb.')?(REC.find(r=>r[0]===sub.split('.')[1])||[])[1]:sub.startsWith('servicos.')?'Serviço':sub.split('.').pop());
+function fmtVal(sub,v){if(v===true)return 'sim';if(v===false)return 'não';if(v===''||v==null)return '—';if(/^(compra|venda|promo|fipe|prec\.(atacado|promoAtacado))$/.test(sub))return brl(v);if(sub==='km')return numf(v)+' km';if(sub==='pericia.status')return (PERICIA_ST.find(p=>p[0]===v)||[])[1]||v;if(sub==='pericia.forn')return fornNome(v);return String(v)}
+const getPathV=path=>path.split('.').reduce((o,k)=>o==null?o:o[k],S);
+function auditSet(path,old){
+ const ks=path.split('.');const nv=getPathV(path);
+ if(JSON.stringify(old)===JSON.stringify(nv))return;
+ if(ks[0]==='veh'){
+  const v=S.veh[ks[1]];if(!v)return;const sub=ks.slice(2).join('.');
+  if(/^servicos\.\d+\.(prev|real)$/.test(sub)||sub==='descricao'||sub.startsWith('site.desc')){touch(v,etapaDoCampo(sub),null);return}
+  touch(v,etapaDoCampo(sub),`${campoLabel(sub)}: ${fmtVal(sub,old)} → ${fmtVal(sub,nv)}`);
+  if(sub==='venda'||sub==='prec.atacado'){v.prec=v.prec||{histVenda:[],histCompra:[]};v.prec.histVenda.unshift({por:stamp().por,showroom:v.venda,atacado:v.prec.atacado||0,em:nowISO()})}
+  if(sub==='compra'){v.prec=v.prec||{histVenda:[],histCompra:[]};v.prec.histCompra.unshift({por:stamp().por,valor:v.compra,em:nowISO()})}
+  if(sub==='pericia.status'){v.pericia.hist=v.pericia.hist||[];v.pericia.hist.unshift({st:nv,por:stamp().por,em:nowISO()})}
+  if(sub==='prec.promoOn'&&!nv){v.promo=0;v.prec.promoAtacado=0}
+  if(sub==='negEntrada'&&nv)v.prec.aprovadoEm=nowISO();
+ }
+}
+/* ---------- anúncios: validação por portal ---------- */
+const regra=k=>Object.assign({},PORTAL_REGRAS._,PORTAL_REGRAS[k]||{});
+const portalNome=k=>(portaisAtivos().find(p=>p[0]===k)||PORTAIS_CAT.find(p=>p[0]===k)||[k,k])[1];
+function anuncioErros(v,k){
+ const E=[],R=regra(k),N=portalNome(k);
+ const e=(cod,msg,ajuste,sol,go)=>E.push({cod,msg,ajuste,sol,go});
+ if(v.bloqueado)e('bloq','Veículo bloqueado no sistema','O veículo foi bloqueado'+(v.bloqueado.motivo?': '+v.bloqueado.motivo:''),'Desbloqueie em Mais ações › Desbloquear veículo.',['resumo']);
+ if(k!=='site'){const p=CFG().portais.find(x=>x.k===k);
+  if(p&&!p.contas.length)e('conta','Nenhuma conta do portal cadastrada',`A loja ainda não conectou uma conta do ${N}`,`Cadastre a conta em Configurações › Anúncios › ${N}.`,['cfg']);
+  else if(p&&p.contas.some(c=>c.erro==='auth'))e('auth','Falha na autenticação com o portal',`O login da conta do ${N} expirou ou a senha foi trocada no portal`,`Abra Configurações › Anúncios › ${N}, confira o e-mail de acesso e clique em Reconectar.`,['cfg']);}
+ if(!(v.venda>0))e('preco','Preço não informado','O anúncio precisa de um valor de venda','Defina o valor de venda na etapa Precificação.',['precificacao']);
+ else if(v.fipe&&preco(v)<v.fipe*0.7)e('precofipe','Anúncio retido: preço muito abaixo da FIPE',`O preço (${brl(preco(v))}) está ${Math.round((1-preco(v)/v.fipe)*100)}% abaixo da FIPE`,'Revise o valor de venda ou a promoção na Precificação.',['precificacao']);
+ if(v.fotos<R.fotos)e('fotos',`Quantidade mínima de fotos não atingida (${v.fotos} de ${R.fotos})`,`O ${N} exige pelo menos ${R.fotos} fotos`,'Adicione fotos na aba Fotos do anúncio (proporção 4×3, mínimo 1920×1440, até 5 MB).',['anuncios','fotos']);
+ if(!v.zeroKm&&!v.placa)e('placa','Placa obrigatória para veículo usado','O portal não aceita usado sem placa','Informe a placa na Ficha técnica.',['ficha']);
+ if(!v.versao)e('versao','Versão do veículo não informada','O portal precisa da versão para classificar o anúncio','Escolha a versão na Ficha técnica.',['ficha']);
+ if(!v.zeroKm&&!(+v.km))e('km','Quilometragem zerada em veículo usado','Usado com 0 km é recusado pelo portal','Corrija a quilometragem na Ficha técnica ou marque como zero km.',['ficha']);
+ if(!v.cor||v.cor==='Não informada')e('cor','Cor não informada','A cor é obrigatória no portal','Escolha a cor na Ficha técnica.',['ficha']);
+ if((v.descricao||'').length>R.descMax)e('desc',`Descrição acima do limite (${v.descricao.length} de ${R.descMax} caracteres)`,`O ${N} corta ou recusa descrições longas`,'Encurte a descrição na aba Integrações do anúncio.',['anuncios','integracoes']);
+ return E;
+}
+function destaqueErro(v,k){
+ if(!v.destaques||!v.destaques[k])return null;const lim=regra(k).destaques;if(!lim)return null;
+ const L=estoque().filter(x=>x.destaques&&x.destaques[k]).sort((a,b)=>a.id-b.id);const pos=L.findIndex(x=>x.id===v.id);
+ return pos>=lim?{cod:'dest',msg:`Limite de destaques do plano atingido (${L.length} de ${lim})`,ajuste:`O plano do ${portalNome(k)} permite ${lim} destaques ao mesmo tempo`,sol:'Remova o destaque de outro veículo ou contrate mais destaques no portal.',go:['anuncios','integracoes']}:null;
+}
+function anunStatus(v,k){
+ v.fila=v.fila||{};v.despErr=v.despErr||{};
+ if(v.status!=='estoque')return v.despErr[k]?'errodesp':(v.pubs[k]?'filadesp':'despublicado');
+ if(v.despErr[k])return 'errodesp';
+ if(v.fila[k]==='desp')return 'filadesp';
+ if(!v.pubs[k])return 'nao';
+ if(v.fila[k]==='pub')return 'fila';
+ if(anuncioErros(v,k).length)return 'erro';
+ if(destaqueErro(v,k))return 'errodest';
+ return 'publicado';
+}
+function errosAnuncios(){
+ const out=[];
+ vehList().forEach(v=>portaisAtivos().forEach(([k,l])=>{const s=anunStatus(v,k);
+  if(s==='erro')anuncioErros(v,k).forEach(e=>out.push(Object.assign({v,k,portal:l,st:s},e)));
+  if(s==='errodest')out.push(Object.assign({v,k,portal:l,st:s},destaqueErro(v,k)));
+  if(s==='errodesp')out.push({v,k,portal:l,st:s,cod:'desp',msg:'O portal não confirmou a remoção do anúncio',ajuste:'O veículo foi vendido, mas o anúncio pode continuar no ar',sol:'Clique em Tentar novamente. Se o erro continuar, remova manualmente no painel do portal.',go:['anuncios','integracoes']});
+ }));
+ return out;
+}
+function normServ(s){
+ s.status=s.status||(s.st==='feito'?'concluido':s.st==='fazendo'?'execucao':'aprovado');
+ s.maoObra=s.maoObra||{forn:s.f||null,valor:s.feito?s.real:s.prev,nf:''};
+ s.pecas=s.pecas||{forn:null,valor:0,nf:''};
+ if(s.local==null)s.local='externo';if(s.orcamento==null)s.orcamento=false;
+ if(!s.os&&typeof S!=='undefined'&&S){S.osSeq=(S.osSeq||1040)+1;s.os=S.osSeq}
+ if(!s.criado)s.criado=s.inicio||TODAY_ISO;
+ return s;
+}
 /* ================= PAINEL ================= */
 function eventos(){
  const ev={};const add=(d,o)=>{if(!d)return;(ev[d]=ev[d]||[]).push(o)};
@@ -1053,7 +1299,7 @@ function calendario(){
  <div class="gr">${['D','S','T','Q','Q','S','S'].map(d=>`<span>${d}</span>`).join('')}${rows.map(d=>{const s=ISO(d);return `<button type="button" data-act="calSel" data-d="${s}" class="${d.getMonth()!==m?'out':''} ${ev[s]?'ev':''} ${s===TODAY_ISO?'today':''} ${s===sel&&s!==TODAY_ISO?'sel':''}" aria-label="${dtf(s)}${ev[s]?', '+ev[s].length+' compromissos':''}">${d.getDate()}</button>`}).join('')}</div></div>
  <div class="evs"><span class="eyebrow">${sel===TODAY_ISO?'Hoje':dtf(sel)}</span>${list.length?list.slice(0,5).map(e=>`<a class="ev" href="${e.href}"><b>${esc(e.t)}${e.h?' '+esc(e.h):''}</b><span class="muted">${esc(e.txt)}</span></a>`).join('')+(list.length>5?`<span class="small muted">+${list.length-5} compromissos</span>`:''):'<span class="small muted">Nenhum compromisso neste dia.</span>'}</div>`;
 }
-function viewPainel(){
+function painelEstoque(){
  const E=estoque(), n=E.length;
  const valor=E.reduce((a,v)=>a+(v.venda>0?preco(v):0),0);
  const custo=E.filter(v=>v.venda>0).reduce((a,v)=>a+v.compra+gastoPrev(v),0);
@@ -1111,7 +1357,7 @@ function viewPainel(){
 function viewVeiculos(){
  const f=UI.vf; const q=f.q.trim().toLowerCase();
  let L=vehList().filter(v=>{
-  if(f.status&&v.status!==f.status)return false;
+  if(f.status==='bloqueado'){if(!v.bloqueado||v.status!=='estoque')return false}else if(f.status&&v.status!==f.status)return false;
   if(f.estoque&&v.estoque!==f.estoque)return false;
   if(f.neg&&v.neg!==f.neg)return false;
   if(f.veic==='zero'&&!v.zeroKm)return false;
@@ -1125,7 +1371,7 @@ function viewVeiculos(){
  return phead('Veículos',`${L.length} ${L.length===1?'veículo':'veículos'} com os filtros atuais`,can('avaliacoes')?`<button class="btn pri" type="button" data-act="novaAval">${ic('plus','sm')} Nova avaliação</button>`:'')+`
  <div class="toolbar">
   <span class="search">${ic('search','sm')}<input class="inp" id="vf-q" type="search" placeholder="Buscar placa, marca, modelo…" value="${esc(f.q)}" data-ui="vf.q" data-live="1"></span>
-  ${fs('status',[['','Todos os status'],['estoque','Em estoque'],['vendido','Vendidos'],['devolvido','Devolvidos']],'Status')}
+  ${fs('status',[['','Todos os status'],['estoque','Em estoque'],['vendido','Vendidos'],['devolvido','Devolvidos'],['bloqueado','Bloqueados'],['cancelado','Avaliação cancelada']],'Status')}
   ${fs('estoque',[['','Showroom e atacado'],['showroom','Showroom'],['atacado','Atacado']],'Estoque')}
   ${fs('neg',[['','Próprio e consignado'],['proprio','Próprio'],['consignado','Consignado']],'Negociação')}
   ${fs('veic',[['','Zero km e usados'],['zero','Zero km'],['usado','Usados']],'Veículo')}
@@ -1341,7 +1587,7 @@ function viewAval(id){
   body=`${a.fotos.length?`<section class="card"><header><div class="ht"><h3>Fotos · ${a.n}</h3><p>Toque para registrar</p></div></header><div class="bd shots">${a.fotos.map(f=>{const ok=v.aval.fotos[a.k+'|'+f];return `<button type="button" class="shot ${ok?'ok':''}" data-act="avalFoto" data-id="${id}" data-k="${esc(a.k+'|'+f)}">${ok?ic('check','lg'):ic('plus','lg')}${esc(f)}<span class="small" style="font-weight:500">${ok?'Foto registrada':'Adicionar foto'}</span></button>`}).join('')}</div></section>`:''}
   ${a.k==='testdrive'?`<section class="card pad"><label class="f">Realizou test-drive no veículo?${segm(P+'testDrive',[['true','Sim'],['false','Não']],String(v.aval.testDrive))}</label></section>`:''}
   <section class="card"><header><h3>Itens da avaliação</h3><span class="chips">${chip(marcados+'/'+a.itens.length+' avaliados',marcados===a.itens.length?'ok':'')}<button class="btn xs" type="button" data-act="avalTodosOk" data-id="${id}" data-a="${a.k}">Marcar restantes como OK</button></span></header><div class="bd">
-   ${a.itens.map(it=>{const k=a.k+'|'+it, o=v.aval.itens[k]||{};return `<div class="item"><span class="nm">${esc(it)}</span><span class="ctl"><div class="seg"><button type="button" class="${o.s==='ok'?'on ok':''}" data-act="avalItem" data-id="${id}" data-k="${esc(k)}" data-s="ok">OK</button><button type="button" class="${o.s==='reparo'?'on warn':''}" data-act="avalItem" data-id="${id}" data-k="${esc(k)}" data-s="reparo">Reparo</button></div>${o.s==='reparo'?`<input class="inp cost" type="number" step="any" id="${fid('cost-'+id+'-'+k)}" data-cost="${esc(k)}" data-id="${id}" value="${o.v||''}" placeholder="R$ previsto" aria-label="Valor previsto do reparo">`:''}</span></div>`}).join('')}
+   ${a.itens.map(it=>{const k=a.k+'|'+it, o=v.aval.itens[k]||{};return `<div class="item"><span class="nm">${esc(it)}</span><span class="ctl"><div class="seg"><button type="button" class="${o.s==='ok'?'on ok':''}" data-act="avalItem" data-id="${id}" data-k="${esc(k)}" data-s="ok">OK</button><button type="button" class="${o.s==='reparo'?'on warn':''}" data-act="avalItem" data-id="${id}" data-k="${esc(k)}" data-s="reparo">Reparo</button></div>${o.s==='reparo'?`<select class="inp" style="width:150px" id="${fid('avt-'+id+'-'+k)}" data-avtipo="${esc(k)}" data-id="${id}" aria-label="Tipo de reparo">${opts([['','Tipo de reparo']].concat(REPARO_TIPOS),o.tipo||'')}</select><input class="inp cost" type="number" step="any" id="${fid('cost-'+id+'-'+k)}" data-cost="${esc(k)}" data-id="${id}" value="${o.v||''}" placeholder="R$ previsto" aria-label="Valor previsto do reparo">`:''}</span>${o.s==='reparo'?`<input class="inp" style="flex-basis:100%" id="${fid('avo-'+id+'-'+k)}" data-avobs="${esc(k)}" data-id="${id}" value="${esc(o.obs||'')}" placeholder="Observação do avaliador (ex.: amassado leve na porta)">`:''}</div>`}).join('')}
   </div></section>`;
  } else if(st===7){
   const cat=custosRef('Preparação');
@@ -1584,7 +1830,7 @@ function viewSite(){
 }
 
 /* ================= RELATÓRIOS ================= */
-const RELS=[['estoque','Giro e margem','Dias em estoque, custo, gastos e margem prevista de cada veículo'],['anuncios','Anúncios por canal','Veículos em estoque e seus anúncios em cada canal ativo'],['atendimentos','Atendimentos','Leads por origem, responsável e motivo de insucesso'],['clientes','Clientes por período','Clientes de negociações aprovadas no período (máximo 60 dias)'],['aniversario','Aniversariantes','Clientes que fazem aniversário no mês escolhido'],['servicos','Serviços por fornecedor','Previsto x realizado por fornecedor'],['dre','Resultado por conta','Títulos pagos e recebidos agrupados por conta contábil']];
+const RELS_V3=[['estoque','Giro e margem','Dias em estoque, custo, gastos e margem prevista de cada veículo'],['anuncios','Anúncios por canal','Veículos em estoque e seus anúncios em cada canal ativo'],['atendimentos','Atendimentos','Leads por origem, responsável e motivo de insucesso'],['clientes','Clientes por período','Clientes de negociações aprovadas no período (máximo 60 dias)'],['aniversario','Aniversariantes','Clientes que fazem aniversário no mês escolhido'],['servicos','Serviços por fornecedor','Previsto x realizado por fornecedor'],['dre','Resultado por conta','Títulos pagos e recebidos agrupados por conta contábil']];
 function relData(k){
  if(k==='anuncios'){const PA=portaisAtivos();return {h:['Placa','Veículo','Preço'].concat(PA.map(p=>p[1])),r:estoque().map(v=>[v.placa||'Zero km',nome(v)+' '+v.anoMod,brl(preco(v))].concat(PA.map(([p])=>v.pubs[p]?'Sim':'Não')))}}
  if(k==='clientes'){const de=UI.relDe,ate=UI.relAte;const ns=vals(S.neg).filter(n=>{const ap=n.hist.find(h=>['Aprovada','Finalizada'].includes(h.a));return ap&&ap.d>=de&&ap.d<=ate&&n.status!=='cancelada'});return {h:['Cliente','Celular','Cidade','Negociação','Tipo','Status'],r:ns.map(n=>{const c=S.cli[n.clienteId]||{};return [c.nome,c.tel,c.cidade,'#'+n.id,NEG_TIPOS[n.tipo],NEG_STATUS[n.status][0]]})}}
@@ -2056,6 +2302,522 @@ function cfgConsulta(){
  <section class="card"><header><h3>Tipos de consulta e preços</h3></header><div class="bd form">${CONS_TIPOS.map(([k,l])=>`<label class="f">${esc(l)}${inp('cfg.consulta.precos.'+k,C.precos[k],{type:'number'})}</label>`).join('')}</div></section>
  <p class="small muted">No protótipo os resultados são simulados a partir da placa. Na versão real, a consulta vai ao provedor contratado.</p>`;
 }
+/* ================= v4: página do veículo completa ================= */
+Object.assign(UI,{anTab:{},servMore:{},anunTab:'veiculos',anf:{q:'',integ:'',st:'',vst:'estoque',dest:false},painelTab:'estoque',crmUser:'',relGrupo:'estoque',cliTab:{},acesQ:{}});
+function auditLine(o,label){
+ if(!o||!o.criado)return `<div class="audit muted small">${ic('user','sm')} Ainda não registrado</div>`;
+ return `<div class="audit"><span class="av xs g">${esc(ini(o.criado.por))}</span><span><b>${esc(o.criado.por)}</b>${label?` <span class="muted small">· ${esc(label)}</span>`:''}<br><span class="small muted">${ic('cal','sm')} Criado em ${fmtDT(o.criado.em)}${o.atualizado?` · ${ic('refresh','sm')} atualizado ${relTime(o.atualizado.em)} por ${esc(o.atualizado.por)}`:''}</span></span></div>`;
+}
+const vlog=(v,k)=>(v.log||{})[k];
+function obsBox(v,k,title='Observações'){
+ v.obs=v.obs||{};const L=v.obs[k]||[];
+ return `<section class="card"><header><h3>${title}</h3><span class="small muted">${L.length} registro${L.length===1?'':'s'}</span></header><div class="bd" style="display:flex;flex-direction:column;gap:10px">
+ ${L.map(o=>`<div class="ev"><span class="av xs g">${esc(ini(o.por))}</span><span><b>${esc(o.por)}</b> <span class="small muted">${fmtDT(o.em)}</span><br>${esc(o.txt)}</span></div>`).join('')||'<span class="small muted">Nenhum registro encontrado.</span>'}
+ <form data-form="obs" data-id="${v.id}" data-k="${k}" style="display:flex;gap:8px"><input class="inp" name="t" id="obs-${v.id}-${k}" placeholder="Nova observação" required><button class="btn" type="submit">Adicionar</button></form></div></section>`;
+}
+function statusChip(v){
+ if(v.status==='vendido')return chip('Vendido','ok dot');
+ if(v.status==='devolvido')return chip('Devolvido ao proprietário','bad dot');
+ if(v.status==='cancelado')return chip('Avaliação cancelada','bad dot');
+ if(v.bloqueado)return chip('Bloqueado','bad dot');
+ const p=pendencias(v);
+ if(p.includes('avaliacao'))return chip('Avaliação pendente','warn dot');
+ if(p.includes('precificacao'))return chip('Precificação pendente','warn dot');
+ if(p.includes('negociacao'))return chip('Negociação pendente','warn dot');
+ if(p.includes('proposta'))return chip('Proposta em andamento','info dot');
+ if(pubCount(v))return chip(v.estoque==='atacado'?'No atacado':'Anunciado','ok dot');
+ return chip('Em preparação','dot');
+}
+function etapa(v,k){
+ switch(k){
+  case 'avaliacao':return v.aval.done?'ok':'pendente';
+  case 'precificacao':return v.venda>0?'ok':'pendente';
+  case 'negEntrada':return v.negEntrada?'ok':'pendente';
+  case 'pericia':return ['aprovado','ressalvas','na'].includes(v.pericia.status)?'ok':v.pericia.status==='reprovado'?'atencao':'pendente';
+  case 'recebimento':{const s=REC.map(([r])=>v.receb[r]);return s.every(x=>x!=='pendente')?'ok':s.some(x=>x!=='pendente')?'atencao':'pendente'}
+  case 'servicos':{if(!v.aval.done)return 'pendente';const S2=v.servicos.filter(s=>s.status!=='recusado');if(S2.every(s=>s.feito))return 'ok';return S2.some(s=>s.feito||s.st==='fazendo')?'atencao':'pendente'}
+  case 'anuncios':{const c=pubCount(v),t=portaisAtivos().length;if(v.status==='vendido')return 'ok';if(portaisAtivos().some(([p])=>['erro','errodest'].includes(anunStatus(v,p))))return 'atencao';return c>=t-1?'ok':c>0?'atencao':'pendente'}
+  case 'negSaida':{const a=negAberta(v.id);return v.status==='vendido'?'ok':(a&&a.saidaId===v.id)?'atencao':'pendente'}
+ }
+}
+
+function viewVeiculo(id){
+ const v=S.veh[id]; if(!v)return phead('Veículo não encontrado','')+`<a class="lk" href="#veiculos">Voltar para veículos</a>`;
+ v.servicos.forEach(normServ);
+ const tab=UI.vTab[id]||'resumo';
+ const p=pendencias(v), leads=vals(S.lead).filter(l=>l.vid===v.id);
+ const tabs=[['resumo','Resumo'],['ficha','Ficha técnica'],['cliente','Cliente']].concat(ETAPAS.some(([k])=>k===tab)?[[tab,ETAPAS.find(([k])=>k===tab)[1]]]:[]).concat([['historico','Histórico']]);
+ const head=`<div class="crumb"><a href="#veiculos">Veículos</a>${ic('right','sm')}<span>${esc(v.placa||'Zero km')}</span></div>
+ <div class="vhead"><div class="ph">${photo(v,{noTags:true,noCount:true,noPlate:true})}</div><div class="who"><span class="eyebrow">${esc(v.marca)}</span><h1>${esc(v.modelo)} <span class="muted" style="font-weight:500;font-size:22px">${v.anoFab}/${v.anoMod}</span></h1><div class="muted">${esc(v.versao)}</div><div class="chips">${plate(v)} ${statusChip(v)} ${chip(v.neg==='consignado'?'Consignado':'Próprio')} ${chip({atacado:'Atacado',ambos:'Showroom e atacado'}[v.estoque]||'Showroom')}</div>
+ <div class="actions" style="margin-top:4px"><button class="btn sm" type="button" data-act="resumoFin" data-id="${id}">${ic('wallet','sm')} Resumo financeiro</button><button class="btn sm" type="button" data-act="vDocs" data-id="${id}">${ic('file','sm')} Documentos</button>${v.status==='estoque'?`<button class="btn sm" type="button" data-act="vMais" data-id="${id}">${ic('dots','sm')} Mais ações</button>`:''}</div></div>
+ <div class="card pad vside"><div><span class="eyebrow">${v.status==='vendido'?'Vendido em':'Em estoque'}</span><div class="big" style="margin-top:6px">${v.status==='vendido'?dtf(v.saida):daysSince(v.entrada)+'<span class="muted" style="font-size:15px;font-weight:500"> dias</span>'}</div></div><div><span class="eyebrow">Leads</span><div class="big" style="margin-top:6px">${leads.length}</div></div><div style="grid-column:1/-1"><span class="eyebrow">Cadastrado por</span><div class="small" style="margin-top:4px"><b>${esc(v.cad?v.cad.por:'—')}</b><br><span class="muted">${v.cad?fmtDT(v.cad.em):''}</span></div></div></div></div>
+ ${v.bloqueado?`<div class="note warn"><b>Veículo bloqueado</b> por ${esc(v.bloqueado.por)} em ${fmtDT(v.bloqueado.em)}${v.bloqueado.motivo?': '+esc(v.bloqueado.motivo):''}. Não pode ser anunciado nem negociado.</div>`:''}
+ <div class="esteira" role="tablist">${ETAPAS.map(([k,l],i)=>{const s=etapa(v,k);return `<button type="button" class="est ${s} ${tab===k?'on':''}" data-act="vtab" data-id="${id}" data-tab="${k}"><span class="dot">${s==='ok'?'✓':s==='atencao'?'!':i+1}</span><span class="n">ETAPA ${i+1}</span><span class="l">${l}</span></button>`}).join('')}</div>
+ ${p.length?`<div class="chips"><span class="small muted" style="margin-right:2px">Pendências:</span>${p.map(x=>chip(PEND[x],'warn')).join('')}</div>`:''}
+ <div class="tabs">${tabs.map(([k,l])=>`<button type="button" class="${tab===k?'on':''}" data-act="vtab" data-id="${id}" data-tab="${k}">${l}</button>`).join('')}</div>`;
+ const T={resumo:vResumo,ficha:vFicha,cliente:vCliente,avaliacao:vAval,precificacao:vPreco,negEntrada:vNegEnt,pericia:vPericia,recebimento:vReceb,servicos:vServ,anuncios:vAnun,negSaida:vNegSaida,historico:vHist};
+ return head+(T[tab]||vResumo)(v);
+}
+function scCard(v,k,title,body){const s=etapa(v,k);return `<div class="sc"><header><h3>${title}</h3><span class="chips">${s==='ok'?chip('Concluída','ok dot'):s==='atencao'?chip('Em andamento','warn dot'):chip('Pendente','dot')}<button class="btn xs" type="button" data-act="vtab" data-id="${v.id}" data-tab="${k}">Abrir</button></span></header>${body}${auditLine(vlog(v,k))}</div>`}
+function vResumo(v){
+ const reparos=vals(v.aval.itens).filter(o=>o.s==='reparo').length;
+ const rc={entregue:0,nao:0,pendente:0};REC.forEach(([k])=>rc[v.receb[k]]++);
+ const ns=negsDoVeic(v.id), cl=S.cli[v.clienteId]||{};
+ const pst=(PERICIA_ST.find(p=>p[0]===v.pericia.status)||[])[1];
+ return `<div class="sumcards">
+ <div class="sc"><header><h3>Ficha técnica</h3><button class="btn xs" type="button" data-act="vtab" data-id="${v.id}" data-tab="ficha">Abrir</button></header><div class="kv"><div><b>${esc(v.cambio)}</b><span class="small muted">Câmbio</span></div><div><b>${v.anoFab}/${v.anoMod}</b><span class="small muted">Ano fab./modelo</span></div><div><b>${numf(v.km)}</b><span class="small muted">KM</span></div><div><b>${esc(v.combustivel)}</b><span class="small muted">Combustível</span></div></div>${auditLine(vlog(v,'ficha'))}</div>
+ <div class="sc"><header><h3>Cliente</h3><button class="btn xs" type="button" data-act="vtab" data-id="${v.id}" data-tab="cliente">Abrir</button></header><div class="kv"><div><b>${esc(cl.nome||'—')}</b><span class="small muted">Nome</span></div><div><b>${esc(cl.celular||cl.tel||'—')}</b><span class="small muted">Celular</span></div></div>${auditLine(vlog(v,'cliente'))}</div>
+ ${scCard(v,'avaliacao','Avaliação',v.aval.done?`<div class="kv"><div><b>${brl(gastoPrev(v))}</b><span class="small muted">Previsão de gastos</span></div><div><b>${reparos}</b><span class="small muted">Itens para reparo</span></div><div><b>${esc(v.aval.feedback||'Sem feedback')}</b><span class="small muted">Feedback</span></div><div><b>${v.aval.qtd||1}</b><span class="small muted">Avaliações</span></div></div>`:`<span class="muted">Avaliação ainda não realizada.</span>`)}
+ ${scCard(v,'precificacao','Precificação',`<div class="kv"><div><b>${brl(v.compra)}</b><span class="small muted">Preço de compra</span></div><div><b>${brl(gastoPrev(v))}</b><span class="small muted">Previsão de gastos</span></div><div><b>${v.venda?brl(v.venda):'—'}</b><span class="small muted">Preço de venda</span></div><div><b>${(v.prec&&v.prec.histCompra||[]).length}</b><span class="small muted">Propostas no histórico</span></div></div>`)}
+ ${scCard(v,'negEntrada','Negociação de entrada',`<div class="kv"><div><b>${esc(cl.nome||'—')}</b><span class="small muted">Cliente</span></div><div><b>${brl(v.compra)}</b><span class="small muted">Preço de compra</span></div><div><b>${negsDoVeic(v.id).filter(n=>n.entradas.some(e=>e.vid===v.id)).length}</b><span class="small muted">Negociações</span></div></div>`)}
+ ${scCard(v,'pericia','Perícia',`<div class="kv"><div><b>${esc(pst||'—')}</b><span class="small muted">Resultado</span></div><div><b>${(v.pericia.laudos||[]).length}</b><span class="small muted">Laudos</span></div><div><b>${(v.pericia.hist||[]).length}</b><span class="small muted">No histórico</span></div></div>`)}
+ ${scCard(v,'recebimento','Recebimento',`<div class="kv"><div><b>${rc.entregue} / ${rc.nao} / ${rc.pendente} / 4</b><span class="small muted">entregue / não possui / pendente / total</span></div><div><b>${esc(v.garantia)}</b><span class="small muted">Garantia${v.garantiaVenc?' até '+v.garantiaVenc.split('-').reverse().join('/'):''}</span></div></div>`)}
+ ${scCard(v,'servicos','Serviços',`<div class="kv"><div><b>${v.servicos.filter(s=>s.status!=='recusado').length} itens · ${brl(gastoPrev(v))}</b><span class="small muted">Valor previsto</span></div><div><b>${v.servicos.filter(s=>s.feito).length} itens · ${brl(gastoReal(v))}</b><span class="small muted">Valor realizado</span></div></div>`)}
+ ${scCard(v,'anuncios','Anúncios',`<div class="kv"><div><b>${pubCount(v)} de ${portaisAtivos().length}</b><span class="small muted">Canais publicados</span></div><div><b>${v.fotos}</b><span class="small muted">Fotos</span></div><div><b>${portaisAtivos().filter(([k])=>['erro','errodest','errodesp'].includes(anunStatus(v,k))).length}</b><span class="small muted">Com erro</span></div></div>`)}
+ ${consultaCard(v)}
+ ${scCard(v,'negSaida','Negociação de saída',ns.length?`<div class="rows small">${ns.map(n=>`<div class="row"><a class="lk" href="#neg-${n.id}">#${n.id} · ${NEG_TIPOS[n.tipo]}</a>${chip(NEG_STATUS[n.status][0],NEG_STATUS[n.status][1])}</div>`).join('')}</div>`:'<span class="muted">Nenhuma negociação ainda.</span>')}
+ </div>`;
+}
+function acessoriosBox(v,id){
+ const q=(UI.acesQ[id]||'').toLowerCase();
+ const L=OPCIONAIS.filter(o=>!q||o.toLowerCase().includes(q));
+ return `<div style="display:flex;flex-direction:column;gap:10px"><div class="toolbar"><span class="search">${ic('search','sm')}<input class="inp" id="aq-${id}" type="search" placeholder="Filtrar acessórios…" value="${esc(UI.acesQ[id]||'')}" data-ui="acesQ.${id}" data-live="1"></span><span class="small muted">${v.opcionais.length} de ${OPCIONAIS.length} marcados</span></div>
+ <div class="checks">${L.map(o=>`<label class="check"><input type="checkbox" id="op-${id}-${fid(o)}" data-act-change="opc" data-id="${v.id}" data-o="${esc(o)}" ${v.opcionais.includes(o)?'checked':''}> ${esc(o)}</label>`).join('')}</div></div>`;
+}
+function vFicha(v){
+ const P='veh.'+v.id+'.';
+ return `<section class="card"><header><div class="ht"><h3>Documento</h3><p>As alterações ficam registradas no histórico do veículo</p></div>${auditLine(vlog(v,'ficha'))}</header><div class="bd form">
+  <label class="f">Zero km?${segm(P+'zeroKm',[['true','Sim'],['false','Não']],String(!!v.zeroKm))}</label>
+  <label class="f">Placa${inp(P+'placa',v.placa,{ph:'AAA0A00'})}</label><label class="f">Renavam${inp(P+'renavam',v.renavam)}</label><label class="f">Chassi${inp(P+'chassi',v.chassi)}</label><label class="f">Número do CRV${inp(P+'crv',v.crv)}</label>
+  <label class="f">Documento (CRLV)<span style="display:flex;gap:8px;align-items:center">${v.crlv?`${chip(v.crlv,'line')}`:'<span class="small muted">Nenhum arquivo</span>'}<label class="btn xs" for="crlv-${v.id}" style="cursor:pointer">Enviar</label><input type="file" id="crlv-${v.id}" accept=".pdf,image/*" data-act-change="crlv" data-id="${v.id}" hidden></span></label>
+ </div></section>
+ <section class="card"><header><h3>Modelo</h3></header><div class="bd form">
+  <label class="f">Tipo${sel(P+'tipo',['Carro','Moto','Caminhão'],v.tipo)}</label><label class="f">Sem FIPE?${segm(P+'semFipe',[['true','Sim'],['false','Não']],String(!!v.semFipe))}</label>
+  <label class="f">Marca${inp(P+'marca',v.marca)}</label><label class="f">Modelo${inp(P+'modelo',v.modelo)}</label><label class="f">Ano modelo${inp(P+'anoMod',v.anoMod,{type:'number'})}</label><label class="f">Ano fabricação${inp(P+'anoFab',v.anoFab,{type:'number'})}</label>
+  <label class="f wide">Versão${inp(P+'versao',v.versao)}${v.semFipe?'<small>Veículo sem FIPE: marca, modelo e versão digitados</small>':'<small>Na versão real a lista vem da tabela FIPE</small>'}</label>
+ </div></section>
+ <section class="card"><header><h3>Características</h3></header><div class="bd form">
+  <label class="f">Carroceria${sel(P+'carroceria',CARROC,v.carroceria)}</label><label class="f">Câmbio${sel(P+'cambio',CAMBIOS,v.cambio)}</label><label class="f">Cor${sel(P+'cor',Object.keys(CORES),v.cor)}</label><label class="f">Portas${sel(P+'portas',[[0,'Sem portas'],2,3,4],v.portas,{num:true})}</label>
+  <label class="f">Combustível${sel(P+'combustivel',COMBS,v.combustivel)}</label><label class="f">Tração${sel(P+'tracao',TRACOES.map(t=>[t,t||'—']),v.tracao||'')}</label><label class="f">Cabine${sel(P+'cabine',CABINES.map(t=>[t,t||'—']),v.cabine||'')}</label><label class="f">Espécie${sel(P+'especie',ESPECIES.map(t=>[t,t||'—']),v.especie||'')}</label>
+  <label class="f">Potência (cv)${inp(P+'potencia',v.potencia,{type:'number'})}</label><label class="f">Quilometragem${inp(P+'km',v.km,{type:'number'})}<small>Média de ${numf(Math.round(v.km/Math.max(1,TODAY.getFullYear()-v.anoFab)))} km/ano</small></label>
+  <label class="f">Consumo urbano (km/l)${inp(P+'consumoU',v.consumoU)}</label><label class="f">Consumo rodoviário (km/l)${inp(P+'consumoR',v.consumoR)}</label>
+  <label class="f">Garantia${sel(P+'garantia',GARANTIAS,v.garantia)}</label><label class="f">Vencimento da garantia${inp(P+'garantiaVenc',v.garantiaVenc||'',{type:'month'})}</label>
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Acessórios e opcionais</h3><p>Lista usada nos anúncios e no cabide</p></div></header><div class="bd">${acessoriosBox(v,'f'+v.id)}</div></section>`;
+}
+function cliResumo(c){
+ if(!c)return '<span class="muted">Nenhum cliente vinculado.</span>';
+ return `<div class="kv"><div><b>${esc(c.nome)}</b><span class="small muted">${c.tipo==='PJ'?'Pessoa jurídica':'Pessoa física'}</span></div><div><b>${esc(c.doc||'—')}</b><span class="small muted">${c.tipo==='PJ'?'CNPJ':'CPF'}</span></div><div><b>${esc(c.celular||c.tel||'—')}</b><span class="small muted">Celular</span></div><div><b>${esc(c.email||'—')}</b><span class="small muted">E-mail</span></div><div><b>${esc([c.endereco,c.numero].filter(Boolean).join(', ')||'—')}</b><span class="small muted">${esc([c.bairro,c.municipio,c.uf].filter(Boolean).join(' · '))}</span></div><div><b>${esc(c.prefContato||'—')}</b><span class="small muted">Prefere contato por</span></div>${c.vendaDireta?`<div><b>${esc(c.segmento||'Sim')}</b><span class="small muted">Venda direta</span></div>`:''}</div>`;
+}
+function vCliente(v){
+ const c=S.cli[v.clienteId];
+ return `<div class="grid g-side"><section class="card"><header><div class="ht"><h3>Proprietário de origem</h3><p>Quem trouxe o veículo para a loja</p></div><span class="actions">${c?`<a class="btn sm" href="#cli-${c.id}">Ver ficha</a><button class="btn sm pri" type="button" data-act="editCli" data-id="${c.id}">Editar cadastro</button>`:''}</span></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">${cliResumo(c)}
+  <label class="f">Trocar cliente vinculado${sel('veh.'+v.id+'.clienteId',[['','Selecione']].concat(vals(S.cli).sort((a,b)=>a.nome.localeCompare(b.nome)).map(x=>[x.id,x.nome])),v.clienteId,{num:true})}</label>
+  ${auditLine(vlog(v,'cliente'))}</div></section>
+ <section class="card"><header><h3>Cadastro do cliente</h3></header><div class="bd">${c&&c.cad?`<div class="audit"><span class="av xs g">${esc(ini(c.cad.por))}</span><span><b>${esc(c.cad.por)}</b><br><span class="small muted">Cadastrou em ${fmtDT(c.cad.em)}</span></span></div>`:'<span class="muted small">Sem registro</span>'}${c&&c.hist&&c.hist.length?`<div class="rows small" style="margin-top:10px">${c.hist.slice(0,4).map(h=>`<div class="row"><span>${esc(h.txt)}</span><span class="muted">${esc(h.por)} · ${fmtDT(h.em)}</span></div>`).join('')}</div>`:''}</div></section></div>`;
+}
+function vAval(v){
+ if(!v.aval.done)return `<section class="card pad" style="display:flex;flex-direction:column;gap:12px;align-items:flex-start"><h3>Avaliação pendente</h3><p class="muted" style="max-width:62ch">Solicitada por <b>${esc(v.aval.solicitante||'—')}</b> em ${v.cad?fmtDT(v.cad.em):'—'}. A avaliação percorre o carro em 9 etapas e cada item marcado para reparo vira um serviço.</p>${can('avaliacoes')?`<a class="btn pri" href="#aval-${v.id}">${Object.keys(v.aval.itens).length?'Continuar avaliação':'Iniciar avaliação'}</a>`:''}</section>`;
+ const dur=v.aval.inicio&&v.aval.fim?Math.max(1,Math.round((new Date(v.aval.fim)-new Date(v.aval.inicio))/60000)):null;
+ return `<div class="grid g-side"><section class="card"><header><h3>Resultado da avaliação</h3>${can('avaliacoes')?`<a class="btn sm" href="#aval-${v.id}">Revisar avaliação</a>`:''}</header><div class="bd">${avalResumoTbl(v)}</div></section>
+ <section class="card"><header><h3>Dados</h3></header><div class="bd rows small">
+  <div class="row"><span class="muted">Solicitante</span><b>${esc(v.aval.solicitante||'—')}</b></div>
+  <div class="row"><span class="muted">Avaliador</span><b>${esc(v.aval.avaliador)}</b></div>
+  <div class="row"><span class="muted">Início</span><b>${fmtDT(v.aval.inicio)}</b></div>
+  <div class="row"><span class="muted">Fim</span><b>${fmtDT(v.aval.fim)}</b></div>
+  <div class="row"><span class="muted">Tempo de serviço</span><b>${dur?dur+' min':'Não informado'}</b></div>
+  <div class="row"><span class="muted">Test-drive</span><b>${v.aval.testDrive?'Realizado':'Não realizado'}</b></div>
+  <div class="row"><span class="muted">Chave reserva</span><b>${v.aval.chaveReserva?'Sim':'Não'}</b></div>
+  <div class="row"><span class="muted">Rodas</span><b>${esc(v.aval.rodas)}</b></div>
+  <div class="row"><span class="muted">Fotos registradas</span><b>${vals(v.aval.fotos).filter(Boolean).length}</b></div>
+  <div class="row"><span class="muted">Avaliações deste veículo</span><b>${v.aval.qtd||1}</b></div>
+  <div class="row"><span class="muted">Feedback</span><span>${esc(v.aval.feedback||'Sem feedback')}</span></div>
+  ${auditLine(vlog(v,'avaliacao'))}
+ </div></section></div>`;
+}
+function avalResumoTbl(v,recusar){
+ const rows=[];
+ Object.entries(v.aval.itens).forEach(([k,o])=>{if(o.s==='reparo'){const [a,it]=k.split('|');rows.push({k,area:AREAS.find(x=>x.k===a)?.n||a,it,tipo:o.tipo||'',obs:o.obs||'',v:+o.v||0})}});
+ Object.entries(v.aval.serv).forEach(([n,val])=>{if(+val>0)rows.push({k:'serv|'+n,area:'Preparação',it:n,tipo:'Serviço',obs:'',v:+val})});
+ if(!rows.length)return '<div class="empty">Nenhum reparo ou serviço previsto.</div>';
+ const rec=v.aval.recusados||{};
+ const tot=rows.filter(r=>!rec[r.k]).reduce((a,r)=>a+r.v,0), totRec=rows.filter(r=>rec[r.k]).reduce((a,r)=>a+r.v,0);
+ return `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Área</th><th>Item</th><th>Tipo</th><th class="n">Gasto</th>${recusar?'<th></th>':''}</tr></thead><tbody>${rows.map(r=>`<tr style="${rec[r.k]?'opacity:.5;text-decoration:line-through':''}"><td>${esc(r.area)}</td><td><b>${esc(r.it)}</b>${r.obs?`<span class="sub">${esc(r.obs)}</span>`:''}</td><td>${r.tipo?chip(r.tipo,'line'):'—'}</td><td class="n">${brl2(r.v)}</td>${recusar?`<td class="n">${v.servicos.some(s=>s.n===r.it&&s.feito)?chip('Feito','ok'):`<button class="btn xs ${rec[r.k]?'':'ghost danger'}" type="button" data-act="recusarItem" data-id="${v.id}" data-k="${esc(r.k)}">${rec[r.k]?'Restaurar':'Recusar'}</button>`}</td>`:''}</tr>`).join('')}</tbody><tfoot><tr><td colspan="3">Previsão total${totRec?` <span class="small muted">(${brl(totRec)} recusados)</span>`:''}</td><td class="n">${brl2(tot)}</td>${recusar?'<td></td>':''}</tr></tfoot></table></div>`;
+}
+function fipeHist(v){const out=[];for(let i=5;i>=0;i--){const d=new Date(TODAY);d.setMonth(d.getMonth()-i);out.push([MESES[d.getMonth()]+'/'+d.getFullYear(),Math.round(v.fipe*(1+0.006*i)/1)])}return out}
+function precCalc(v){
+ const L=CFG().loja, pr=v.prec;
+ const imp=x=>Math.round(x*(+L.impostoPct||0)/100), com=(x,p)=>Math.round(x*(+p||0)/100);
+ const cv=+pr.simCompra.venda||0, mPct=+pr.simCompra.margemPct||0, mR=Math.round(cv*mPct/100), gar=+pr.simCompra.garantia||0, gp=gastoPrev(v);
+ const impC=imp(cv), comC=com(cv,L.comissaoCompraPct)+com(cv,L.comissaoVendaPct);
+ const sugerido=Math.max(0,Math.round((cv-mR-gp-gar-impC-comC)/100)*100);
+ const vv=+pr.simVenda.venda||0, mb=vv-v.compra, custo=v.compra+gastoReal(v), impV=imp(vv), comV=com(vv,L.comissaoVendaPct), ml=vv-custo-impV-comV;
+ return {cv,mPct,mR,gar,gp,impC,comC,sugerido,vv,mb,custo,impV,comV,ml};
+}
+function vPreco(v){
+ const P='veh.'+v.id+'.', L=CFG().loja;
+ v.prec=v.prec||{simCompra:{venda:v.venda||v.fipe,margemPct:L.margemAlvo,garantia:L.custoGarantia},simVenda:{venda:v.venda||v.fipe},atacado:0,promoAtacado:0,promoOn:false,atualizarPortais:true,histCompra:[],histVenda:[]};
+ const c=precCalc(v), pr=v.prec;
+ const same=vehList().filter(x=>x.modelo===v.modelo&&x.marca===v.marca), sameE=same.filter(x=>x.status==='estoque');
+ const tm=same.length?Math.round(same.reduce((a,x)=>a+(x.status==='vendido'?daysSince(x.entrada)-daysSince(x.saida):daysSince(x.entrada)),0)/same.length):0;
+ const leads=vals(S.lead).filter(l=>l.vid===v.id&&!['sucesso','insucesso'].includes(l.status));
+ const custoTot=v.compra+gastoPrev(v), mg=preco(v)-custoTot, pc=preco(v)?mg/preco(v)*100:0;
+ const ida=Math.max(1,TODAY.getFullYear()-v.anoFab), idm=Math.max(1,TODAY.getFullYear()-v.anoMod);
+ const mostraAtacado=['atacado','ambos'].includes(v.estoque);
+ const webUrl=`https://www.webmotors.com.br/carros/estoque/${slug(v.marca)}/${slug(v.modelo)}`;
+ const pctTxt=(x,b)=>b?pct(x/b*100):'—';
+ return `${leads.length?`<div class="note warn">${leads.length} atendimento${leads.length>1?'s':''} com interesse neste veículo. <a class="lk" href="#atendimentos">Ver atendimentos</a></div>`:''}
+ <div class="grid g-side"><div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+ <section class="card"><header><h3>Dados do veículo</h3>${auditLine(vlog(v,'precificacao'))}</header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
+  <div class="kv"><div><b>${v.anoFab}/${v.anoMod}</b><span class="small muted">Ano fabricação/modelo</span></div><div><b>${esc(v.cor)}</b><span class="small muted">Cor</span></div><div><b>${numf(v.km)}</b><span class="small muted">KM</span></div><div><b>${numf(Math.round(v.km/ida))} km/ano</b><span class="small muted">KM média ano fabricação</span></div><div><b>${numf(Math.round(v.km/idm))} km/ano</b><span class="small muted">KM média ano modelo</span></div><div><b>${esc(v.cambio)}</b><span class="small muted">Câmbio</span></div><div><b>${esc(v.combustivel)}</b><span class="small muted">Combustível</span></div></div>
+  <div><span class="eyebrow">Opcionais</span><div class="chips" style="margin-top:6px">${v.opcionais.slice(0,12).map(o=>chip(o,'line')).join('')}${v.opcionais.length>12?chip('+'+(v.opcionais.length-12)):''}</div></div>
+  <div style="display:flex;gap:18px;flex-wrap:wrap"><label class="f">Tipo de negociação${segm(P+'neg',[['consignado','Consignação'],['proprio','Compra']],v.neg)}</label><label class="f">Tipo de estoque${segm(P+'estoque',[['showroom','Showroom'],['atacado','Atacado'],['ambos','Ambos']],v.estoque)}</label></div>
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Dados da avaliação</h3><p>Recuse itens que a loja não vai fazer; eles saem da previsão de gastos</p></div></header><div class="bd" style="display:flex;flex-direction:column;gap:14px">
+  <div class="kv"><div><b>${v.aval.testDrive?'Sim':'Não'}</b><span class="small muted">Realizou test-drive?</span></div><div><b>${esc(v.aval.feedback||'Não informado')}</b><span class="small muted">Feedback do avaliador</span></div><div><b>${esc(v.aval.solicitante||'—')}</b><span class="small muted">Solicitante</span></div><div><b>${esc(v.aval.avaliador)}</b><span class="small muted">Avaliador</span></div></div>
+  ${v.aval.done?avalResumoTbl(v,true):'<span class="muted">Avaliação ainda não realizada.</span>'}
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Precificação de compra</h3><p>Simule quanto pagar a partir do preço de venda esperado</p></div></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
+  <div class="form"><label class="f">Valor de venda previsto${inp(P+'prec.simCompra.venda',pr.simCompra.venda,{type:'number'})}</label><label class="f">Margem desejada (%)${inp(P+'prec.simCompra.margemPct',pr.simCompra.margemPct,{type:'number'})}<small>${brl(c.mR)}</small></label><label class="f">Garantia (R$)${inp(P+'prec.simCompra.garantia',pr.simCompra.garantia,{type:'number'})}</label></div>
+  <div class="conta"><div class="row"><span>Valor de venda previsto</span><span class="num">${brl2(c.cv)}</span></div><div class="row muted"><span>Margem (${pct(c.mPct)})</span><span class="num">− ${brl2(c.mR)}</span></div><div class="row muted"><span>Previsão de gastos</span><span class="num">− ${brl2(c.gp)}</span></div><div class="row muted"><span>Garantia</span><span class="num">− ${brl2(c.gar)}</span></div><div class="row muted"><span>Impostos (${pct(L.impostoPct)} sobre a venda)</span><span class="num">− ${brl2(c.impC)}</span></div><div class="row muted"><span>Comissões (compra ${pct(L.comissaoCompraPct)} + venda ${pct(L.comissaoVendaPct)})</span><span class="num">− ${brl2(c.comC)}</span></div><div class="row tot"><span>Valor sugerido de compra</span><span class="num" style="color:var(--green-strong)">${brl2(c.sugerido)}</span></div></div>
+  <div><button class="btn dark sm" type="button" data-act="definirCompra" data-id="${v.id}" data-v="${c.sugerido}">Definir como valor final</button></div>
+  <div class="form"><label class="f">${v.neg==='consignado'?'Valor acordado com o proprietário (proposta final)':'Valor de compra (proposta final)'}${inp(P+'compra',v.compra,{type:'number'})}</label><label class="f">Cliente aprovou a proposta?${segm(P+'negEntrada',[['true','Sim','ok'],['false','Não']],String(v.negEntrada))}${pr.aprovadoEm&&v.negEntrada?`<small>Aprovada em ${fmtDT(pr.aprovadoEm)}</small>`:''}</label></div>
+  <div><span class="eyebrow">Histórico de compra</span><div class="tbl-wrap" style="margin-top:6px"><table class="tbl"><thead><tr><th>Precificado por</th><th class="n">Valor</th><th>Data</th></tr></thead><tbody>${(pr.histCompra||[]).slice().sort((a,b)=>b.em.localeCompare(a.em)).map(h=>`<tr><td>${esc(h.por)}</td><td class="n">${brl2(h.valor)}</td><td>${fmtDT(h.em)}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">Nenhuma proposta registrada.</td></tr>'}</tbody></table></div></div>
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Precificação de venda</h3><p>Margem bruta e líquida com custo real, impostos e comissões</p></div></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
+  <div class="form"><label class="f">Valor de venda previsto${inp(P+'prec.simVenda.venda',pr.simVenda.venda,{type:'number'})}</label></div>
+  <div class="conta"><div class="row"><span>Margem bruta (venda − compra)</span><span class="num"><b>${brl2(c.mb)}</b> · ${pctTxt(c.mb,c.vv)}</span></div><div class="row muted"><span>Valor de compra</span><span class="num">${brl2(v.compra)}</span></div><div class="row muted"><span>Custo total (compra + gastos realizados)</span><span class="num">${brl2(c.custo)}</span></div><div class="row muted"><span>Impostos</span><span class="num">− ${brl2(c.impV)}</span></div><div class="row muted"><span>Comissões</span><span class="num">− ${brl2(c.comV)}</span></div><div class="row tot"><span>Margem líquida</span><span class="num" style="color:${c.ml>=0?'var(--green-strong)':'var(--bad)'}">${brl2(c.ml)} · ${pctTxt(c.ml,c.vv)}</span></div></div>
+  <div class="grid g2"><div><span class="eyebrow">FIPE · referência ${MESES[TODAY.getMonth()]}/${TODAY.getFullYear()}</span><div class="big" style="margin:6px 0">${brl(v.fipe)}</div><div class="form" style="grid-template-columns:1fr"><label class="f">Valor FIPE${inp(P+'fipe',v.fipe,{type:'number'})}</label></div></div><div><span class="eyebrow">Últimos valores da FIPE</span><div class="rows small" style="margin-top:6px">${fipeHist(v).map(([m,x])=>`<div class="row" style="padding:5px 0"><span>${m}</span><b>${brl(x)}</b></div>`).join('')}</div></div></div>
+  <div class="form"><label class="f">Valor de venda showroom${inp(P+'venda',v.venda,{type:'number'})}</label>${mostraAtacado?`<label class="f">Valor de venda atacado${inp(P+'prec.atacado',pr.atacado,{type:'number'})}</label>`:''}</div>
+  ${sw(P+'prec.promoOn',pr.promoOn,'Colocar veículo em promoção','pr-'+v.id)}
+  ${pr.promoOn?`<div class="form"><label class="f">Promoção showroom${inp(P+'promo',v.promo,{type:'number'})}</label>${mostraAtacado?`<label class="f">Promoção atacado${inp(P+'prec.promoAtacado',pr.promoAtacado,{type:'number'})}</label>`:''}</div>`:''}
+  <div class="actions"><a class="btn sm" href="${webUrl}" target="_blank" rel="noopener">${ic('up','sm')} Ver preço na Webmotors</a><span class="small muted">Ao salvar preço:</span>${segm(P+'prec.atualizarPortais',[['true','Atualizar nos portais'],['false','Não atualizar']],String(pr.atualizarPortais))}</div>
+  <div><span class="eyebrow">Histórico de venda</span><div class="tbl-wrap" style="margin-top:6px"><table class="tbl"><thead><tr><th>Precificado por</th><th class="n">Showroom</th><th class="n">Atacado</th><th>Data</th></tr></thead><tbody>${(pr.histVenda||[]).slice().sort((a,b)=>b.em.localeCompare(a.em)).map(h=>`<tr><td>${esc(h.por)}</td><td class="n">${brl2(h.showroom)}</td><td class="n">${h.atacado?brl2(h.atacado):'Não informado'}</td><td>${fmtDT(h.em)}</td></tr>`).join('')||'<tr><td colspan="4" class="muted">Nenhum preço registrado.</td></tr>'}</tbody></table></div></div>
+ </div></section>
+ ${obsBox(v,'precificacao')}
+ </div>
+ <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+ <section class="card"><header><h3>Conta do carro</h3></header><div class="bd conta">
+  <div class="row"><span>Preço de venda</span><b class="num">${brl(preco(v))}</b></div>
+  <div class="row muted"><span>${v.neg==='consignado'?'Repasse ao proprietário':'Compra'}</span><span class="num">− ${brl(v.compra)}</span></div>
+  <div class="row muted"><span>Gastos previstos</span><span class="num">− ${brl(gastoPrev(v))}</span></div>
+  <div class="row tot"><span>Margem prevista</span><span class="num" style="color:${mg>=0?'var(--green-strong)':'var(--bad)'}">${brl(mg)}</span></div>
+  <div class="row small"><span class="muted">Sobre o preço de venda</span><b>${pct(pc)}</b></div>
+  <div class="row small"><span class="muted">Em relação à FIPE</span><b>${v.fipe?(preco(v)>=v.fipe?'+':'')+pct((preco(v)-v.fipe)/v.fipe*100):'—'}</b></div>
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Dados de estoque para este modelo</h3><p>Para ajudar a precificar e negociar</p></div></header><div class="bd rows small"><div class="row"><span class="muted">Veículos do mesmo modelo</span><b>${same.length}</b></div><div class="row"><span class="muted">Em estoque agora</span><b>${sameE.length}</b></div><div class="row"><span class="muted">Tempo médio de pátio</span><b>${tm} dias</b></div></div></section>
+ ${consultaCard(v)}
+ </div></div>`;
+}
+function vNegEnt(v){
+ const ns=negsDoVeic(v.id).filter(n=>n.entradas.some(e=>e.vid===v.id));const cl=S.cli[v.clienteId];
+ return `<section class="card"><header><h3>Negociação de entrada</h3>${v.negEntrada?chip('Fechada','ok dot'):chip('Pendente','warn dot')}</header><div class="bd" style="display:flex;flex-direction:column;gap:14px">
+ <div class="kv"><div><b>${esc(cl?cl.nome:'—')}</b><span class="small muted">Cliente</span></div><div><b>${brl(v.compra)}</b><span class="small muted">Preço de compra</span></div><div><b>${v.neg==='consignado'?'Consignação':'Compra'}</b><span class="small muted">Tipo</span></div><div><b>${ns.length}</b><span class="small muted">Negociações no histórico</span></div></div>
+ ${ns.length?`<div class="rows">${ns.map(n=>`<div class="row"><a class="lk" href="#neg-${n.id}">#${n.id} · ${NEG_TIPOS[n.tipo]} com ${esc(cliNome(n.clienteId))}</a><span class="chips">${chip(NEG_STATUS[n.status][0],NEG_STATUS[n.status][1])}<span class="small">${brl(n.entradas.find(e=>e.vid===v.id).valor)}</span><span class="small muted">${esc(n.vendedor)} · ${dtf(n.criado)}</span></span></div>`).join('')}</div>`:`<div class="note">Nenhuma negociação de entrada vinculada. A aprovação do proprietário também pode ser registrada na Precificação.</div>`}
+ <div class="actions"><button class="btn" type="button" data-act="seg" data-path="veh.${v.id}.negEntrada" data-val="${!v.negEntrada}">${v.negEntrada?'Reabrir negociação de entrada':'Marcar como aprovada pelo proprietário'}</button>${can('negociacoes')?`<button class="btn" type="button" data-act="novaNegEntrada" data-id="${v.id}">Criar negociação de entrada</button>`:''}</div>
+ ${auditLine(vlog(v,'negEntrada'))}
+ </div></section>`;
+}
+function vPericia(v){
+ const P='veh.'+v.id+'.pericia.';
+ const fs=vals(S.forn).filter(f=>f.tipo==='Perícia cautelar'&&f.ativo!==false).map(f=>[f.id,f.nome]);
+ v.pericia.laudos=v.pericia.laudos||[];v.pericia.hist=v.pericia.hist||[];
+ return `<section class="card"><header><h3>Perícia cautelar</h3>${auditLine(vlog(v,'pericia'))}</header><div class="bd" style="display:flex;flex-direction:column;gap:18px">
+ <label class="f">Status${segm(P+'status',PERICIA_ST.map(([k,l,c])=>[k,l,c]),v.pericia.status)}</label>
+ <div class="form"><label class="f">Empresa${sel(P+'forn',[['','Selecione']].concat(fs),v.pericia.forn,{num:true})}</label><label class="f">Data do laudo${inp(P+'data',v.pericia.data,{type:'date'})}</label></div>
+ <div><span class="eyebrow">Laudos anexados</span><div class="rows" style="margin-top:6px">${v.pericia.laudos.map((l,i)=>`<div class="row"><span style="display:flex;gap:8px;align-items:center">${ic('file','sm')}${esc(l)}</span><button class="btn xs ghost danger" type="button" data-act="laudoDel" data-id="${v.id}" data-i="${i}">Remover</button></div>`).join('')||'<span class="small muted">Nenhum laudo anexado.</span>'}</div><label class="btn sm" for="laudo-${v.id}" style="margin-top:8px;cursor:pointer">${ic('plus','sm')} Adicionar laudo</label><input type="file" id="laudo-${v.id}" accept=".pdf,image/*" multiple data-act-change="laudo" data-id="${v.id}" hidden></div>
+ ${v.pericia.status==='reprovado'?'<div class="note warn">Veículo reprovado na perícia. Avalie devolução ao proprietário ou renegociação antes de anunciar.</div>':v.pericia.status==='ressalvas'?'<div class="note warn">Conforme com ressalvas: registre nas observações o que foi apontado e informe o cliente na venda.</div>':''}
+ </div></section>
+ ${obsBox(v,'pericia')}
+ <section class="card"><header><h3>Histórico de perícias</h3></header><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Status</th><th>Por</th><th>Data</th></tr></thead><tbody>${v.pericia.hist.map(h=>{const p=PERICIA_ST.find(x=>x[0]===h.st)||[h.st,h.st,''];return `<tr><td>${chip(p[1],p[2]+' dot')}</td><td>${esc(h.por)}</td><td>${fmtDT(h.em)}</td></tr>`}).join('')||'<tr><td colspan="3" class="muted">Nenhum registro.</td></tr>'}</tbody></table></div></section>`;
+}
+function vReceb(v){
+ const P='veh.'+v.id+'.';v.receb.fotos=v.receb.fotos||{};
+ const fotosAval=Object.entries(v.aval.fotos).filter(([,x])=>x).map(([k])=>k.split('|')[1]);
+ return `<div class="grid g-side"><div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+ <section class="card"><header><div class="ht"><h3>Checklist de recebimento</h3><p>Itens que o proprietário deve entregar junto com o veículo</p></div>${auditLine(vlog(v,'recebimento'))}</header><div class="bd">
+ ${REC.map(([k,l])=>`<div class="item"><span class="nm" style="max-width:340px">${l}</span><span class="ctl"><button type="button" class="btn xs ${v.receb.fotos[k]?'':'ghost'}" data-act="recFoto" data-id="${v.id}" data-k="${k}">${ic(v.receb.fotos[k]?'check':'plus','sm')} ${v.receb.fotos[k]?'Foto anexada':'Adicionar foto'}</button>${segm(P+'receb.'+k,[['entregue','Entregue','ok'],['nao','Não possui','warn'],['pendente','Pendente']],v.receb[k])}</span></div>`).join('')}
+ <div class="form" style="margin-top:14px"><label class="f">Garantia${sel(P+'garantia',GARANTIAS,v.garantia)}</label><label class="f">Vencimento${inp(P+'garantiaVenc',v.garantiaVenc||'',{type:'month'})}</label></div>
+ </div></section>
+ ${obsBox(v,'recebimento')}
+ </div>
+ <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+ <section class="card"><header><h3>Avaliação</h3></header><div class="bd" style="display:flex;flex-direction:column;gap:12px">
+  <div style="border-radius:14px;overflow:hidden">${photo(v,{noTags:true})}</div>
+  <div class="chips">${fotosAval.map(f=>chip(f,'line')).join('')||'<span class="small muted">Nenhuma foto da avaliação.</span>'}</div>
+  <div class="rows small"><div class="row"><span class="muted">Feedback do avaliador</span><span>${esc(v.aval.feedback||'Não informado')}</span></div><div class="row"><span class="muted">Realizou test-drive?</span><b>${v.aval.testDrive?'Sim':'Não'}</b></div><div class="row"><span class="muted">Previsão de gastos</span><b>${brl2(gastoPrev(v))}</b></div><div class="row"><span class="muted">Solicitante</span><b>${esc(v.aval.solicitante||'—')}</b></div><div class="row"><span class="muted">Avaliador</span><b>${esc(v.aval.avaliador)}</b></div></div>
+ </div></section></div></div>`;
+}
+function vServ(v){
+ v.servicos.forEach(normServ);
+ const ativos=v.servicos.map((s,i)=>({s,i})).filter(x=>x.s.status!=='recusado');
+ const prev=gastoPrev(v), real=gastoReal(v), prevFeitos=v.servicos.filter(s=>s.feito&&s.status!=='recusado').reduce((a,s)=>a+s.prev,0);
+ const perf=prevFeitos?(prevFeitos-real)/prevFeitos*100:0;
+ const cat=CFG().custos.filter(c=>c.ativo&&['Preparação','Serviço'].includes(c.ref));
+ const col=(st,l)=>{const it=ativos.filter(x=>(x.s.st||'afazer')===st);return `<div class="col"><header><span><i style="background:${st==='feito'?'var(--green)':st==='fazendo'?'var(--info)':'var(--warn)'}"></i>${l}</span><span class="muted">${it.length}</span></header>${it.map(({s,i})=>`<div class="kc"><div style="display:flex;justify-content:space-between;gap:6px"><b>OS ${String(s.os||'—').padStart(6,'0')}</b>${chip(SERV_ITEM_ST[s.status][0],SERV_ITEM_ST[s.status][1])}</div><span><b>${esc(s.n)}</b></span><span class="small muted">Mão de obra: ${s.maoObra.forn?esc(fornNome(s.maoObra.forn)):'—'}${s.pecas.forn?' · Peças: '+esc(fornNome(s.pecas.forn)):''}</span><span class="small muted">${s.local==='interno'?'Serviço feito na loja':'Serviço feito no fornecedor'}</span><span class="small">Valor total <b>${brl2(s.feito?s.real:(+s.maoObra.valor||0)+(+s.pecas.valor||0)||s.prev)}</b></span><span class="small muted">Início ${dtf(s.inicio)} · término ${dtf(s.data||s.prazo)}</span>${s.vist?`<span class="small" style="color:var(--green-strong)">${ic('check','sm')} Vistoriado por ${esc(s.vist.por)}</span>`:''}<div class="ft"><button class="btn xs" type="button" data-act="osModal" data-id="${v.id}" data-i="${i}">Editar OS</button>${st!=='feito'?`<button class="btn xs ${st==='fazendo'?'pri':'dark'}" type="button" data-act="servMove" data-id="${v.id}" data-i="${i}" data-st="${st==='afazer'?'fazendo':'feito'}">${st==='afazer'?'Iniciar':'Concluir'}</button>`:s.status!=='vistoriado'?`<button class="btn xs pri" type="button" data-act="vistoriar" data-id="${v.id}" data-i="${i}">Vistoriar</button>`:''}</div></div>`).join('')||'<span class="small muted" style="padding:6px 4px">Nenhum serviço no momento.</span>'}</div>`};
+ return `<div class="stat-row"><div class="card stat"><span class="eyebrow">Previsto</span><b>${brl2(prev)}</b><span class="small muted">${ativos.length} itens</span></div><div class="card stat"><span class="eyebrow">Realizado</span><b>${brl2(real)}</b><span class="small muted">${v.servicos.filter(s=>s.feito).length} concluídos</span></div><div class="card stat"><span class="eyebrow">Performance</span><b style="color:${perf>=0?'var(--green-strong)':'var(--bad)'}">${perf>=0?'+':''}${pct(perf)}</b><span class="small muted">economia sobre o previsto</span></div><div class="card stat"><span class="eyebrow">Recusados</span><b>${v.servicos.length-ativos.length}</b><span class="small muted">fora da previsão</span></div></div>
+ <section class="card"><header><div class="ht"><h3>Itens</h3><p>Cada item vira uma ordem de serviço</p></div><span class="actions"><select class="inp" id="addserv-${v.id}" data-act-change="addServCat" data-id="${v.id}" style="width:auto;border-radius:999px" aria-label="Adicionar item do catálogo"><option value="">Adicionar item do catálogo…</option>${cat.map(c=>`<option value="${c.id}">${esc(c.nome)}${c.valor?' · '+brl(c.valor):''}</option>`).join('')}</select><button class="btn sm" type="button" data-act="addServ" data-id="${v.id}">${ic('plus','sm')} Item avulso</button><button class="btn sm ghost danger" type="button" data-act="recusarTodos" data-id="${v.id}">Recusar pendentes</button></span></header>
+ ${v.servicos.length?`<div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>OS</th><th>Item</th><th>Origem</th><th>Status</th><th class="n">Previsto</th><th class="n">Realizado</th><th></th></tr></thead><tbody>${v.servicos.map((s,i)=>`<tr style="${s.status==='recusado'?'opacity:.55':''}"><td class="num"><b>${String(s.os||'—').padStart(6,'0')}</b></td><td><b>${esc(s.n)}</b><span class="sub">${s.maoObra.forn?esc(fornNome(s.maoObra.forn)):'Sem fornecedor'} · ${s.local==='interno'?'interno':'externo'}</span></td><td class="small muted">${esc(s.orig||'Manual')}</td><td>${chip(SERV_ITEM_ST[s.status][0],SERV_ITEM_ST[s.status][1])}</td><td class="n">${brl2(s.prev)}</td><td class="n">${s.feito?brl2(s.real):'—'}</td><td style="white-space:nowrap" class="n"><button class="btn xs" type="button" data-act="osModal" data-id="${v.id}" data-i="${i}">OS</button> ${s.status==='recusado'?`<button class="btn xs" type="button" data-act="servRecusar" data-id="${v.id}" data-i="${i}">Restaurar</button>`:s.feito?'':`<button class="btn xs ghost danger" type="button" data-act="servRecusar" data-id="${v.id}" data-i="${i}">Recusar</button>`} <button class="btn xs ghost danger" type="button" data-act="delServ" data-id="${v.id}" data-i="${i}" aria-label="Excluir item">${ic('x','sm')}</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum item. Itens de reparo da avaliação aparecem aqui automaticamente.</div>'}
+ ${auditLine(vlog(v,'servicos'))}
+ </section>
+ <div class="kanban" style="grid-auto-columns:minmax(240px,1fr)">${col('afazer','A fazer')}${col('fazendo','Fazendo')}${col('feito','Feito')}</div>`;
+}
+/* ---------- anúncios do veículo ---------- */
+const AN_TABS=[['fotos','Fotos'],['ficha','Ficha técnica'],['acessorios','Acessórios'],['tags','Tags'],['site','Site'],['integracoes','Integrações'],['cabide','Cabide']];
+function errBox(e,v,k){return `<div class="errbox"><b>${ic('bell','sm')} ${esc(e.msg)}</b><span><span class="muted">O que ajustar:</span> ${esc(e.ajuste)}</span><span><span class="muted">Como resolver:</span> ${esc(e.sol)}</span><div class="actions">${e.go?`<button class="btn xs dark" type="button" data-act="anGo" data-id="${v.id}" data-go="${e.go.join(',')}">Resolver agora</button>`:''}<button class="btn xs" type="button" data-act="anRetry" data-id="${v.id}" data-k="${k}">Tentar novamente</button></div></div>`}
+function vAnun(v){
+ const t=UI.anTab[v.id]||'integracoes', P='veh.'+v.id+'.';
+ v.site=v.site||{prioridade:'normal',video:'',versao:'',desc:''};v.tags=v.tags||[];v.cabide=v.cabide||[];v.destaques=v.destaques||{};
+ const PA=portaisAtivos();
+ const filaN=PA.filter(([k])=>['fila','filadesp'].includes(anunStatus(v,k))).length;
+ let body='';
+ if(t==='fotos'){
+  body=`<section class="card"><header><div class="ht"><h3>Fotos</h3><p>Proporção 4×3, mínimo 1920 × 1440 px e até 5 MB. A primeira é a capa.</p></div><span class="actions"><label class="btn sm pri" for="fotos-${v.id}" style="cursor:pointer">${ic('plus','sm')} Adicionar fotos</label><input type="file" id="fotos-${v.id}" accept="image/*" multiple data-act-change="fotosAdd" data-id="${v.id}" hidden></span></header><div class="bd">
+  ${v.fotos?`<div class="ph-grid">${Array.from({length:v.fotos},(_,i)=>`<div class="ph-tile ${i===(v.capa||0)?'capa':''}"><div class="photo">${carSVG(v)}</div><span class="n">${i+1}</span>${i===(v.capa||0)?`<span class="cp">${ic('check','sm')} Capa</span>`:''}<div class="tl-act"><button class="btn xs" type="button" data-act="fotoCapa" data-id="${v.id}" data-i="${i}" ${i===(v.capa||0)?'disabled':''}>Capa</button><button class="btn xs" type="button" data-act="fotoMove" data-id="${v.id}" data-i="${i}" data-d="-1" ${i===0?'disabled':''} aria-label="Mover para a esquerda">${ic('left','sm')}</button><button class="btn xs" type="button" data-act="fotoMove" data-id="${v.id}" data-i="${i}" data-d="1" ${i===v.fotos-1?'disabled':''} aria-label="Mover para a direita">${ic('right','sm')}</button><button class="btn xs ghost danger" type="button" data-act="foto" data-id="${v.id}" data-d="-1" aria-label="Remover foto">${ic('x','sm')}</button></div></div>`).join('')}</div>`:'<div class="empty">Nenhuma foto. Adicione as fotos do anúncio.</div>'}
+  <p class="small muted" style="margin-top:10px">Mínimo por canal: ${PA.map(([k,l])=>`${esc(l)} ${regra(k).fotos}`).join(' · ')}. No protótipo as fotos são ilustrativas.</p></div></section>`;
+ } else if(t==='ficha'){
+  body=`<section class="card"><header><h3>Ficha técnica no anúncio</h3><button class="btn sm" type="button" data-act="vtab" data-id="${v.id}" data-tab="ficha">Editar</button></header><div class="bd kv">${[['Carroceria',v.carroceria],['Câmbio',v.cambio],['Potência',v.potencia?v.potencia+' cv':'Não informado'],['Portas',v.portas],['Cor',v.cor],['Combustível',v.combustivel],['Tração',v.tracao||'—'],['Consumo urbano',v.consumoU?v.consumoU+' km/l':'Não informado'],['Consumo rodoviário',v.consumoR?v.consumoR+' km/l':'Não informado'],['KM',numf(v.km)]].map(([l,x])=>`<div><b>${esc(x)}</b><span class="small muted">${l}</span></div>`).join('')}</div></section>`;
+ } else if(t==='acessorios'){
+  body=`<section class="card"><header><h3>Acessórios</h3></header><div class="bd">${acessoriosBox(v,'a'+v.id)}</div></section>`;
+ } else if(t==='tags'){
+  body=`<section class="card"><header><div class="ht"><h3>Tags do anúncio</h3><p>O site mostra 4 tags no computador e 2 no celular, na ordem marcada</p></div>${chip(v.tags.length+' marcadas',v.tags.length>4?'warn':'ok')}</header><div class="bd checks">${TAGS_ANUNCIO.map(tg=>`<label class="check"><input type="checkbox" id="tg-${v.id}-${fid(tg)}" data-act-change="tagAn" data-id="${v.id}" data-t="${esc(tg)}" ${v.tags.includes(tg)?'checked':''}> ${esc(tg)}</label>`).join('')}</div></section>`;
+ } else if(t==='site'){
+  body=`<section class="card"><header><h3>Site da loja</h3></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
+   <label class="f">Exibição no site${segm(P+'site.prioridade',PRIORIDADES,v.site.prioridade)}<small>Alta aparece primeiro; Não publicar esconde o veículo do site</small></label>
+   <div class="form"><label class="f">Garantia${sel(P+'garantia',GARANTIAS,v.garantia)}</label><label class="f">Vídeo do YouTube${inp(P+'site.video',v.site.video,{ph:'https://www.youtube.com/watch?v=…'})}</label><label class="f wide">Versão customizada para o site${inp(P+'site.versao',v.site.versao,{ph:v.versao})}</label></div>
+   <label class="f">Descrição customizada para o site<textarea class="inp" id="${fid(P+'site.desc')}" data-set="${P}site.desc" rows="5" placeholder="${esc(descricaoAuto(v).slice(0,120))}…">${esc(v.site.desc)}</textarea></label>
+   <div><button class="btn sm" type="button" data-act="gerarDescSite" data-id="${v.id}">Gerar texto a partir da ficha</button></div>
+  </div></section>`;
+ } else if(t==='cabide'){
+  const c=v.cabide.concat(['','','','','','']).slice(0,6);
+  body=`<div class="grid g2"><section class="card"><header><div class="ht"><h3>Cabide</h3><p>Seis destaques impressos no cabide pendurado no carro</p></div><button class="btn sm" type="button" data-act="cabideAuto" data-id="${v.id}">Preencher com os opcionais</button></header><div class="bd form" style="grid-template-columns:1fr">${c.map((x,i)=>`<label class="f">Destaque ${i+1}${inp(P+'cabide.'+i,x,{ph:v.opcionais[i]||''})}</label>`).join('')}</div></section>
+  <section class="card"><header><h3>Prévia</h3></header><div class="bd"><div class="cabide"><span class="eyebrow" style="color:inherit;opacity:.7">${esc(CFG().loja.fantasia)}</span><h2>${esc(v.marca)} ${esc(v.modelo)}</h2><span>${esc(v.versao)}</span><span>${v.anoFab}/${v.anoMod} · ${v.zeroKm?'0 km':numf(v.km)+' km'} · ${esc(v.cor)}</span><ul>${c.filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="pr">${v.venda?brl(preco(v)):'Consulte'}</div><span class="small">${esc(v.garantia)} · ${esc(CFG().loja.tel)}</span></div></div></section></div>`;
+ } else {
+  body=`<section class="card"><header><div class="ht"><h3>Integrações</h3><p>Status em cada canal ativo. Publicar e atualizar entram na fila do portal.</p></div><span class="actions">${filaN?`<button class="btn sm dark" type="button" data-act="anSync">${ic('refresh','sm')} Sincronizar agora (${filaN})</button>`:''}<button class="btn sm pri" type="button" data-act="pubAll" data-id="${v.id}" data-v="1" ${v.status!=='estoque'?'disabled':''}>Publicar em todos</button><button class="btn sm" type="button" data-act="pubAll" data-id="${v.id}" data-v="0" ${v.status!=='estoque'?'disabled':''}>Despublicar todos</button></span></header><div class="bd" style="display:flex;flex-direction:column;gap:12px">
+  ${PA.map(([k,l,c])=>{const s=anunStatus(v,k),st=ANUN_ST[s];const errs=s==='erro'?anuncioErros(v,k):s==='errodest'?[destaqueErro(v,k)]:s==='errodesp'?[{msg:'O portal não confirmou a remoção do anúncio',ajuste:'O veículo foi vendido, mas o anúncio pode continuar no ar',sol:'Clique em Tentar novamente. Se continuar, remova pelo painel do portal.'}]:[];const conta=(CFG().portais.find(p=>p.k===k)||{contas:[{nome:'Site próprio'}]}).contas[0];const r=regra(k);return `<div class="integ-row"><div class="hd">${`<span class="lg" style="background:${c}">${esc(ini(l))}</span>`}<span class="who"><b>${esc(l)}</b><span class="small muted">${esc(conta?conta.nome:'Sem conta cadastrada')}</span></span>${chip(st[0],st[1])}${r.destaques&&v.status==='estoque'?`<label class="switch small"><input type="checkbox" id="dst-${v.id}-${k}" data-act-change="destaqueAn" data-id="${v.id}" data-k="${k}" ${v.destaques[k]?'checked':''}><i></i><span>Destaque</span></label>`:''}<span class="actions">${v.status!=='estoque'?'':s==='nao'||s==='despublicado'?`<button class="btn xs pri" type="button" data-act="pub" data-id="${v.id}" data-k="${k}">Publicar</button>`:s==='fila'||s==='filadesp'?`<span class="small muted">aguardando sincronização</span>`:`<button class="btn xs" type="button" data-act="anRetry" data-id="${v.id}" data-k="${k}">Atualizar</button><button class="btn xs ghost" type="button" data-act="pub" data-id="${v.id}" data-k="${k}">Despublicar</button>`}</span></div>${errs.map(e=>errBox(e,v,k)).join('')}</div>`}).join('')}
+  <label class="f">Descrição do anúncio nas integrações<textarea class="inp" id="${fid(P+'descricao')}" data-set="${P}descricao" rows="6" placeholder="Descrição exibida nos portais">${esc(v.descricao)}</textarea><small>${(v.descricao||'').length} caracteres · limite mais baixo entre os canais ativos: ${Math.min(...PA.map(([k])=>regra(k).descMax))}</small></label>
+  <div><button class="btn sm" type="button" data-act="gerarDesc" data-id="${v.id}">Gerar texto a partir da ficha</button></div>
+  ${auditLine(vlog(v,'anuncios'))}
+ </div></section>`;
+ }
+ return `<div class="tabs">${AN_TABS.map(([k,l])=>`<button type="button" class="${t===k?'on':''}" data-act="anTab" data-id="${v.id}" data-t="${k}">${l}${k==='integracoes'&&PA.some(([p])=>['erro','errodest','errodesp'].includes(anunStatus(v,p)))?' '+chip('erro','bad'):''}${k==='fotos'?' '+v.fotos:''}</button>`).join('')}</div>${body}`;
+}
+function vHist(v){
+ const H=(v.hist||[]).slice().sort((a,b)=>b.em.localeCompare(a.em));
+ return `<section class="card"><header><div class="ht"><h3>Histórico de alterações</h3><p>Quem mudou o quê e quando, em todas as etapas</p></div>${chip(H.length+' registros')}</header><div class="bd">${H.length?`<div class="timeline">${H.map(h=>`<div class="tl-it"><span class="av xs g">${esc(ini(h.por))}</span><div><b>${esc(h.por)}</b> <span class="small muted">${fmtDT(h.em)}</span><p>${esc(h.txt)}</p></div></div>`).join('')}</div>`:'<div class="empty">Nenhuma alteração registrada.</div>'}</div></section>`;
+}
+
+/* ================= SERVIÇOS: carregar mais ================= */
+function viewServicos(){
+ const q=UI.sf.q.trim().toLowerCase();
+ const all=[];vehList().filter(v=>v.status==='estoque').forEach(v=>v.servicos.forEach((s,i)=>{normServ(s);if(s.status==='recusado')return;if(!q||`${s.n} ${s.os} ${v.placa} ${v.marca} ${v.modelo}`.toLowerCase().includes(q))all.push({v,s,i})}));
+ const tot=st=>all.filter(x=>(x.s.st||'afazer')===st).sort((a,b)=>(b.s.os||0)-(a.s.os||0));
+ const prevAberto=all.filter(x=>!x.s.feito).reduce((a,x)=>a+x.s.prev,0);
+ return phead('Serviços','Preparação dos veículos em estoque, do pedido à vistoria')+`
+ <div class="stat-row">${SERV_ST.map(([k,l])=>`<div class="card stat"><span class="eyebrow">${l}</span><b>${tot(k).length}</b><span class="small muted">${brl(tot(k).reduce((a,x)=>a+(k==='feito'?(+x.s.real||0):x.s.prev),0))} ${k==='feito'?'realizado':'previsto'}</span></div>`).join('')}<div class="card stat"><span class="eyebrow">Em aberto</span><b>${brl(prevAberto)}</b><span class="small muted">a gastar até concluir</span></div></div>
+ <div class="toolbar"><span class="search">${ic('search','sm')}<input class="inp" id="sf-q" type="search" placeholder="Buscar OS, serviço, placa ou modelo…" value="${esc(UI.sf.q)}" data-ui="sf.q" data-live="1"></span></div>
+ <div class="kanban">${SERV_ST.map(([k,l])=>{const it=tot(k);const lim=UI.servMore[k]||6;return `<div class="col"><header><span><i style="background:${k==='feito'?'var(--green)':k==='fazendo'?'var(--info)':'var(--warn)'}"></i>${l}</span><span class="muted">${it.length}</span></header>
+  ${it.slice(0,lim).map(({v,s,i})=>`<div class="kc"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(s.n)}</b>${chip('OS '+String(s.os||'—').padStart(6,'0'),'line')}</div><a class="lk small" href="#v-${v.id}" data-act="vtab" data-id="${v.id}" data-tab="servicos">${esc(nome(v))} · ${esc(v.placa||'Zero km')}</a><span class="small muted">${s.maoObra.forn?esc(fornNome(s.maoObra.forn)):'Sem fornecedor'} · ${k==='feito'?'realizado '+brl(s.real):'previsto '+brl(s.prev)}</span>${s.vist?`<span class="small" style="color:var(--green-strong)">${ic('check','sm')} Vistoriado por ${esc(s.vist.por)}</span>`:''}
+   <div class="ft">${k!=='afazer'?`<button class="btn xs" type="button" data-act="servMove" data-id="${v.id}" data-i="${i}" data-st="${k==='feito'?'fazendo':'afazer'}">${ic('left','sm')} Voltar</button>`:'<span></span>'}${k!=='feito'?`<button class="btn xs ${k==='fazendo'?'pri':'dark'}" type="button" data-act="servMove" data-id="${v.id}" data-i="${i}" data-st="${k==='afazer'?'fazendo':'feito'}">${k==='afazer'?'Iniciar':'Concluir'} ${ic('right','sm')}</button>`:s.status!=='vistoriado'?`<button class="btn xs pri" type="button" data-act="vistoriar" data-id="${v.id}" data-i="${i}">Vistoriar</button>`:chip(dtf(s.data),'ok')}</div></div>`).join('')||'<span class="small muted" style="padding:6px 4px">Nada aqui.</span>'}
+  ${it.length>lim?`<button class="btn sm block" type="button" data-act="servMais" data-k="${k}">Carregar mais (${it.length-lim} restantes)</button>`:lim>6&&it.length>6?`<button class="btn sm ghost block" type="button" data-act="servMenos" data-k="${k}">Mostrar menos</button>`:''}
+ </div>`}).join('')}</div>`;
+}
+
+/* ================= ANÚNCIOS: status, erros e soluções ================= */
+function viewAnuncios(){
+ const PA=portaisAtivos(), f=UI.anf, q=f.q.trim().toLowerCase();
+ const base=vehList().filter(v=>f.vst==='todos'||(f.vst==='estoque'?v.status==='estoque':v.status!=='estoque'));
+ const cont={};Object.keys(ANUN_ST).forEach(k=>cont[k]=0);base.forEach(v=>PA.forEach(([k])=>cont[anunStatus(v,k)]++));
+ const ERR=errosAnuncios().filter(e=>(!f.integ||e.k===f.integ)&&(!q||`${e.v.placa} ${e.v.marca} ${e.v.modelo} ${e.msg}`.toLowerCase().includes(q)));
+ const errGrupo={};ERR.forEach(e=>{(errGrupo[e.cod]=errGrupo[e.cod]||{msg:e.msg.replace(/\(.*\)/,'').trim(),sol:e.sol,n:0}).n++});
+ let L=base.filter(v=>!q||`${v.placa} ${v.marca} ${v.modelo}`.toLowerCase().includes(q));
+ if(f.st)L=L.filter(v=>PA.some(([k])=>(!f.integ||f.integ===k)&&anunStatus(v,k)===f.st));
+ else if(f.integ)L=L.filter(v=>anunStatus(v,f.integ)!=='nao'||v.status==='estoque');
+ if(f.dest)L=L.filter(v=>v.destaques&&Object.values(v.destaques).some(Boolean));
+ const filaN=base.reduce((a,v)=>a+PA.filter(([k])=>['fila','filadesp'].includes(anunStatus(v,k))).length,0);
+ const tabs=`<div class="tabs"><button type="button" class="${UI.anunTab==='veiculos'?'on':''}" data-act="ui" data-k="anunTab" data-v="veiculos">Veículos</button><button type="button" class="${UI.anunTab==='erros'?'on':''}" data-act="ui" data-k="anunTab" data-v="erros">Erros e soluções ${ERR.length?chip(String(ERR.length),'bad'):''}</button></div>`;
+ const toolbar=`<div class="toolbar"><span class="search">${ic('search','sm')}<input class="inp" id="anf-q" type="search" placeholder="Buscar placa, modelo ou erro…" value="${esc(f.q)}" data-ui="anf.q" data-live="1"></span>
+  <select class="inp" id="anf-integ" data-ui="anf.integ" aria-label="Integração">${opts([['','Todas as integrações']].concat(PA.map(p=>[p[0],p[1]])),f.integ)}</select>
+  ${UI.anunTab==='veiculos'?`<select class="inp" id="anf-st" data-ui="anf.st" aria-label="Status do anúncio">${opts([['','Todos os status']].concat(Object.entries(ANUN_ST).map(([k,v])=>[k,v[0]+' ('+cont[k]+')'])),f.st)}</select><select class="inp" id="anf-vst" data-ui="anf.vst" aria-label="Status do veículo">${opts([['estoque','Em estoque'],['vendidos','Vendidos ou devolvidos'],['todos','Todos os veículos']],f.vst)}</select><label class="check"><input type="checkbox" id="anf-dest" data-ui="anf.dest" ${f.dest?'checked':''}> Só destaques</label>`:''}</div>`;
+ let body;
+ if(UI.anunTab==='erros'){
+  body=`${Object.keys(errGrupo).length?`<div class="stat-row">${Object.values(errGrupo).sort((a,b)=>b.n-a.n).map(g=>`<div class="card stat"><span class="eyebrow">${esc(g.msg)}</span><b style="color:var(--bad)">${g.n}</b><span class="small muted">${esc(g.sol)}</span></div>`).join('')}</div>`:''}
+  <section class="card"><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Veículo</th><th>Canal</th><th>Erro</th><th>O que ajustar e como resolver</th><th></th></tr></thead><tbody>
+  ${ERR.map(e=>`<tr><td><span style="display:flex;gap:10px;align-items:center">${thumb(e.v)}<span><b>${esc(nome(e.v))}</b><span class="sub">${esc(e.v.placa||'0 km')}</span></span></span></td><td>${esc(e.portal)}<span class="sub">${chip(ANUN_ST[e.st][0],ANUN_ST[e.st][1])}</span></td><td style="min-width:200px"><b>${esc(e.msg)}</b></td><td style="min-width:260px">${esc(e.ajuste)}<span class="sub" style="color:var(--ink-2)">${esc(e.sol)}</span></td><td style="white-space:nowrap">${e.go?`<button class="btn xs dark" type="button" data-act="anGo" data-id="${e.v.id}" data-go="${e.go.join(',')}">Resolver</button> `:''}<button class="btn xs" type="button" data-act="anRetry" data-id="${e.v.id}" data-k="${e.k}">Tentar de novo</button></td></tr>`).join('')||'<tr><td colspan="5" class="empty">Nenhum erro nos anúncios. Tudo publicado como esperado.</td></tr>'}
+  </tbody></table></div></section>`;
+ } else {
+  body=`<section class="card"><div class="bd flush">${L.map(v=>{const open=UI.anOpen[v.id];const c=pubCount(v);const er=PA.filter(([k])=>['erro','errodest','errodesp'].includes(anunStatus(v,k))).length;return `<div style="border-bottom:1px solid var(--line);padding:4px 20px">
+  <div class="prod" style="border:0;cursor:pointer" data-act="anToggle" data-id="${v.id}" role="button" tabindex="0" aria-expanded="${!!open}">${thumb(v)}<span class="who"><b>${esc(nome(v))} ${v.anoFab}/${v.anoMod}</b><span class="small muted">${v.venda?brl(preco(v)):'Sem preço'} · ${v.zeroKm?'0 km':numf(v.km)+' km'} · ${v.fotos} fotos</span></span><span class="rt"><span class="chips">${plate(v)}${er?chip(er+' com erro','bad dot'):''}${chip(c+'/'+PA.length,c===PA.length?'ok':c?'warn':'')}</span></span><span class="muted">${ic(open?'chev':'right','sm')}</span></div>
+  ${open?`<div class="integ" style="padding:0 0 14px">${PA.map(([k,l,cl])=>{const s=anunStatus(v,k);const st=ANUN_ST[s];const e1=s==='erro'?anuncioErros(v,k)[0]:s==='errodest'?destaqueErro(v,k):null;return `<div class="ig" style="flex-wrap:wrap"><span class="lg" style="background:${cl}">${esc(ini(l))}</span><span class="who"><b>${esc(l)}</b>${chip(st[0],st[1])}</span>${v.status!=='estoque'?'':s==='nao'?`<button class="btn xs pri" type="button" data-act="pub" data-id="${v.id}" data-k="${k}">Publicar</button>`:['fila','filadesp'].includes(s)?'':`<button class="btn xs" type="button" data-act="pub" data-id="${v.id}" data-k="${k}">Despublicar</button>`}${e1?`<span class="small" style="flex-basis:100%;color:var(--bad)">${esc(e1.msg)}</span>`:''}</div>`}).join('')}</div><div class="small" style="padding:0 0 14px;display:flex;gap:14px"><a class="lk" href="#v-${v.id}" data-act="anGo" data-id="${v.id}" data-go="anuncios,integracoes">Editar anúncio</a><a class="lk" href="#site">Ver no site</a></div>`:''}
+ </div>`}).join('')||'<div class="empty">Nenhum veículo com esses filtros.</div>'}</div></section>`;
+ }
+ return phead('Gestão de anúncios',`${PA.length} canais ativos. Portais são ligados em Configurações › Anúncios.`,`${filaN?`<button class="btn dark" type="button" data-act="anSync">${ic('refresh','sm')} Sincronizar fila (${filaN})</button>`:''}${can('configuracoes')?`<a class="btn" href="#configuracoes" data-act="cfgGo" data-sec="anuncios">${ic('link','sm')} Integrações</a>`:''}`)+`
+ <div class="stat-row"><div class="card stat"><span class="eyebrow">Publicados</span><b style="color:var(--green-strong)">${cont.publicado}</b><span class="small muted">anúncios no ar</span></div><div class="card stat"><span class="eyebrow">Com erro</span><b style="color:${cont.erro+cont.errodest+cont.errodesp?'var(--bad)':'var(--ink)'}">${cont.erro+cont.errodest+cont.errodesp}</b><span class="small muted">${cont.errodest} no destaque · ${cont.errodesp} na despublicação</span></div><div class="card stat"><span class="eyebrow">Na fila</span><b>${cont.fila+cont.filadesp}</b><span class="small muted">aguardando o portal</span></div><div class="card stat"><span class="eyebrow">Não publicados</span><b>${cont.nao}</b><span class="small muted">${cont.despublicado} despublicados</span></div></div>
+ ${tabs}${toolbar}${body}`;
+}
+
+/* ================= CLIENTES: lista e ficha ================= */
+function viewClientes(){
+ const q=UI.cq.trim().toLowerCase();
+ const L=vals(S.cli).filter(c=>!q||`${c.nome} ${c.tel} ${c.celular} ${c.email} ${c.doc} ${c.municipio} ${c.cidade}`.toLowerCase().includes(q)).sort((a,b)=>a.nome.localeCompare(b.nome));
+ return phead('Clientes',`${L.length} clientes`,`<button class="btn pri" type="button" data-act="novoCli">${ic('plus','sm')} Novo cliente</button>`)+`
+ <div class="toolbar"><span class="search">${ic('search','sm')}<input class="inp" id="cq" type="search" placeholder="Buscar nome, telefone, CPF/CNPJ, cidade…" value="${esc(UI.cq)}" data-ui="cq" data-live="1"></span></div>
+ <section class="card"><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Nome</th><th>CPF/CNPJ</th><th>Contato</th><th>Cidade</th><th>Nascimento</th><th>Cadastrado por</th><th class="n">Negociações</th></tr></thead><tbody>
+ ${L.map(c=>{const nn=vals(S.neg).filter(n=>n.clienteId===c.id).length;return `<tr class="click" data-act="go" data-to="cli-${c.id}"><td><span style="display:flex;gap:10px;align-items:center"><span class="av sm g">${esc(ini(c.nome))}</span><span><b>${esc(c.nome)}</b><span class="sub">${c.tipo==='PJ'?'Pessoa jurídica':'Pessoa física'}${c.vendaDireta?' · venda direta':''}</span></span></span></td><td class="num">${esc(c.doc||'—')}</td><td>${esc(c.email||'—')}<span class="sub num">${esc(c.celular||c.tel||'')}</span></td><td>${esc(c.municipio?c.municipio+'-'+c.uf:c.cidade||'—')}</td><td>${c.nasc?dtf(c.nasc):'—'}</td><td class="small">${c.cad?esc(c.cad.por)+'<span class="sub">'+fmtDT(c.cad.em)+'</span>':'—'}</td><td class="n">${nn}</td></tr>`}).join('')||'<tr><td colspan="7" class="empty">Nenhum cliente.</td></tr>'}
+ </tbody></table></div></section>`;
+}
+function viewCliente(id){
+ const c=S.cli[id];if(!c)return phead('Cliente não encontrado','')+'<a class="lk" href="#clientes">Voltar</a>';
+ const t=UI.cliTab[id]||'dados';
+ const negs=vals(S.neg).filter(n=>n.clienteId===c.id), veics=vehList().filter(v=>v.clienteId===c.id), leads=vals(S.lead).filter(l=>l.tel&&(l.tel===c.tel||l.tel===c.celular)||l.nome===c.nome);
+ const kv=(l,x)=>`<div><b>${esc(x||'—')}</b><span class="small muted">${l}</span></div>`;
+ let body;
+ if(t==='dados'){
+  body=`<section class="card"><header><h3>${c.tipo==='PJ'?'Dados empresariais':'Dados pessoais'}</h3><button class="btn sm pri" type="button" data-act="editCli" data-id="${c.id}">Editar cadastro</button></header><div class="bd kv">${kv(c.tipo==='PJ'?'Razão social':'Nome',c.nome)}${kv(c.tipo==='PJ'?'CNPJ':'CPF',c.doc)}${c.tipo==='PF'?kv('RG',c.rg)+kv('Sexo',{M:'Masculino',F:'Feminino'}[c.sexo]):''}${kv('Nascimento',c.nasc?dtf(c.nasc):'')}${c.estrangeiro?kv('Documento estrangeiro',c.docEstr):''}${kv('E-mail',c.email)}${kv('Celular',c.celular||c.tel)}${kv('Telefone',c.telefone)}</div></section>
+  ${c.tipo==='PJ'&&c.resp?`<section class="card"><header><h3>Responsável</h3></header><div class="bd kv">${kv('Nome',c.resp.nome)}${kv('CPF',c.resp.cpf)}${kv('E-mail',c.resp.email)}${kv('Telefone',c.resp.tel)}${kv('Nascimento',c.resp.nasc?dtf(c.resp.nasc):'')}</div></section>`:''}
+  <div class="grid g2"><section class="card"><header><h3>Endereço</h3></header><div class="bd kv">${kv('CEP',c.cep)}${kv('Endereço',[c.endereco,c.numero].filter(Boolean).join(', '))}${kv('Complemento',c.complemento)}${kv('Bairro',c.bairro)}${kv('Município',c.municipio)}${kv('UF',c.uf)}</div></section>
+  <section class="card"><header><h3>CRM e fiscal</h3></header><div class="bd kv">${kv('Como conheceu a loja',c.origem)}${kv('Prefere contato por',c.prefContato)}${kv('Aceita receber ofertas',c.aceitaOfertas?'Sim':'Não')}${kv('Venda direta',c.vendaDireta?(c.segmento||'Sim'):'Não')}${kv('Indicador de IE',(IND_IE.find(x=>x[0]===c.indIE)||[])[1])}${kv('Inscrição estadual',c.ie)}${kv('Inscrição municipal',c.im)}</div></section></div>
+  ${c.obs?`<section class="card pad"><span class="eyebrow">Observação</span><p style="margin-top:6px">${esc(c.obs)}</p></section>`:''}`;
+ } else if(t==='negocios'){
+  body=`<section class="card"><header><h3>Negociações</h3></header><div class="bd rows">${negs.map(n=>`<div class="row"><a class="lk" href="#neg-${n.id}">#${n.id} · ${NEG_TIPOS[n.tipo]}${n.saidaId?' · '+esc(nome(S.veh[n.saidaId])):''}</a><span class="chips">${chip(NEG_STATUS[n.status][0],NEG_STATUS[n.status][1]+' dot')}<span class="small">${brl(Math.abs(negCalc(n).total))}</span><span class="small muted">${dtf(n.criado)}</span></span></div>`).join('')||'<span class="muted">Nenhuma negociação.</span>'}</div></section>
+  <section class="card"><header><h3>Veículos trazidos à loja</h3></header><div class="bd">${veics.map(v=>`<a class="prod" href="#v-${v.id}">${thumb(v)}<span class="who"><b>${esc(nome(v))} ${v.anoMod}</b><span class="small muted">${esc(v.placa||'0 km')} · entrada ${dtf(v.entrada)}</span></span><span class="rt">${statusChip(v)}</span></a>`).join('')||'<span class="muted">Nenhum veículo.</span>'}</div></section>`;
+ } else if(t==='atend'){
+  body=`<section class="card"><header><h3>Atendimentos</h3></header><div class="bd rows">${leads.map(l=>`<div class="row"><span><b>#${l.id}</b> · ${esc(l.origem)}${l.vid?' · '+esc(nome(S.veh[l.vid])):''}<br><span class="small muted">${esc(l.desc)}</span></span><span class="chips">${chip(LEAD_ST.find(x=>x[0]===l.status)[1])}<span class="small muted">${dtf(l.data)} · ${esc(uNome(l.uid))}</span></span></div>`).join('')||'<span class="muted">Nenhum atendimento com o mesmo nome ou telefone.</span>'}</div></section>`;
+ } else {
+  body=`<section class="card"><header><div class="ht"><h3>Histórico do cliente</h3><p>Cada alteração no cadastro, com quem fez e quando</p></div></header><div class="bd">${(c.hist||[]).length?`<div class="timeline">${c.hist.map(h=>`<div class="tl-it"><span class="av xs g">${esc(ini(h.por))}</span><div><b>${esc(h.por)}</b> <span class="small muted">${fmtDT(h.em)}</span><p>${esc(h.txt)}</p></div></div>`).join('')}</div>`:'<div class="empty">Sem registros.</div>'}</div></section>`;
+ }
+ return phead(esc(c.nome),`${c.tipo==='PJ'?'Pessoa jurídica':'Pessoa física'} · ${c.cad?'cadastrado por '+esc(c.cad.por)+' em '+fmtDT(c.cad.em):'sem registro de cadastro'}`,`<button class="btn" type="button" data-act="editCli" data-id="${c.id}">Editar</button>`,`<a href="#clientes">Clientes</a>${ic('right','sm')}<span>${esc(c.nome)}</span>`)+`
+ <div class="tabs">${[['dados','Dados'],['negocios','Negociações e veículos ('+(negs.length+veics.length)+')'],['atend','Atendimentos ('+leads.length+')'],['hist','Histórico ('+(c.hist||[]).length+')']].map(([k,l])=>`<button type="button" class="${t===k?'on':''}" data-act="cliTab" data-id="${c.id}" data-t="${k}">${l}</button>`).join('')}</div>${body}`;
+}
+
+/* ================= PAINEL com abas ================= */
+const PAINEL_TABS=[['estoque','Estoque'],['negociacoes','Negociações'],['anuncios','Anúncios'],['crm','CRM']];
+const painelTabs=()=>`<div class="tabs">${PAINEL_TABS.map(([k,l])=>`<button type="button" class="${UI.painelTab===k?'on':''}" data-act="ui" data-k="painelTab" data-v="${k}">${l}</button>`).join('')}</div>`;
+function vendasMes(y,m){return vals(S.neg).filter(n=>n.status==='finalizada'&&n.saidaId&&['venda','troca'].includes(n.tipo)).map(n=>({n,d:S.veh[n.saidaId].saida||n.criado})).filter(x=>{const d=new Date(x.d+'T12:00');return d.getFullYear()===y&&d.getMonth()===m})}
+function acumChart(cur,prev,diasMes){
+ const W=640,H=230,L=44,R=12,T=14,B=28;
+ const acc=(arr,n)=>{const a=Array(n).fill(0);arr.forEach(x=>{const dd=+x.d.slice(8)-1;if(dd<n)a[dd]+=1});for(let i=1;i<n;i++)a[i]+=a[i-1];return a};
+ const a1=acc(cur,TODAY.getDate()), a0=acc(prev,diasMes);
+ const max=Math.max(1,...a0,...a1);const x=i=>L+i*(W-L-R)/(diasMes-1),y=v=>T+(H-T-B)*(1-v/max);
+ const path=a=>a.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+ const ticks=[...new Set([0,Math.ceil(max/2),max])];
+ return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vendas acumuladas por dia: mês atual e anterior">${ticks.map(t=>`<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-dasharray="4 5"/><text x="${L-8}" y="${y(t)+4}" text-anchor="end" font-size="12" fill="var(--muted)" font-family="var(--font)">${t}</text>`).join('')}${[1,5,10,15,20,25,diasMes].map(d=>`<text x="${x(d-1)}" y="${H-8}" text-anchor="middle" font-size="12" fill="var(--muted)" font-family="var(--font)">${d}</text>`).join('')}<path d="${path(a0)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/><path d="${path(a1)}" fill="none" stroke="var(--green)" stroke-width="3" stroke-linejoin="round"/><circle cx="${x(a1.length-1)}" cy="${y(a1[a1.length-1])}" r="5" fill="var(--green)" stroke="var(--surface)" stroke-width="2"/></svg></div>`;
+}
+function viewPainel(){
+ const t=UI.painelTab;
+ if(t==='estoque'||!PAINEL_TABS.some(p=>p[0]===t))return painelEstoque().replace('<div class="grid g-dash">',painelTabs()+'<div class="grid g-dash">');
+ const head=phead('Painel',`Visão geral da ${esc(CFG().loja.fantasia)}`)+painelTabs();
+ if(t==='negociacoes'){
+  const y=TODAY.getFullYear(),m=TODAY.getMonth(),pm=m===0?11:m-1,py=m===0?y-1:y;
+  const cur=vendasMes(y,m),prev=vendasMes(py,pm),dias=new Date(py,pm+1,0).getDate();
+  const fat=a=>a.reduce((s,x)=>s+negCalc(x.n).saida,0);
+  const lucro=a=>a.reduce((s,x)=>{const v=S.veh[x.n.saidaId];return s+negCalc(x.n).saida-v.compra-gastoReal(v)},0);
+  const tk=a=>a.length?fat(a)/a.length:0;
+  return head+`<div class="stat-row"><div class="card stat"><span class="eyebrow">Vendas em ${MESES[m]}</span><b>${cur.length}</b><span class="small muted">até hoje</span></div><div class="card stat"><span class="eyebrow">Vendas em ${MESES[pm]}</span><b>${prev.length}</b><span class="small muted">mês fechado</span></div><div class="card stat"><span class="eyebrow">Faturamento do mês</span><b style="color:var(--green-strong)">${brl(fat(cur))}</b><span class="small muted">ticket médio ${brl(tk(cur))}</span></div><div class="card stat"><span class="eyebrow">Faturamento do mês anterior</span><b>${brl(fat(prev))}</b><span class="small muted">ticket médio ${brl(tk(prev))}</span></div><div class="card stat"><span class="eyebrow">Lucro bruto do mês</span><b>${brl(lucro(cur))}</b><span class="small muted">anterior ${brl(lucro(prev))}</span></div></div>
+  <section class="card"><header><div class="ht"><h3>Vendas acumuladas por dia</h3><p>${MESES[m]} comparado com ${MESES[pm]}</p></div><div class="lg-inline"><span><i style="border-top:3px solid var(--green)"></i>${MESES[m]}</span><span><i class="d"></i>${MESES[pm]}</span></div></header><div class="bd">${acumChart(cur,prev,dias)}</div></section>
+  <section class="card"><header><h3>Vendas recentes</h3></header><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Data</th><th>Veículo</th><th>Cliente</th><th>Vendedor</th><th class="n">Valor</th><th class="n">Lucro bruto</th></tr></thead><tbody>${cur.concat(prev).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,10).map(x=>{const v=S.veh[x.n.saidaId];const val=negCalc(x.n).saida;return `<tr class="click" data-act="go" data-to="neg-${x.n.id}"><td>${dtf(x.d)}</td><td><b>${esc(nome(v))}</b><span class="sub">${esc(v.placa||'0 km')}</span></td><td>${esc(cliNome(x.n.clienteId))}</td><td>${esc(x.n.vendedor)}</td><td class="n">${brl(val)}</td><td class="n">${brl(val-v.compra-gastoReal(v))}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Nenhuma venda nos últimos dois meses.</td></tr>'}</tbody></table></div></section>`;
+ }
+ if(t==='anuncios'){
+  const E=estoque(),PA=portaisAtivos();
+  const mods={};E.forEach(v=>{const k=nome(v);mods[k]=(mods[k]||0)+1});
+  return head+`<div class="stat-row">${PA.map(([k,l])=>`<div class="card stat"><span class="eyebrow">${esc(l)}</span><b>${E.filter(v=>anunStatus(v,k)==='publicado').length}</b><span class="small muted">${E.filter(v=>['erro','errodest'].includes(anunStatus(v,k))).length} com erro</span></div>`).join('')}</div>
+  <div class="grid g2"><section class="card"><header><h3>Veículos anunciados por canal</h3><a class="btn sm" href="#anuncios">Gerir anúncios</a></header><div class="bd">${hbars(PA.map(([k,l])=>({l,v:E.filter(v=>anunStatus(v,k)==='publicado').length,txt:E.filter(v=>anunStatus(v,k)==='publicado').length+'/'+E.length,c:'g'})),E.length)}</div></section>
+  <section class="card"><header><h3>Modelos com mais unidades em estoque</h3></header><div class="bd">${hbars(Object.entries(mods).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([l,v])=>({l,v})))}</div></section></div>`;
+ }
+ const uf=UI.crmUser, LL=vals(S.lead).filter(l=>!uf||l.uid===+uf);
+ const mesK=(d,mm)=>new Date(d+'T12:00').getMonth()===mm;
+ const m=TODAY.getMonth(),pm=m===0?11:m-1;
+ const funil=mm=>{const A=LL.filter(l=>mesK(l.data,mm));return [['Atendimentos',A.length],['Agendamentos',A.filter(l=>['agendado','visita','sucesso'].includes(l.status)||l.agenda).length],['Visitas',A.filter(l=>['visita','sucesso'].includes(l.status)).length],['Sucesso',A.filter(l=>l.status==='sucesso').length]]};
+ const mot={};LL.filter(l=>l.status==='insucesso').forEach(l=>mot[l.motivo||'Sem motivo']=(mot[l.motivo||'Sem motivo']||0)+1);
+ const can2={};LL.forEach(l=>can2[l.origem]=(can2[l.origem]||0)+1);
+ const users2=[...new Set(vals(S.lead).map(l=>l.uid))];
+ return head+`<div class="toolbar"><select class="inp" id="crm-user" data-ui="crmUser" aria-label="Usuário">${opts([['','Todos os usuários']].concat(users2.map(u=>[u,uNome(u)])),uf)}</select></div>
+ <div class="stat-row"><div class="card stat"><span class="eyebrow">Ganhos</span><b style="color:var(--green-strong)">${LL.filter(l=>l.status==='sucesso').length}</b></div><div class="card stat"><span class="eyebrow">Em atendimento</span><b>${LL.filter(l=>['atendimento','agendado','visita'].includes(l.status)).length}</b></div><div class="card stat"><span class="eyebrow">Pendentes</span><b style="color:var(--warn)">${LL.filter(l=>l.status==='pendente').length}</b></div><div class="card stat"><span class="eyebrow">Perdidos</span><b style="color:var(--bad)">${LL.filter(l=>l.status==='insucesso').length}</b></div></div>
+ <div class="grid g2"><section class="card"><header><h3>Funil de vendas · ${MESES[pm]}</h3></header><div class="bd">${hbars(funil(pm).map(([l,v],i)=>({l,v,c:i===3?'g':''})))}</div></section><section class="card"><header><h3>Funil de vendas · ${MESES[m]}</h3></header><div class="bd">${hbars(funil(m).map(([l,v],i)=>({l,v,c:i===3?'g':''})))}</div></section>
+ <section class="card"><header><h3>Principais motivos de insucesso</h3></header><div class="bd">${Object.keys(mot).length?hbars(Object.entries(mot).sort((a,b)=>b[1]-a[1]).map(([l,v])=>({l,v,c:'w'}))):'<div class="empty">Nenhum insucesso.</div>'}</div></section><section class="card"><header><h3>Canais dos leads</h3></header><div class="bd">${hbars(Object.entries(can2).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([l,v])=>({l,v})))}</div></section></div>`;
+}
+
+/* ================= RELATÓRIOS completos ================= */
+const RELS=[
+ ['estoque','estoque','Estoque','Todos os veículos em estoque com custo, gastos e margem'],['simplificado','estoque','Estoque simplificado','Placa, modelo, ano, KM e preço'],['showroom','estoque','Showroom','Veículos em showroom'],['atacado','estoque','Atacado','Veículos no atacado'],['emservico','estoque','Em serviço','Veículos com serviços em andamento'],['custoestoque','estoque','Custo de estoque','Capital investido por veículo'],
+ ['anuncios','integracoes','Anúncios por canal','Status do anúncio em cada canal ativo'],['errosanun','integracoes','Erros de anúncios','Erros por veículo e canal, com a solução'],
+ ['avaliacoesdia','avaliacao','Avaliações por dia','Quantidade de avaliações realizadas por dia'],['recebimentos','avaliacao','Recebimentos por dia','Recebimentos registrados por dia'],['conversaoaval','avaliacao','Conversão de avaliação','Avaliações aprovadas por solicitante'],['tempoprep','avaliacao','Tempo de preparação','Dias entre a entrada e o fim dos serviços'],['perfvendas','avaliacao','Performance de vendas','Margem realizada dos veículos vendidos'],['perfestoque','avaliacao','Performance de estoque','Margem prevista dos veículos em estoque'],['perfservicos','avaliacao','Performance de serviços','Previsto x realizado por veículo'],
+ ['leadsrecebidos','leads','Recebidos','Todos os atendimentos'],['leadsucesso','leads','Sucessos','Atendimentos finalizados com venda'],['leadinsucesso','leads','Insucessos','Atendimentos sem venda e motivo'],['leadcanal','leads','Por canal','Atendimentos agrupados por origem'],['agendvendedor','leads','Agendamentos por vendedor','Agendados e visitas por responsável'],['interesse','leads','Veículos de interesse','Demanda por modelo e disponibilidade'],
+ ['clientes','clientes','Clientes por período','Clientes de negociações aprovadas no período'],['aniversario','clientes','Aniversariantes','Clientes que fazem aniversário no mês'],
+ ['negociacoes','negociacao','Negociações','Todas as negociações'],['posicao','negociacao','Posição de estoque','Entradas e saídas por veículo'],['assinaturas','negociacao','Documentos para assinatura','Contratos enviados para assinatura digital'],
+ ['lucrovendas','financeiro','Lucro de vendas','Venda, custo e lucro de cada veículo vendido'],['extrato','financeiro','Extrato de contas','Movimentações das contas bancárias'],['adiant','financeiro','Extrato de adiantamentos','Créditos e débitos de adiantamento'],['dre','financeiro','DRE gerencial','Resultado por agrupamento e conta'],['abertos','financeiro','Títulos em aberto','Contas a pagar e a receber em aberto'],['retorno','financeiro','Retorno de financiamento','Retornos por banco e status'],['servforn','financeiro','Serviços por fornecedor','Previsto x realizado por fornecedor']
+];
+function relData(k){
+ const E=estoque(),VS=vehList().filter(v=>v.status==='vendido');
+ const vend=v=>vals(S.neg).find(n=>n.saidaId===v.id&&n.status==='finalizada');
+ const R={
+  estoque:()=>({h:['Veículo','Placa','Dias','Compra','Gastos previstos','Venda','Margem'],r:E.sort((a,b)=>daysSince(b.entrada)-daysSince(a.entrada)).map(v=>[nome(v)+' '+v.anoMod,v.placa||'Zero km',daysSince(v.entrada),brl(v.compra),brl(gastoPrev(v)),v.venda?brl(preco(v)):'—',v.venda?brl(preco(v)-v.compra-gastoPrev(v)):'—'])}),
+  simplificado:()=>({h:['Placa','Veículo','Ano','KM','Cor','Preço'],r:E.map(v=>[v.placa||'0 km',nome(v),v.anoFab+'/'+v.anoMod,numf(v.km),v.cor,v.venda?brl(preco(v)):'—'])}),
+  showroom:()=>({h:['Placa','Veículo','Preço','Dias'],r:E.filter(v=>v.estoque!=='atacado').map(v=>[v.placa||'0 km',nome(v)+' '+v.anoMod,v.venda?brl(preco(v)):'—',daysSince(v.entrada)])}),
+  atacado:()=>({h:['Placa','Veículo','Preço atacado','Dias'],r:E.filter(v=>['atacado','ambos'].includes(v.estoque)).map(v=>[v.placa||'0 km',nome(v)+' '+v.anoMod,brl((v.prec&&v.prec.atacado)||preco(v)),daysSince(v.entrada)])}),
+  emservico:()=>({h:['Placa','Veículo','Serviços abertos','Previsto'],r:E.filter(v=>v.servicos.some(s=>!s.feito&&s.status!=='recusado')).map(v=>{const a=v.servicos.filter(s=>!s.feito&&s.status!=='recusado');return [v.placa||'0 km',nome(v),a.map(s=>s.n).join(', '),brl(a.reduce((x,s)=>x+s.prev,0))]})}),
+  custoestoque:()=>({h:['Veículo','Compra','Gastos realizados','Custo total','Dias'],r:E.map(v=>[nome(v)+' '+(v.placa||''),brl(v.compra),brl(gastoReal(v)),brl(v.compra+gastoReal(v)),daysSince(v.entrada)])}),
+  anuncios:()=>{const PA=portaisAtivos();return {h:['Placa','Veículo','Preço'].concat(PA.map(p=>p[1])),r:E.map(v=>[v.placa||'Zero km',nome(v)+' '+v.anoMod,brl(preco(v))].concat(PA.map(([p])=>ANUN_ST[anunStatus(v,p)][0])))}},
+  errosanun:()=>({h:['Veículo','Canal','Erro','Como resolver'],r:errosAnuncios().map(e=>[nome(e.v)+' '+(e.v.placa||''),e.portal,e.msg,e.sol])}),
+  avaliacoesdia:()=>{const m={};vehList().filter(v=>v.aval.done).forEach(v=>m[v.aval.data]=(m[v.aval.data]||0)+1);return {h:['Data','Avaliações'],r:Object.entries(m).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,n])=>[dtf(d),n])}},
+  recebimentos:()=>{const m={};vehList().forEach(v=>{const l=vlog(v,'recebimento');if(l)m[l.criado.em.slice(0,10)]=(m[l.criado.em.slice(0,10)]||0)+1});return {h:['Data','Recebimentos'],r:Object.entries(m).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,n])=>[dtf(d),n])}},
+  conversaoaval:()=>{const m={};vehList().filter(v=>v.aval.done).forEach(v=>{const k=v.aval.solicitante||'—';m[k]=m[k]||[0,0];m[k][0]++;if(v.negEntrada)m[k][1]++});return {h:['Solicitante','Avaliações','Aprovadas','Conversão'],r:Object.entries(m).map(([k,[a,b]])=>[k,a,b,pct(b/a*100)])}},
+  tempoprep:()=>({h:['Veículo','Entrada','Fim dos serviços','Dias'],r:vehList().filter(v=>v.servicos.length&&v.servicos.every(s=>s.feito||s.status==='recusado')).map(v=>{const f=v.servicos.map(s=>s.data).filter(Boolean).sort().pop()||v.entrada;return [nome(v)+' '+(v.placa||''),dtf(v.entrada),dtf(f),Math.max(0,daysSince(v.entrada)-daysSince(f))]})}),
+  perfvendas:()=>({h:['Veículo','Venda','Custo','Lucro','Margem','Dias até vender'],r:VS.map(v=>{const n=vend(v);const val=n?negCalc(n).saida:preco(v);const c=v.compra+gastoReal(v);return [nome(v)+' '+(v.placa||''),brl(val),brl(c),brl(val-c),pct((val-c)/val*100),daysSince(v.entrada)-daysSince(v.saida)]})}),
+  perfestoque:()=>({h:['Veículo','Preço','Custo previsto','Margem prevista','%'],r:E.filter(v=>v.venda).map(v=>{const c=v.compra+gastoPrev(v);return [nome(v)+' '+(v.placa||''),brl(preco(v)),brl(c),brl(preco(v)-c),pct((preco(v)-c)/preco(v)*100)]})}),
+  perfservicos:()=>({h:['Veículo','Previsto','Realizado','Diferença'],r:vehList().filter(v=>v.servicos.some(s=>s.feito)).map(v=>{const p=v.servicos.filter(s=>s.feito).reduce((a,s)=>a+s.prev,0),r=gastoReal(v);return [nome(v)+' '+(v.placa||''),brl(p),brl(r),brl(p-r)]})}),
+  leadsrecebidos:()=>({h:['Lead','Origem','Responsável','Etapa','Entrada'],r:vals(S.lead).sort((a,b)=>b.data.localeCompare(a.data)).map(l=>[l.nome,l.origem,uNome(l.uid),LEAD_ST.find(x=>x[0]===l.status)[1],dtf(l.data)])}),
+  leadsucesso:()=>({h:['Lead','Origem','Responsável','Veículo'],r:vals(S.lead).filter(l=>l.status==='sucesso').map(l=>[l.nome,l.origem,uNome(l.uid),nome(S.veh[l.vid])])}),
+  leadinsucesso:()=>({h:['Lead','Origem','Responsável','Motivo'],r:vals(S.lead).filter(l=>l.status==='insucesso').map(l=>[l.nome,l.origem,uNome(l.uid),l.motivo||'—'])}),
+  leadcanal:()=>{const m={};vals(S.lead).forEach(l=>{m[l.origem]=m[l.origem]||[0,0];m[l.origem][0]++;if(l.status==='sucesso')m[l.origem][1]++});return {h:['Canal','Atendimentos','Sucessos','Conversão'],r:Object.entries(m).sort((a,b)=>b[1][0]-a[1][0]).map(([k,[a,b]])=>[k,a,b,pct(b/a*100)])}},
+  agendvendedor:()=>{const m={};vals(S.lead).forEach(l=>{const k=uNome(l.uid);m[k]=m[k]||[0,0];if(l.status==='agendado'||l.agenda)m[k][0]++;if(['visita','sucesso'].includes(l.status))m[k][1]++});return {h:['Responsável','Agendamentos','Visitas'],r:Object.entries(m).map(([k,[a,b]])=>[k,a,b])}},
+  interesse:()=>{const m={};vals(S.lead).forEach(l=>{const v=S.veh[l.vid];if(!v)return;const k=nome(v);m[k]=m[k]||{n:0,disp:estoque().filter(x=>nome(x)===k).length};m[k].n++});return {h:['Modelo','Atendimentos','Em estoque'],r:Object.entries(m).sort((a,b)=>b[1].n-a[1].n).map(([k,o])=>[k,o.n,o.disp?o.disp+' disponível':'Sem estoque'])}},
+  clientes:()=>{const de=UI.relDe,ate=UI.relAte;const ns=vals(S.neg).filter(n=>{const ap=n.hist.find(h=>['Aprovada','Finalizada'].includes(h.a));return ap&&ap.d>=de&&ap.d<=ate&&n.status!=='cancelada'});return {h:['Cliente','Celular','Cidade','Negociação','Tipo','Status'],r:ns.map(n=>{const c=S.cli[n.clienteId]||{};return [c.nome,c.celular||c.tel,c.municipio||c.cidade,'#'+n.id,NEG_TIPOS[n.tipo],NEG_STATUS[n.status][0]]})}},
+  aniversario:()=>{const m=String(UI.relMes).padStart(2,'0');return {h:['Cliente','Aniversário','Celular','E-mail'],r:vals(S.cli).filter(c=>c.nasc&&c.nasc.slice(5,7)===m).sort((a,b)=>a.nasc.slice(8).localeCompare(b.nasc.slice(8))).map(c=>[c.nome,c.nasc.slice(8)+'/'+m,c.celular||c.tel,c.email])}},
+  negociacoes:()=>({h:['Número','Tipo','Status','Cliente','Vendedor','Saldo','Criada'],r:vals(S.neg).sort((a,b)=>b.id-a.id).map(n=>['#'+n.id,NEG_TIPOS[n.tipo],NEG_STATUS[n.status][0],cliNome(n.clienteId),n.vendedor,brl(Math.abs(negCalc(n).total)),dtf(n.criado)])}),
+  posicao:()=>({h:['Veículo','Entrada','Saída','Situação'],r:vehList().sort((a,b)=>b.entrada.localeCompare(a.entrada)).map(v=>[nome(v)+' '+(v.placa||''),dtf(v.entrada),v.saida?dtf(v.saida):'—',v.status==='estoque'?'Em estoque':v.status])}),
+  assinaturas:()=>{const r=[];vals(S.neg).forEach(n=>Object.entries(n.assin||{}).forEach(([k,a])=>r.push(['#'+n.id,CONTRATOS[k]||k,a.st==='assinado'?'Assinado':'Enviado',dtf(a.d)])));return {h:['Negociação','Documento','Status','Data'],r}},
+  lucrovendas:()=>({h:['Data','Veículo','Cliente','Venda','Custo','Lucro'],r:VS.sort((a,b)=>b.saida.localeCompare(a.saida)).map(v=>{const n=vend(v);const val=n?negCalc(n).saida:preco(v);const c=v.compra+gastoReal(v);return [dtf(v.saida),nome(v)+' '+(v.placa||''),n?cliNome(n.clienteId):'—',brl(val),brl(c),brl(val-c)]})}),
+  extrato:()=>({h:['Conta','Data','Descrição','Valor'],r:CFG().contasBanc.flatMap(c=>movimentos(c.id).map(m=>[c.nome,dtf(m.d),m.desc,brl2(m.valor)])).sort((a,b)=>b[1].split('/').reverse().join('').localeCompare(a[1].split('/').reverse().join('')))}),
+  adiant:()=>({h:['Tipo','Pessoa','Data','Descrição','Valor'],r:S.fin.adiant.concat(usosAdiant()).map(m=>[m.tipo==='cliente'?'Cliente':'Fornecedor',pessoaAdiant(m.tipo,m.pessoa),dtf(m.data),m.desc,brl2(m.valor)])}),
+  dre:()=>{const m={};titulos().filter(t=>t.pago).forEach(t=>{const c=contaById(t.conta);const key=c?c.grupo+' › '+c.nome:'Sem conta';m[key]=(m[key]||0)+(t.tipo==='R'?t.valor:-t.valor)});return {h:['Agrupamento › conta','Resultado'],r:Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,brl2(v)])}},
+  abertos:()=>({h:['Vencimento','Tipo','Pessoa','Identificação','Valor'],r:titulos().filter(t=>!t.pago).map(t=>[dtf(t.venc),t.tipo==='R'?'A receber':'A pagar',t.pessoa,t.desc,brl2(t.valor)])}),
+  retorno:()=>({h:['#','Cliente','Banco','Financiado','Retorno','Status'],r:retornos().filter(r=>r.ativo).map(r=>['#'+r.ref,r.cliente,bancoNome(r.banco),brl2(r.financiado),brl2(retTotal(r)),(RET_ST.find(x=>x[0]===r.status)||[])[1]])}),
+  servforn:()=>({h:['Fornecedor','Especialidade','Serviços','Concluídos','Previsto','Realizado'],r:vals(S.forn).map(f=>{const ss=vehList().flatMap(v=>v.servicos.filter(s=>+(s.maoObra?s.maoObra.forn:s.f)===f.id));return [f.nome,f.tipo,ss.length,ss.filter(s=>s.feito).length,brl(ss.reduce((a,s)=>a+s.prev,0)),brl(ss.filter(s=>s.feito).reduce((a,s)=>a+(+s.real||0),0))]})})
+ };
+ return (R[k]||R.estoque)();
+}
+function viewRelatorios(){
+ if(!RELS.some(r=>r[0]===UI.rel))UI.rel='estoque';
+ const k=UI.rel, g=UI.relGrupo, d=relData(k), info=RELS.find(r=>r[0]===k);
+ const filtros=k==='clientes'?`<label class="f">De<input class="inp" type="date" id="rel-de" data-ui="relDe" value="${UI.relDe}"></label><label class="f">Até<input class="inp" type="date" id="rel-ate" data-ui="relAte" value="${UI.relAte}"></label>`:k==='aniversario'?`<label class="f">Mês<select class="inp" id="rel-mes" data-ui="relMes">${opts(MESES.map((m,i)=>[String(i+1),m]),UI.relMes)}</select></label>`:'';
+ return phead('Relatórios',`${RELS.length} relatórios em ${REL_GRUPOS.length} grupos. Copie em CSV ou gere uma exportação em Configurações.`)+`
+ <div class="tabs">${REL_GRUPOS.map(([gk,gl])=>`<button type="button" class="${g===gk?'on':''}" data-act="relGrupo" data-v="${gk}">${gl} <span class="muted">${RELS.filter(r=>r[1]===gk).length}</span></button>`).join('')}</div>
+ <div class="optcards">${RELS.filter(r=>r[1]===g).map(([rk,,t,dsc])=>`<button type="button" class="optcard ${rk===k?'on':''}" data-act="ui" data-k="rel" data-v="${rk}"><h3>${t}</h3><span class="small muted">${dsc}</span></button>`).join('')}</div>
+ <section class="card"><header><div class="ht"><h3>${info[2]}</h3><p>${d.r.length} linhas</p></div><span class="actions" style="align-items:flex-end">${filtros}<button class="btn sm" type="button" data-act="csv">${ic('download','sm')} Copiar CSV</button></span></header>
+ <div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr>${d.h.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${d.r.slice(0,200).map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${d.h.length}" class="empty">Nada para mostrar com esse filtro.</td></tr>`}</tbody></table></div></section>`;
+}
+
+/* ================= configurações da loja (precificação) ================= */
+function cfgLoja(){
+ const L=CFG().loja, P='cfg.loja.';
+ return secT('Dados da loja','Usados nos contratos, nas notas fiscais, no cabide e no site')+`
+ <section class="card pad"><div class="form">
+  <label class="f wide">Razão social${inp(P+'nome',L.nome)}</label><label class="f">Nome fantasia${inp(P+'fantasia',L.fantasia)}</label><label class="f">CNPJ${inp(P+'cnpj',L.cnpj)}</label><label class="f">Telefone${inp(P+'tel',L.tel)}</label><label class="f">E-mail${inp(P+'email',L.email,{type:'email'})}</label><label class="f wide">Endereço${inp(P+'endereco',L.endereco)}</label><label class="f">Cidade-UF${inp(P+'cidade',L.cidade)}</label>
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Regras do estoque</h3><p>Valem para pendências, alertas e anúncios</p></div></header><div class="bd form">
+  <label class="f">Mínimo de fotos por anúncio${inp(P+'kmMinFotos',L.kmMinFotos,{type:'number'})}<small>Abaixo disso o veículo fica com a pendência Fotos</small></label>
+  <label class="f">Alerta de tempo no pátio (dias)${inp(P+'diasAlerta',L.diasAlerta,{type:'number'})}</label>
+  <label class="f">Garantia padrão${sel(P+'garantiaPadrao',GARANTIAS,L.garantiaPadrao)}</label>
+ </div></section>
+ <section class="card"><header><div class="ht"><h3>Precificação</h3><p>Parâmetros dos simuladores de compra e de venda</p></div></header><div class="bd form">
+  <label class="f">Margem desejada padrão (%)${inp(P+'margemAlvo',L.margemAlvo,{type:'number'})}</label>
+  <label class="f">Custo de garantia padrão (R$)${inp(P+'custoGarantia',L.custoGarantia,{type:'number'})}</label>
+  <label class="f">Impostos sobre a venda (%)${inp(P+'impostoPct',L.impostoPct,{type:'number'})}<small>Alíquota efetiva estimada</small></label>
+  <label class="f">Comissão de compra (%)${inp(P+'comissaoCompraPct',L.comissaoCompraPct,{type:'number'})}</label>
+  <label class="f">Comissão de venda (%)${inp(P+'comissaoVendaPct',L.comissaoVendaPct,{type:'number'})}</label>
+ </div></section>`;
+}
 /* ================= navegação ================= */
 const VIEWS={painel:viewPainel,veiculos:viewVeiculos,avaliacoes:viewAvaliacoes,servicos:viewServicos,consultas:viewConsultas,intermediacao:viewIntermediacoes,anuncios:viewAnuncios,atendimentos:viewAtendimentos,negociacoes:viewNegociacoes,financeiro:viewFinanceiro,clientes:viewClientes,site:viewSite,relatorios:viewRelatorios,configuracoes:viewConfig};
 const curHash=()=>(location.hash||'#').slice(1)||homeMod();
@@ -2100,7 +2862,7 @@ function searchResults(){
  const q=UI.gq.trim().toLowerCase(); if(q.length<2)return '';
  const R=[];
  if(can('veiculos'))vehList().filter(v=>`${v.placa} ${v.marca} ${v.modelo} ${v.versao}`.toLowerCase().includes(q)).slice(0,5).forEach(v=>R.push(['Veículos',`${nome(v)} ${v.anoMod}`,v.placa||'Zero km','v-'+v.id,'car']));
- if(can('clientes'))vals(S.cli).filter(c=>`${c.nome} ${c.tel} ${c.doc}`.toLowerCase().includes(q)).slice(0,4).forEach(c=>R.push(['Clientes',c.nome,c.tel,'clientes','user']));
+ if(can('clientes'))vals(S.cli).filter(c=>`${c.nome} ${c.tel} ${c.doc}`.toLowerCase().includes(q)).slice(0,4).forEach(c=>R.push(['Clientes',c.nome,c.tel,'cli-'+c.id,'user']));
  if(can('atendimentos'))vals(S.lead).filter(l=>`${l.nome} ${l.tel}`.toLowerCase().includes(q)).slice(0,4).forEach(l=>R.push(['Atendimentos',l.nome,LEAD_ST.find(x=>x[0]===l.status)[1],'atendimentos','chat']));
  if(can('negociacoes'))vals(S.neg).filter(n=>`#${n.id} ${cliNome(n.clienteId)}`.toLowerCase().includes(q)).slice(0,4).forEach(n=>R.push(['Negociações','#'+n.id+' · '+cliNome(n.clienteId),NEG_TIPOS[n.tipo],'neg-'+n.id,'swap']));
  if(!R.length)return `<div class="pop"><div class="empty small">Nada encontrado para “${esc(UI.gq)}”.</div></div>`;
@@ -2146,10 +2908,12 @@ function afterSet(path){
 document.addEventListener('change',e=>{
  const t=e.target;
  if(t.id==='m-perfil'){const d=document.getElementById('m-perfil-desc');if(d)d.textContent=perfil(t.value).desc||'';return}
- if(t.dataset.set){setPath(t.dataset.set,readVal(t));afterSet(t.dataset.set);save();render();return}
+ if(t.dataset.set){const old=getPathV(t.dataset.set);setPath(t.dataset.set,readVal(t));afterSet(t.dataset.set);auditSet(t.dataset.set,old);save();render();return}
  if(t.dataset.ui&&!t.dataset.live){setUI(t.dataset.ui,readVal(t));render();return}
  if(t.dataset.cost){S.veh[t.dataset.id].aval.itens[t.dataset.cost].v=+t.value||0;save();return}
  if(t.dataset.srv){S.veh[t.dataset.id].aval.serv[t.dataset.srv]=+t.value||0;save();return}
+ if(t.dataset.avtipo){S.veh[t.dataset.id].aval.itens[t.dataset.avtipo].tipo=t.value;save();return}
+ if(t.dataset.avobs){S.veh[t.dataset.id].aval.itens[t.dataset.avobs].obs=t.value;save();return}
  const ac=t.dataset.actChange; if(!ac)return;
  const CH={
   opc(){const v=S.veh[t.dataset.id];const o=t.dataset.o;v.opcionais=t.checked?[...new Set(v.opcionais.concat(o))]:v.opcionais.filter(x=>x!==o)},
@@ -2404,7 +3168,7 @@ const ACT={
  pop(d){UI.pop=UI.pop===d.v?'':d.v;render()},
  theme(){const r=document.documentElement;const dark=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches);r.dataset.theme=dark?'light':'dark';try{localStorage.setItem('patio-theme',r.dataset.theme)}catch(e){}render()},
  ui(d,t){setUI(d.k,d.v);render()},
- seg(d){let v=d.val;if(v==='true')v=true;else if(v==='false')v=false;else if(d.num)v=+v;setPath(d.path,v);afterSet(d.path);save();render()},
+ seg(d){let v=d.val;if(v==='true')v=true;else if(v==='false')v=false;else if(d.num)v=+v;const old=getPathV(d.path);setPath(d.path,v);afterSet(d.path);auditSet(d.path,old);save();render()},
  vtab(d){UI.vTab[d.id]=d.tab;if(location.hash!=='#v-'+d.id)location.hash='v-'+d.id;else render()},
  vfilter(d){UI.vf=vfDefault();UI.vf[d.k]=d.v;go('veiculos')},
  vsort(d){UI.vf=vfDefault();UI.vf.sort=d.v;go('veiculos')},
@@ -2646,7 +3410,194 @@ Object.assign(ACT,{
  cvAtualizar(){let a=0,b=0;S.consultas.forEach(c=>{if(c.status==='progresso'){c.status='finalizado';c.res=consultaResultado(c.placa,c.tipo);a++}else if(c.status==='fila'){c.status='progresso';b++}});save();toast(`${a} finalizada(s), ${b} em progresso`);render()},
  cvVer(d){const c=S.consultas.find(x=>x.id===+d.id);openModal(`Consulta ${(CONS_TIPOS.find(t=>t[0]===c.tipo)||[])[1]} · ${c.placa}`,`<div class="rows">${c.res.map(([t,v,ok])=>`<div class="row"><span style="display:flex;gap:10px;align-items:center"><span style="color:${ok?'var(--green-strong)':'var(--warn)'}">${ic(ok?'check':'bell')}</span>${esc(t)}</span><b style="color:${ok?'var(--ink)':'var(--warn)'}">${esc(v)}</b></div>`).join('')}</div><p class="small muted" style="margin-top:12px">Consulta de ${dtf(c.data)} por ${esc(c.por)}. Resultado simulado no protótipo.</p>`,`<button class="btn" type="button" data-act="closeModal">Fechar</button>`)}
 });
-</script>
+/* ================= v4: rotas, modais e ações ================= */
+function modDe(h){if(/^v-\d+$/.test(h))return 'veiculos';if(/^aval-\d+$/.test(h))return 'avaliacoes';if(/^neg-\d+$/.test(h))return 'negociacoes';if(/^int-\d+$/.test(h))return 'intermediacao';if(/^cli-\d+$/.test(h))return 'clientes';return VIEWS[h]?h:'painel'}
+function route(){
+ const h=curHash(), mod=modDe(h); let m;
+ if(!can(mod))return lockedView(mod);
+ if((m=h.match(/^v-(\d+)$/)))return viewVeiculo(+m[1]);
+ if((m=h.match(/^aval-(\d+)$/)))return viewAval(+m[1]);
+ if((m=h.match(/^neg-(\d+)$/)))return viewNeg(+m[1]);
+ if((m=h.match(/^int-(\d+)$/)))return viewInter(+m[1]);
+ if((m=h.match(/^cli-(\d+)$/)))return viewCliente(+m[1]);
+ return VIEWS[mod]();
+}
+const vehAt=d=>S.veh[d.id];
+const vtouch=(v,k,txt)=>{touch(v,k,txt);save()};
 
+/* ---------- cliente completo ---------- */
+const CLI_CAMPOS=[['tipo','Tipo'],['nome','Nome'],['doc','CPF/CNPJ'],['rg','RG'],['sexo','Sexo'],['nasc','Nascimento'],['estrangeiro','Estrangeiro'],['docEstr','Documento estrangeiro'],['email','E-mail'],['celular','Celular'],['telefone','Telefone'],['cep','CEP'],['endereco','Endereço'],['numero','Número'],['complemento','Complemento'],['bairro','Bairro'],['municipio','Município'],['uf','UF'],['indIE','Indicador de IE'],['ie','Inscrição estadual'],['im','Inscrição municipal'],['origem','Como conheceu'],['prefContato','Preferência de contato'],['aceitaOfertas','Aceita ofertas'],['vendaDireta','Venda direta'],['segmento','Segmento'],['obs','Observação']];
+function modalCli(id,negId){
+ const c=id?S.cli[id]:{tipo:'PF',nome:'',doc:'',celular:'',email:'',municipio:'',uf:'PR',nasc:'',indIE:'9',prefContato:'WhatsApp',aceitaOfertas:true,resp:{}};
+ const r=c.resp||{}, pj=c.tipo==='PJ';
+ const O=[''].concat(origensAtivas());
+ openModal(id?'Editar cliente':'Novo cliente',`<form data-form="cli" id="fm-cli" data-id="${id||''}" data-neg="${negId||''}" style="display:flex;flex-direction:column;gap:16px">
+  <div class="form">${mf('Tipo de cliente',ms('tipo',[['PF','Pessoa física'],['PJ','Pessoa jurídica']],c.tipo||'PF'))}<div style="display:flex;align-items:flex-end;padding-bottom:6px">${msw('estrangeiro',c.estrangeiro,'Cliente estrangeiro')}</div></div>
+  <span class="eyebrow pf-only" ${pj?'hidden':''}>Dados pessoais</span><span class="eyebrow pj-only" ${pj?'':'hidden'}>Dados empresariais</span>
+  <div class="form">${mf('<span class="pf-only" '+(pj?'hidden':'')+'>Nome completo</span><span class="pj-only" '+(pj?'':'hidden')+'>Razão social</span>',mi('nome',c.nome,{req:1}),'wide')}
+   ${mf('CPF / CNPJ',mi('doc',c.doc))}<span class="pf-only" style="display:contents" ${pj?'hidden':''}>${mf('RG',mi('rg',c.rg))}${mf('Sexo',ms('sexo',[['','—'],['M','Masculino'],['F','Feminino']],c.sexo||''))}</span>${mf('Nascimento / fundação',mi('nasc',c.nasc,{type:'date'}))}${mf('Documento estrangeiro',mi('docEstr',c.docEstr,{ph:'Passaporte, RNE…'}))}
+   ${mf('E-mail',mi('email',c.email,{type:'email'}))}${mf('Celular',mi('celular',c.celular||c.tel,{ph:'(44) 9 0000-0000'}))}${mf('Telefone',mi('telefone',c.telefone))}</div>
+  <div class="pj-only" ${pj?'':'hidden'} style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Responsável pela empresa</span><div class="form">${mf('Nome',mi('respNome',r.nome))}${mf('CPF',mi('respCpf',r.cpf))}${mf('E-mail',mi('respEmail',r.email,{type:'email'}))}${mf('Telefone',mi('respTel',r.tel))}${mf('Nascimento',mi('respNasc',r.nasc,{type:'date'}))}</div></div>
+  <span class="eyebrow">Endereço</span>
+  <div class="form">${mf('CEP',mi('cep',c.cep,{ph:'00000-000'}))}${mf('Endereço',mi('endereco',c.endereco),'wide')}${mf('Número',mi('numero',c.numero))}${mf('Complemento',mi('complemento',c.complemento))}${mf('Bairro',mi('bairro',c.bairro))}${mf('Município',mi('municipio',c.municipio||(c.cidade||'').split('-')[0]))}${mf('UF',ms('uf',UFS,c.uf||'PR'))}</div>
+  <span class="eyebrow">Fiscal</span>
+  <div class="form">${mf('Indicador de inscrição estadual',ms('indIE',IND_IE,c.indIE||'9'))}${mf('Inscrição estadual',mi('ie',c.ie))}${mf('Inscrição municipal',mi('im',c.im))}</div>
+  <span class="eyebrow">Relacionamento (CRM)</span>
+  <div class="form">${mf('Como conheceu a loja',ms('origem',O,c.origem||''))}${mf('Prefere contato por',ms('prefContato',PREF_CONTATO,c.prefContato||'WhatsApp'))}<div style="display:flex;flex-direction:column;gap:10px;justify-content:flex-end;padding-bottom:6px">${msw('aceitaOfertas',c.aceitaOfertas,'Aceita receber ofertas')}${msw('vendaDireta',c.vendaDireta,'Venda direta')}</div>${mf('Segmento da venda direta',ms('segmento',SEG_VENDA_DIRETA.map(s=>[s,s||'—']),c.segmento||''))}
+   ${mf('Observação',`<textarea class="inp" name="obs" id="m-obs" rows="3">${esc(c.obs||'')}</textarea>`,'wide')}</div>
+  ${c.cad?`<p class="small muted">Cadastrado por <b>${esc(c.cad.por)}</b> em ${fmtDT(c.cad.em)}</p>`:''}
+ </form>`,footSave('fm-cli','Salvar cliente'),true);
+}
+document.addEventListener('change',e=>{if(e.target.id==='m-tipo'){const pj=e.target.value==='PJ';$modal.querySelectorAll('.pj-only').forEach(x=>x.hidden=!pj);$modal.querySelectorAll('.pf-only').forEach(x=>x.hidden=pj)}});
+FORMS.cli=function(d,f,fd){
+ let id=+f.dataset.id;const s=stamp();
+ const o={tipo:d.tipo,nome:d.nome,doc:d.doc,rg:d.tipo==='PF'?d.rg:'',sexo:d.tipo==='PF'?d.sexo:'',nasc:d.nasc,estrangeiro:fd.has('estrangeiro'),docEstr:d.docEstr,email:d.email,celular:d.celular,tel:d.celular||d.telefone,telefone:d.telefone,cep:d.cep,endereco:d.endereco,numero:d.numero,complemento:d.complemento,bairro:d.bairro,municipio:d.municipio,uf:d.uf,cidade:d.municipio?d.municipio+'-'+d.uf:'',indIE:d.indIE,ie:d.ie,im:d.im,origem:d.origem,prefContato:d.prefContato,aceitaOfertas:fd.has('aceitaOfertas'),vendaDireta:fd.has('vendaDireta'),segmento:fd.has('vendaDireta')?d.segmento:'',obs:d.obs};
+ if(d.tipo==='PJ')o.resp={nome:d.respNome,cpf:d.respCpf,email:d.respEmail,tel:d.respTel,nasc:d.respNasc};
+ if(id){const c=S.cli[id];const mud=CLI_CAMPOS.filter(([k])=>String(c[k]??'')!==String(o[k]??'')&&!(c[k]==null&&(o[k]===''||o[k]===false))).map(([,l])=>l);Object.assign(c,o);c.hist=c.hist||[];if(mud.length)c.hist.unshift({por:s.por,em:s.em,txt:'Alterou '+mud.join(', ')})}
+ else{id=nextId();S.cli[id]=Object.assign({id,criado:TODAY_ISO,cad:s,hist:[{por:s.por,em:s.em,txt:'Cliente cadastrado'}]},o)}
+ if(f.dataset.neg)S.neg[f.dataset.neg].clienteId=id;
+ vehList().filter(v=>v.clienteId===id).forEach(v=>touch(v,'cliente',null));
+ save();closeModal();toast('Cliente salvo');render();
+};
+
+/* ---------- OS completa ---------- */
+function modalOS(vid,i){
+ const v=S.veh[vid], s=normServ(v.servicos[+i]);
+ const F=[['','—']].concat(vals(S.forn).filter(f=>f.ativo!==false).map(f=>[f.id,f.nome]));
+ openModal(`OS ${String(s.os||'—').padStart(6,'0')} · ${s.n}`,`<form data-form="os" id="fm-os" data-id="${vid}" data-i="${i}" style="display:flex;flex-direction:column;gap:16px">
+  <p class="muted">${esc(nome(v))} · ${esc(v.placa||'0 km')} · criada em ${dtf(s.criado)}</p>
+  <div class="form">${mf('Serviço',mi('n',s.n,{req:1}),'wide')}${mf('Etapa',ms('st',SERV_ST,s.st||'afazer'))}${mf('Local',ms('local',[['externo','No fornecedor'],['interno','Na loja']],s.local))}<div style="display:flex;align-items:flex-end;padding-bottom:6px">${msw('orcamento',s.orcamento,'Em orçamento')}</div></div>
+  <span class="eyebrow">Mão de obra</span><div class="form">${mf('Fornecedor',ms('moF',F,s.maoObra.forn||''))}${mf('Valor (R$)',mi('moV',s.maoObra.valor,{type:'number'}))}${mf('Nota fiscal',mi('moNf',s.maoObra.nf))}</div>
+  <span class="eyebrow">Peças</span><div class="form">${mf('Fornecedor',ms('pcF',F,s.pecas.forn||''))}${mf('Valor (R$)',mi('pcV',s.pecas.valor,{type:'number'}))}${mf('Nota fiscal',mi('pcNf',s.pecas.nf))}</div>
+  <span class="eyebrow">Prazos e valores</span><div class="form">${mf('Início',mi('inicio',s.inicio,{type:'date'}))}${mf('Término previsto',mi('prazo',s.prazo,{type:'date'}))}${mf('Previsão de pagamento',mi('prevPag',s.prevPag,{type:'date'}))}${mf('Valor previsto (R$)',mi('prev',s.prev,{type:'number'}))}${mf('Valor realizado (R$)',mi('real',s.real,{type:'number',ph:'Mão de obra + peças'}))}</div>
+  ${mf('Observação da OS',`<textarea class="inp" name="obsOS" id="m-obsOS" rows="2">${esc(s.obsOS||'')}</textarea>`)}
+  ${s.vist?`<p class="small" style="color:var(--green-strong)">${ic('check','sm')} Vistoriado por ${esc(s.vist.por)} em ${fmtDT(s.vist.em)}</p>`:''}
+ </form>`,footSave('fm-os'),true);
+}
+FORMS.os=function(d,f,fd){
+ const v=S.veh[f.dataset.id], s=normServ(v.servicos[+f.dataset.i]);
+ Object.assign(s,{n:d.n||s.n,local:d.local,orcamento:fd.has('orcamento'),inicio:d.inicio,prazo:d.prazo,prevPag:d.prevPag,prev:+d.prev||0,obsOS:d.obsOS,f:d.moF?+d.moF:null});
+ s.maoObra={forn:d.moF?+d.moF:null,valor:+d.moV||0,nf:d.moNf};s.pecas={forn:d.pcF?+d.pcF:null,valor:+d.pcV||0,nf:d.pcNf};
+ s.real=+d.real||((s.st==='feito'||d.st==='feito')?s.maoObra.valor+s.pecas.valor:0);
+ if(s.orcamento&&s.status==='aprovado')s.status='pendente';
+ if(d.st!==(s.st||'afazer'))setServSt(s,d.st);
+ touch(v,'servicos',`OS ${String(s.os).padStart(6,'0')} (${s.n}) atualizada`);
+ save();closeModal();toast('OS atualizada');render();
+};
+
+/* ---------- portal com erro de autenticação ---------- */
+function modalPortal(i){
+ const p=CFG().portais[i];
+ openModal(p.nome,`<form data-form="portal" id="fm-portal" data-i="${i}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;gap:12px;align-items:center">${logo(p.nome,p.cor)}<span class="muted">Gerencie anúncios e leads deste portal pelo Pátio.</span></div>
+  ${msw('ativo',p.ativo,'Integração ativa')}
+  <div><span class="eyebrow">Contas</span><p class="small muted" style="margin:4px 0 8px">Se a loja tiver mais de um cadastro no portal, adicione uma conta para cada.</p>
+  <div class="rows">${p.contas.map((c,j)=>`<div class="row"><span><b>${esc(c.nome)}</b> ${c.erro==='auth'?chip('Falha na autenticação','bad dot'):chip('Conectada','ok dot')}<br><span class="small muted">${esc(c.email)}</span></span><span class="actions">${c.erro?`<button class="btn xs dark" type="button" data-act="portalReconectar" data-i="${i}" data-j="${j}">Reconectar</button>`:''}<button class="btn xs ghost danger" type="button" data-act="portalContaDel" data-i="${i}" data-j="${j}">Remover</button></span></div>`).join('')||'<span class="small muted">Nenhuma conta cadastrada.</span>'}</div></div>
+  ${p.contas.some(c=>c.erro)?`<div class="note warn">O portal recusou o login desta conta. Os anúncios ficam com erro até reconectar. No sistema real o botão abre o login do portal; a senha nunca fica salva no Pátio.</div>`:''}
+  <span class="eyebrow">Nova conta</span><div class="form">${mf('Nome da conta',mi('cnome','',{ph:'Ex.: Loja matriz'}))}${mf('E-mail de acesso',mi('cemail','',{type:'email'}))}</div>
+ </form>`,footSave('fm-portal'));
+}
+
+/* ---------- modais da página do veículo ---------- */
+function modalResumoFin(v){
+ const T=titulos().filter(t=>t.ref===v.id);
+ const n=vals(S.neg).find(x=>x.saidaId===v.id&&x.status==='finalizada');
+ const venda=n?negCalc(n).saida:preco(v), custo=v.compra+gastoReal(v);
+ openModal('Resumo financeiro · '+nome(v),`<div style="display:flex;flex-direction:column;gap:16px">
+  <div class="conta"><div class="row"><span>${n?'Valor de venda':'Preço anunciado'}</span><b class="num">${brl2(venda)}</b></div><div class="row muted"><span>${v.neg==='consignado'?'Repasse ao proprietário':'Valor de compra'}</span><span class="num">− ${brl2(v.compra)}</span></div><div class="row muted"><span>Gastos realizados</span><span class="num">− ${brl2(gastoReal(v))}</span></div><div class="row muted"><span>Gastos previstos em aberto</span><span class="num">− ${brl2(Math.max(0,gastoPrev(v)-v.servicos.filter(s=>s.feito).reduce((a,s)=>a+s.prev,0)))}</span></div><div class="row tot"><span>${n?'Lucro bruto':'Lucro previsto'}</span><span class="num">${brl2(venda-custo)}</span></div></div>
+  <div><span class="eyebrow">Títulos ligados ao veículo</span><div class="tbl-wrap" style="margin-top:6px"><table class="tbl"><thead><tr><th>Vencimento</th><th>Tipo</th><th>Descrição</th><th>Situação</th><th class="n">Valor</th></tr></thead><tbody>${T.map(t=>`<tr><td>${dtf(t.venc)}</td><td>${t.tipo==='R'?chip('A receber','ok'):chip('A pagar','warn')}</td><td>${esc(t.desc)}<span class="sub">${esc(t.pessoa)}</span></td><td>${t.pago?chip('Pago','ok dot'):t.vencido?chip('Vencido','bad dot'):chip('Em aberto','dot')}</td><td class="n">${brl2(t.valor)}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">Nenhum título.</td></tr>'}</tbody></table></div></div>
+ </div>`,'',true);
+}
+function modalDocs(v){
+ const ns=negsDoVeic(v.id);
+ const docs=[].concat(v.crlv?[['CRLV',v.crlv,'Ficha técnica']]:[]).concat((v.pericia.laudos||[]).map(l=>['Laudo de perícia',l,'Perícia'])).concat(ns.flatMap(n=>Object.entries(n.assin||{}).map(([k,a])=>[CONTRATOS[k]||k,'Negociação #'+n.id+' · '+(a.st==='assinado'?'assinado':'enviado para assinatura'),'Negociação'])));
+ openModal('Documentos · '+nome(v),`<div style="display:flex;flex-direction:column;gap:12px"><div class="rows">${docs.map(([t,x,o])=>`<div class="row"><span style="display:flex;gap:10px;align-items:center">${ic('file','sm')}<span><b>${esc(t)}</b><br><span class="small muted">${esc(x)}</span></span></span>${chip(o,'line')}</div>`).join('')||'<span class="muted">Nenhum documento anexado.</span>'}</div>
+ <p class="small muted">Envie o CRLV na Ficha técnica e os laudos na Perícia. Contratos e procurações são gerados nas negociações.</p>
+ <div class="actions"><button class="btn sm" type="button" data-act="vtabM" data-id="${v.id}" data-tab="ficha">Abrir ficha técnica</button><button class="btn sm" type="button" data-act="vtabM" data-id="${v.id}" data-tab="pericia">Abrir perícia</button><button class="btn sm" type="button" data-act="cabideGo" data-id="${v.id}">Imprimir cabide</button></div></div>`);
+}
+function modalMais(v){
+ const b=(act,ico,t,sub,cls='')=>`<button type="button" class="pick ${cls}" style="text-align:left;width:100%;cursor:pointer" data-act="${act}" data-id="${v.id}">${ic(ico,'sm')}<span class="who"><b>${t}</b><br><span class="small muted">${sub}</span></span></button>`;
+ openModal('Mais ações',`<div style="display:flex;flex-direction:column;gap:8px">
+  ${v.bloqueado?b('desbloquear','lock','Desbloquear veículo','Volta a poder ser anunciado e negociado'):b('bloquearM','lock','Bloquear veículo','Impede anúncios e negociações até desbloquear')}
+  ${b('altPessoa','user','Alterar solicitante','Hoje: '+esc(v.aval.solicitante||'—'))}
+  ${b('altAvaliador','clip','Alterar avaliador','Hoje: '+esc(v.aval.avaliador||'—'))}
+  ${v.neg==='consignado'?b('devolverM','swap','Devolver ao proprietário','Encerra a consignação e tira o carro do estoque'):''}
+  ${b('cancelarAvalM','x','Cancelar avaliação','O veículo sai do estoque como avaliação cancelada')}
+ </div>`);
+}
+function modalConfirm(title,txt,act,id,label,danger=true){
+ openModal(title,`<p class="muted">${txt}</p>`,`<button class="btn" type="button" data-act="closeModal">Voltar</button><button class="btn ${danger?'danger':'pri'}" type="button" data-act="${act}" data-id="${id}">${label}</button>`);
+}
+FORMS.obs=function(d,f){const v=S.veh[f.dataset.id],k=f.dataset.k;v.obs=v.obs||{};v.obs[k]=v.obs[k]||[];const s=stamp();v.obs[k].unshift({por:s.por,em:s.em,txt:d.t});touch(v,k,'Observação: '+d.t);save();toast('Observação registrada');render()};
+FORMS.bloq=function(d,f){const v=S.veh[f.dataset.id];v.bloqueado=Object.assign(stamp(),{motivo:d.motivo});touch(v,null,'Bloqueou o veículo'+(d.motivo?': '+d.motivo:''));save();closeModal();toast('Veículo bloqueado');render()};
+FORMS.pessoa=function(d,f){const v=S.veh[f.dataset.id],k=f.dataset.k;const old=v.aval[k];v.aval[k]=d.u;touch(v,'avaliacao',`${k==='avaliador'?'Avaliador':'Solicitante'}: ${old||'—'} → ${d.u}`);save();closeModal();toast('Alterado');render()};
+function modalPessoa(v,k){
+ const U=users().filter(u=>u.status==='ativo').map(u=>u.nome);
+ openModal(k==='avaliador'?'Alterar avaliador':'Alterar solicitante',`<form data-form="pessoa" id="fm-pes" data-id="${v.id}" data-k="${k}" class="form">${mf(k==='avaliador'?'Avaliador':'Solicitante',ms('u',U,v.aval[k]||U[0]),'wide')}</form>`,footSave('fm-pes'));
+}
+
+/* ---------- ações ---------- */
+const _avalStep=ACT.avalStep,_avalFinal=ACT.avalFinal,_addServ=ACT.addServ;
+Object.assign(ACT,{
+ avalStep(d){const v=vehAt(d);if(v&&!v.aval.inicio){v.aval.inicio=nowISO();save()}_avalStep(d)},
+ avalFinal(d){const v=vehAt(d);const first=!v.aval.done;const s=stamp();v.aval.fim=s.em;if(!v.aval.inicio)v.aval.inicio=s.em;v.aval.avaliador=v.aval.avaliador||s.por;if(first)v.aval.qtd=(v.aval.qtd||0)+1;touch(v,'avaliacao',first?'Avaliação finalizada':'Avaliação revisada');_avalFinal(d)},
+ addServ(d){_addServ(d);const v=vehAt(d);normServ(v.servicos[v.servicos.length-1]);vtouch(v,'servicos','Item avulso adicionado');render()},
+ resumoFin:d=>modalResumoFin(vehAt(d)),vDocs:d=>modalDocs(vehAt(d)),vMais:d=>modalMais(vehAt(d)),
+ vtabM(d){closeModal();ACT.vtab(d)},
+ cabideGo(d){closeModal();UI.vTab[d.id]='anuncios';UI.anTab[d.id]='cabide';go('v-'+d.id)},
+ bloquearM(d){openModal('Bloquear veículo',`<form data-form="bloq" id="fm-bloq" data-id="${d.id}" class="form">${mf('Motivo',mi('motivo','',{ph:'Ex.: aguardando quitação do financiamento'}),'wide')}</form>`,footSave('fm-bloq','Bloquear'))},
+ desbloquear(d){const v=vehAt(d);v.bloqueado=null;touch(v,null,'Desbloqueou o veículo');save();closeModal();toast('Veículo desbloqueado');render()},
+ altPessoa:d=>modalPessoa(vehAt(d),'solicitante'),altAvaliador:d=>modalPessoa(vehAt(d),'avaliador'),
+ devolverM:d=>modalConfirm('Devolver ao proprietário','O veículo sai do estoque, os anúncios são retirados e a consignação é encerrada.','devolver',d.id,'Devolver'),
+ devolver(d){const v=vehAt(d);v.status='devolvido';v.saida=TODAY_ISO;touch(v,null,'Devolveu o veículo ao proprietário');save();closeModal();toast('Veículo devolvido');render()},
+ cancelarAvalM:d=>modalConfirm('Cancelar avaliação','O veículo sai do estoque com o status Avaliação cancelada. O histórico continua disponível.','cancelarAval',d.id,'Cancelar avaliação'),
+ cancelarAval(d){const v=vehAt(d);v.status='cancelado';v.saida=TODAY_ISO;touch(v,'avaliacao','Cancelou a avaliação');save();closeModal();toast('Avaliação cancelada');render()},
+ recusarItem(d){const v=vehAt(d);v.aval.recusados=v.aval.recusados||{};const on=!v.aval.recusados[d.k];v.aval.recusados[d.k]=on;const nm=d.k.split('|')[1];const s=v.servicos.find(x=>x.n===nm&&['Avaliação','Preparação'].includes(x.orig));if(s&&!s.feito){normServ(s);s.status=on?'recusado':'aprovado'}touch(v,'precificacao',`${on?'Recusou':'Restaurou'} o item ${nm}`);save();render()},
+ definirCompra(d){const v=vehAt(d);const old=v.compra;v.compra=+d.v;auditSet('veh.'+v.id+'.compra',old);save();toast('Valor de compra definido: '+brl(v.compra));render()},
+ laudoDel(d){const v=vehAt(d);const l=v.pericia.laudos.splice(+d.i,1)[0];touch(v,'pericia','Removeu o laudo '+l);save();render()},
+ recFoto(d){const v=vehAt(d);v.receb.fotos[d.k]=!v.receb.fotos[d.k];touch(v,'recebimento',(v.receb.fotos[d.k]?'Anexou foto: ':'Removeu foto: ')+(REC.find(r=>r[0]===d.k)||[])[1]);save();render()},
+ servRecusar(d){const v=vehAt(d),s=normServ(v.servicos[+d.i]);s.status=s.status==='recusado'?(s.st==='fazendo'?'execucao':'aprovado'):'recusado';touch(v,'servicos',`${s.status==='recusado'?'Recusou':'Restaurou'} ${s.n}`);save();render()},
+ recusarTodos(d){const v=vehAt(d);let n=0;v.servicos.forEach(s=>{normServ(s);if(!s.feito&&(s.st||'afazer')==='afazer'&&s.status!=='recusado'){s.status='recusado';n++}});if(n)touch(v,'servicos',`Recusou ${n} itens pendentes`);save();toast(n?n+' itens recusados':'Nenhum item pendente para recusar');render()},
+ vistoriar(d){const v=vehAt(d),s=normServ(v.servicos[+d.i]);s.status='vistoriado';s.vist=stamp();touch(v,'servicos','Vistoriou '+s.n);save();toast('Serviço vistoriado');render()},
+ servMais(d){UI.servMore[d.k]=(UI.servMore[d.k]||6)+6;render()},
+ servMenos(d){UI.servMore[d.k]=6;render()},
+ servMove(d){const v=vehAt(d),s=v.servicos[+d.i];setServSt(s,d.st);touch(v,'servicos',`${s.n}: ${SERV_ST.find(x=>x[0]===d.st)[1]}`);save();toast(`${s.n}: ${SERV_ST.find(x=>x[0]===d.st)[1]}`);render()},
+ delServ(d){const v=vehAt(d);const s=v.servicos.splice(+d.i,1)[0];touch(v,'servicos','Excluiu '+(s?s.n:'item'));save();render()},
+ anTab(d){UI.anTab[d.id]=d.t;render()},
+ fotoCapa(d){const v=vehAt(d);v.capa=+d.i;touch(v,'anuncios','Trocou a foto de capa');save();toast('Capa atualizada');render()},
+ fotoMove(d){const v=vehAt(d);const i=+d.i,j=i+ +d.d;const c=v.capa||0;if(c===i)v.capa=j;else if(c===j)v.capa=i;touch(v,'anuncios',null);save();toast(`Foto ${i+1} movida para a posição ${j+1}`);render()},
+ foto(d){const v=vehAt(d);v.fotos=Math.max(0,Math.min(40,v.fotos+ +d.d));if((v.capa||0)>=v.fotos)v.capa=0;touch(v,'anuncios',+d.d>0?'Adicionou foto':'Removeu foto');save();render()},
+ pub(d){const v=vehAt(d),k=d.k;v.fila=v.fila||{};const N=portalNome(k);
+  if(v.bloqueado&&!v.pubs[k]){toast('Veículo bloqueado: desbloqueie antes de publicar');return}
+  if(!v.pubs[k]){v.pubs[k]=true;v.fila[k]='pub';touch(v,'anuncios','Enviou para publicação no '+N);toast('Enviado para a fila do '+N)}
+  else if(v.fila[k]==='pub'){v.pubs[k]=false;delete v.fila[k];touch(v,'anuncios','Cancelou a publicação no '+N);toast('Publicação cancelada')}
+  else{v.fila[k]='desp';touch(v,'anuncios','Pediu a despublicação no '+N);toast('Despublicação na fila do '+N)}
+  save();render()},
+ pubAll(d){const v=vehAt(d);v.fila=v.fila||{};let n=0;portaisAtivos().forEach(([k])=>{if(d.v==='1'&&!v.pubs[k]&&!v.bloqueado){v.pubs[k]=true;v.fila[k]='pub';n++}if(d.v!=='1'&&v.pubs[k]&&v.fila[k]!=='desp'){if(v.fila[k]==='pub'){v.pubs[k]=false;delete v.fila[k]}else v.fila[k]='desp';n++}});touch(v,'anuncios',d.v==='1'?`Enviou para publicação em ${n} canais`:`Pediu a despublicação em ${n} canais`);save();toast(n?`${n} canais na fila. Use Sincronizar para enviar.`:'Nada a alterar');render()},
+ anSync(){let p=0,r=0;vehList().forEach(v=>{v.fila=v.fila||{};Object.entries(v.fila).forEach(([k,a])=>{if(a==='pub')p++;else{v.pubs[k]=false;r++}delete v.fila[k]});if(v.status!=='estoque')Object.keys(v.pubs).forEach(k=>{if(v.pubs[k]&&!(v.despErr||{})[k]){v.pubs[k]=false;r++}})});save();const e=errosAnuncios().length;toast(`Sincronizado: ${p} publicados, ${r} removidos${e?` · ${e} erros para resolver`:''}`);render()},
+ anRetry(d){const v=vehAt(d),k=d.k;v.despErr=v.despErr||{};
+  if(v.despErr[k]){delete v.despErr[k];v.pubs[k]=false;touch(v,'anuncios','Anúncio removido do '+portalNome(k));save();toast('Anúncio removido do portal');render();return}
+  const E=v.status==='estoque'&&v.pubs[k]?anuncioErros(v,k).concat(destaqueErro(v,k)?[destaqueErro(v,k)]:[]):[];
+  if(E.length){toast(`O ${portalNome(k)} recusou de novo: ${E[0].msg}`);return}
+  touch(v,'anuncios','Atualizou o anúncio no '+portalNome(k));save();toast('Anúncio atualizado no '+portalNome(k));render()},
+ anGo(d){const g=(d.go||'').split(',');closeModal();if(g[0]==='cfg'){UI.cfgSec='anuncios';go('configuracoes');return}UI.vTab[d.id]=g[0];if(g[1])UI.anTab[d.id]=g[1];go('v-'+d.id)},
+ gerarDescSite(d){const v=vehAt(d);v.site.desc=descricaoAuto(v);touch(v,'anuncios','Gerou a descrição do site');save();render()},
+ gerarDesc(d){const v=vehAt(d);v.descricao=descricaoAuto(v);touch(v,'anuncios','Gerou a descrição do anúncio');save();render()},
+ cabideAuto(d){const v=vehAt(d);v.cabide=v.opcionais.slice(0,6);touch(v,'anuncios','Preencheu o cabide com os opcionais');save();render()},
+ portalReconectar(d){const p=CFG().portais[+d.i];p.contas[+d.j].erro=null;save();toast(p.nome+' reconectado. Os anúncios voltam a sincronizar.');modalPortal(+d.i);render()},
+ relGrupo(d){UI.relGrupo=d.v;const f=RELS.find(r=>r[1]===d.v);if(f)UI.rel=f[0];render()},
+ cliTab(d){UI.cliTab[d.id]=d.t;render()},
+ painelTab(d){UI.painelTab=d.v;render()}
+});
+Object.assign(CH_EXT,{
+ crlv(t){const f=t.files&&t.files[0];if(!f)return 1;const v=S.veh[t.dataset.id];v.crlv=f.name;touch(v,'ficha','Enviou o CRLV '+f.name);toast('CRLV anexado')},
+ laudo(t){const v=S.veh[t.dataset.id];const fs=[...(t.files||[])].map(f=>f.name);if(!fs.length)return 1;v.pericia.laudos=(v.pericia.laudos||[]).concat(fs);touch(v,'pericia','Anexou '+fs.join(', '));toast(fs.length+' laudo(s) anexado(s)')},
+ fotosAdd(t){const v=S.veh[t.dataset.id];const n=(t.files||[]).length;if(!n)return 1;v.fotos=Math.min(40,v.fotos+n);touch(v,'anuncios',`Adicionou ${n} foto(s)`);toast(n+' foto(s) adicionada(s)')},
+ tagAn(t){const v=S.veh[t.dataset.id];const g=t.dataset.t;v.tags=t.checked?[...new Set((v.tags||[]).concat(g))]:(v.tags||[]).filter(x=>x!==g);touch(v,'anuncios',(t.checked?'Marcou a tag ':'Desmarcou a tag ')+g)},
+ destaqueAn(t){const v=S.veh[t.dataset.id];v.destaques=v.destaques||{};v.destaques[t.dataset.k]=t.checked;touch(v,'anuncios',(t.checked?'Ativou destaque no ':'Removeu destaque do ')+portalNome(t.dataset.k));const e=t.checked&&destaqueErro(v,t.dataset.k);if(e)toast(e.msg)}
+});
+/* opcionais e cliente também ficam no histórico */
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.actChange==='opc'){const v=S.veh[t.dataset.id];if(v){touch(v,'ficha',(t.checked?'Marcou ':'Desmarcou ')+t.dataset.o);save()}}});
+</script>
 </body>
 </html>
