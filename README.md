@@ -15,12 +15,22 @@ Tudo roda no navegador, sem login e sem servidor. Os dados são fictícios e fic
 | **Comercial** | Atendimentos (CRM) por etapa com distribuição por fila, negociações (venda, troca, compra, consignação) com contratos e NF-e, intermediação entre particulares, clientes e site da loja |
 | **Financeiro** | Títulos a pagar e a receber, recorrência, extrato por conta bancária, adiantamentos, documentação e serviços agregados, ordens de serviço, retorno de financiamento e notas fiscais |
 | **Configurações** | Usuários e perfis de acesso, fornecedores, portais de anúncio, CRM (origens, motivos, tags, quadros), plano de contas, custos, contas bancárias, bancos, notas fiscais, consulta veicular e exportação |
+| **Integrações › Chaves** | Controle de chaves com etiqueta QR: quem está com cada chave, por qual motivo e desde quando. Retirada e devolução, leitura do QR pela câmera do celular, checklist de vistoria com avarias, fotos e assinaturas, agenda de reservas da frota, painel de test drive, cadastro de tags, quadros, motivos e regras por usuário |
+| **Integrações › Conexões** | Liga o módulo de chaves, escolhe entre etiquetas QR ou claviculário IdentKey, automações com Serviços, CRM e Negociações, e chaves de API para parceiros |
+
+### Roteiro rápido do módulo de chaves
+
+1. Pelo celular, abra **Chaves › Ler etiqueta › Ler com a câmera** e aponte para um QR impresso em **Tags e etiquetas › Imprimir etiquetas**. Sem câmera, digite o código (ex.: PT-0003).
+2. Retire a chave para **Test drive**: o atendimento do cliente aparece no CRM e o checklist abre com fotos e assinaturas.
+3. Devolva a chave e marque uma avaria que não existia na retirada: ela vira item em **Serviços** do veículo.
+4. Retire outra chave para **Lavagem** e veja a ordem de serviço começar sozinha.
+5. Finalize uma negociação de venda e confira que a tag foi liberada.
 
 Dica: no topo à direita, troque o usuário para ver o sistema como um vendedor, um avaliador ou o financeiro. Cada perfil enxerga módulos diferentes.
 
 ## O que é simulado
 
-Envio de convites, assinatura digital, emissão de NF-e, certificado digital, publicação nos portais e resultados da consulta veicular. Na versão definitiva essas partes se conectam aos serviços reais.
+Envio de convites, assinatura digital, emissão de NF-e, certificado digital, publicação nos portais, resultados da consulta veicular e a conexão com o claviculário IdentKey. As fotos de avaria ficam só no seu navegador, que tem pouco espaço para elas. Na versão definitiva essas partes se conectam aos serviços reais.
 
 ## Como ajudar
 
