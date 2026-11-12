@@ -2799,6 +2799,258 @@ code.inp{display:block;white-space:nowrap;overflow-x:auto;background:var(--surfa
 @media (max-width:900px){.chk-area{grid-template-columns:minmax(0,1fr) auto}.chk-area .inp{grid-column:1/-1;order:3}}
 @media print{body *{visibility:hidden!important}.printable,.printable *{visibility:visible!important}.printable{position:absolute;left:0;top:0;width:100%;padding:16px}}
 </style>
+<style>
+/* ================= v6: hierarquia visual ================= */
+/* fundo um tom mais fechado e cards com borda e sombra mais definidas: os blocos se destacam do fundo */
+:root{--bg:#e9ecf0;--card-line:#dfe3e8;--line:#e3e6ea;--head:#f6f7f9;--shadow:0 1px 2px rgba(16,24,40,.05),0 3px 8px rgba(16,24,40,.04);--sec:#0f1113}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0a0c0e;--card-line:#262b31;--head:#1a1e23;--sec:#eef0f2}}
+:root[data-theme="dark"]{--bg:#0a0c0e;--card-line:#262b31;--head:#1a1e23;--sec:#eef0f2}
+
+/* títulos de página: maiores e mais pesados, com respiro em relação ao conteúdo */
+h1{font-size:30px;font-weight:800;letter-spacing:-.025em}
+.phead{padding-bottom:4px}
+.phead .t p{font-size:14.5px}
+h2{font-weight:750}
+
+/* cabeçalho dos cards: faixa própria, separada do conteúdo, com marcador verde no título */
+.card > header{padding:15px 20px 14px;border-bottom:1px solid var(--card-line);background:var(--head);border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
+.card > header h3{font-size:16.5px;font-weight:750;display:flex;align-items:center;gap:10px;letter-spacing:-.015em}
+.card > header h3::before{content:"";width:4px;height:18px;border-radius:3px;background:var(--green);flex:none}
+.card > header .ht p{margin-left:14px;font-size:13px}
+.card > .bd{padding:18px 20px 20px}
+.card.pad > header,.card > header:only-child{border-bottom:0}
+/* resumo do veículo */
+.sc{border-color:var(--card-line);box-shadow:var(--shadow)}
+.sc > header{margin:-16px -18px 0;padding:13px 18px;border-bottom:1px solid var(--card-line);background:var(--head);border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
+.sc > header h3{font-size:15px;font-weight:750;display:flex;align-items:center;gap:9px}
+.sc > header h3::before{content:"";width:4px;height:16px;border-radius:3px;background:var(--green)}
+
+/* rótulos de seção (eyebrow) legíveis: mais escuros e com traço */
+.eyebrow{color:var(--ink-2);font-weight:700;font-size:11.5px;letter-spacing:.09em}
+.bd > div > .eyebrow:first-child,.bd > .eyebrow{display:flex;align-items:center;gap:8px}
+
+/* valores x rótulos: o dado pesa mais que a legenda */
+.kv b{font-size:15px;font-weight:650;color:var(--ink)}
+.kv .small.muted{font-size:12px}
+.conta .tot{font-size:18px;font-weight:800}
+.conta .row.tot{border-top:2px solid var(--ink);padding-top:12px;margin-top:4px}
+
+/* tabelas: cabeçalho com fundo e texto mais escuro, linhas com hover */
+.tbl th{background:var(--surface-2);color:var(--ink-2);font-weight:700;border-bottom:1px solid var(--card-line)}
+.tbl thead tr th:first-child{border-top-left-radius:10px}
+.tbl thead tr th:last-child{border-top-right-radius:10px}
+.tbl tbody tr:hover td{background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
+
+/* navegação: grupos com mais contraste e item ativo com barra verde */
+.nav-g > span{color:var(--ink-2);font-weight:700}
+.nav a.on{background:var(--green-soft);color:var(--ink);box-shadow:inset 3px 0 0 var(--green)}
+.tabs{border-bottom:2px solid var(--line)}
+.tabs button,.tabs a{font-size:14px;margin-bottom:-2px;border-bottom-width:3px;padding:10px 14px}
+.tabs .on{color:var(--ink);font-weight:750}
+.steps button.on{box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.esteira{box-shadow:var(--shadow)}
+.est.on{background:var(--green-soft);box-shadow:inset 0 -3px 0 var(--green)}
+.stat b{font-size:26px;font-weight:800}
+.note{border-left-width:4px}
+.modal .box > header{padding:18px 22px 14px;border-bottom:1px solid var(--card-line)}
+.modal .box.xwide{max-width:1180px}
+.modal .box > footer{padding-top:14px;border-top:1px solid var(--card-line)}
+
+/* ================= extrato FIPE ================= */
+.fipe-card > header{align-items:flex-start}
+.fipe-now{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+.fipe-now b{font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.fpill{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:750;padding:4px 10px;border-radius:999px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.fpill.sm{font-size:11px;padding:2px 8px}
+.fpill.up{background:#15803d;color:#fff}
+.fpill.down{background:#c62828;color:#fff}
+.fpill.flat{background:var(--surface-3);color:var(--ink-2)}
+.fipe-bars{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;align-items:end;padding:6px 4px 0}
+.fb{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.fb-v{font-size:12px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fb-bar{width:100%;max-width:64px;height:130px;display:flex;align-items:flex-end;background:repeating-linear-gradient(0deg,transparent 0 25px,var(--line) 25px 26px);border-radius:8px 8px 0 0}
+.fb-bar i{display:block;width:100%;background:#9aa3ae;border-radius:8px 8px 0 0}
+.fb-m{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.fb.cur .fb-bar i{background:var(--ink)}
+.fb.cur .fb-v{color:var(--ink);font-size:13px}
+.fb.cur .fb-m{color:var(--ink)}
+.fipe-tbl td{padding:11px 14px}
+.fipe-tbl tbody tr:nth-child(even) td{background:var(--surface-2)}
+.fipe-tbl tr.cur td{background:var(--ink)!important;color:var(--surface)}
+.fipe-tbl tr.cur td .muted{color:color-mix(in srgb,var(--surface) 70%,transparent)}
+.fipe-tbl tr.cur .fv.up{color:#4ade80}
+.fipe-tbl tr.cur .fv.down{color:#fca5a5}
+.tag-atual{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:var(--green);color:var(--green-ink);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:2px}
+.fv{font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fv small{font-weight:600;opacity:.85}
+.fv.up{color:#15803d}
+.fv.down{color:#c62828}
+.fv.flat{color:var(--muted)}
+.fipe-ft{display:flex;gap:18px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+.fipe-ft .f{max-width:260px;flex:1}
+.fipe-cmp{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fipe-cmp b{font-size:18px}
+:root[data-theme="dark"] .fv.up{color:#4ade80}:root[data-theme="dark"] .fv.down{color:#f87171}
+
+/* ================= consulta de mercado ================= */
+.merc-f{display:flex;gap:18px;flex-wrap:wrap}
+.merc-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.ms{border:1px solid var(--card-line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.ms span{font-size:12px;font-weight:650;color:var(--ink-2)}
+.ms b{font-size:19px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.ms small{font-size:11.5px;color:var(--muted)}
+.ms.hl{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.ms.hl span,.ms.hl small{color:color-mix(in srgb,var(--surface) 75%,transparent)}
+.ms.pos{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.ms.neg{border-color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn)}
+.merc-range{padding:10px 10px 0}
+.mr-track{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,var(--surface-3),var(--surface-2),var(--surface-3));border:1px solid var(--line)}
+.mr-dot{position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:#6b7280;border:2px solid var(--surface);transform:translate(-50%,-50%)}
+.mr-mk{position:absolute;top:-6px;bottom:-6px;width:3px;border-radius:2px;transform:translateX(-50%)}
+.mr-mk em{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;font-weight:750;white-space:nowrap;padding:2px 7px;border-radius:999px}
+.mr-mk.fipe{background:var(--info)}.mr-mk.fipe em{background:var(--info);color:#fff}
+.mr-mk.media{background:var(--ink)}.mr-mk.media em{background:var(--ink);color:var(--surface);bottom:auto;top:calc(100% + 4px)}
+.mr-mk.seu{background:var(--green)}.mr-mk.seu em{background:var(--green);color:var(--green-ink)}
+.mr-ax{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
+.mr-mk{top:-8px;bottom:-8px;width:4px}
+.mr-leg{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:10px;font-size:12.5px;color:var(--ink-2)}
+.mr-leg span{display:inline-flex;align-items:center;gap:7px}
+.mr-leg i{width:14px;height:4px;border-radius:2px;display:inline-block}
+.mr-leg i.fipe{background:var(--info)}.mr-leg i.media{background:var(--ink)}.mr-leg i.seu{background:var(--green)}
+.mr-leg i.mr-dot-l{width:10px;height:10px;border-radius:50%;background:#6b7280}
+.sug-cmp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sug-cmp > div{border:1px solid var(--card-line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.sug-cmp span{font-size:12px;font-weight:650;color:var(--ink-2)}
+.sug-cmp b{font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.sug-cmp small{font-size:11.5px;color:var(--muted)}
+.sug-cmp .on{border-color:var(--green);background:var(--green-soft)}
+.sug-cmp .pos b{color:var(--green-strong)}.sug-cmp .neg b{color:var(--bad)}
+@media (max-width:720px){.sug-cmp{grid-template-columns:1fr}.fipe-bars{gap:4px}.fb-v{font-size:10.5px}}
+
+/* ================= galeria arrastável ================= */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.gt{position:relative;border:1px solid var(--card-line);border-radius:14px;overflow:hidden;background:var(--surface);cursor:grab;user-select:none;-webkit-user-select:none;transition:box-shadow .15s,border-color .15s;touch-action:manipulation}
+.gt:hover{border-color:var(--ink-2);box-shadow:0 4px 14px rgba(16,24,40,.12)}
+.gt:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+.gal .gt:first-child{border:2px solid var(--green)}
+.gal .gt:not(:first-child) .cp{display:none}
+.ent-ses{display:flex;flex-direction:column;gap:6px}
+.gimg{aspect-ratio:4/3;position:relative;overflow:hidden;background:var(--surface-2)}
+.gimg img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.gt .n{position:absolute;top:8px;left:8px;background:var(--ink);color:var(--surface);font-size:11.5px;font-weight:800;border-radius:999px;min-width:24px;text-align:center;padding:2px 8px;z-index:2}
+.gt .cp{position:absolute;top:8px;left:42px;background:var(--green);color:var(--green-ink);font-size:11px;font-weight:800;border-radius:999px;padding:2px 9px;display:flex;gap:4px;align-items:center;z-index:2}
+.gt .grip{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--surface) 88%,transparent);color:var(--ink-2);z-index:2;touch-action:none;cursor:grab}
+.gact{display:flex;justify-content:space-between;gap:6px;padding:8px;border-top:1px solid var(--line)}
+.gt.gt-ph{opacity:.35;border:2px dashed var(--green);box-shadow:none}
+.gt.gt-ph *{visibility:hidden}
+.gt-ghost{position:fixed;left:0;top:0;z-index:100;pointer-events:none;cursor:grabbing;box-shadow:0 18px 40px rgba(16,24,40,.3);border-color:var(--green);opacity:.96}
+body.g-dragging,body.g-dragging *{cursor:grabbing!important;user-select:none!important}
+.gal-empty{border:2px dashed var(--line);border-radius:16px;padding:36px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--ink-2)}
+.gal-ft{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+[data-galdrop].drop-on,[data-entdrop].drop-on{outline:3px dashed var(--green);outline-offset:4px}
+.ilus{position:absolute;inset:0;background:linear-gradient(160deg,hsl(var(--h) 30% 92%),hsl(calc(var(--h) + 30) 22% 80%))}
+:root[data-theme="dark"] .ilus{background:linear-gradient(160deg,hsl(var(--h) 18% 26%),hsl(calc(var(--h) + 30) 14% 16%))}
+.ilus-car{position:absolute;left:12%;right:12%;bottom:16%;display:block}
+.ilus-car svg.car{width:100%;display:block}
+.ilus .ang{position:absolute;left:8px;bottom:8px;font-size:10.5px;font-weight:700;background:color-mix(in srgb,var(--surface) 85%,transparent);color:var(--ink);padding:2px 8px;border-radius:999px}
+.photo img.ph-real{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ================= fotos de entrada ================= */
+.ent-prog{height:10px;border-radius:999px;background:var(--surface-3);overflow:hidden}
+.ent-prog i{display:block;height:100%;background:var(--green);border-radius:999px;transition:width .3s}
+.ent-meta{display:grid;grid-template-columns:200px 1fr 1fr;gap:16px;align-items:end}
+.ent-meta .f > span:first-child{font-size:12.5px;font-weight:600;color:var(--ink-2)}
+@media (max-width:900px){.ent-meta{grid-template-columns:1fr}}
+.ent-grp{display:flex;flex-direction:column;gap:10px}
+.ent-gh{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:6px}
+.es-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.es{border:2px dashed var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;cursor:pointer;min-height:150px;justify-content:center;background:var(--surface);transition:border-color .15s,background .15s;margin:0}
+.es:hover{border-color:var(--green);background:var(--green-soft)}
+.es b{font-size:13.5px}
+.es .small{font-size:11.5px;line-height:1.35}
+.es-ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);color:var(--ink-2);margin-bottom:4px}
+.es.on{border:1px solid var(--card-line);padding:0;cursor:default;justify-content:flex-start;overflow:hidden}
+.es.on:hover{background:var(--surface);border-color:var(--card-line)}
+.es.on.bad{border-color:color-mix(in srgb,var(--bad) 45%,transparent)}
+.es-img{aspect-ratio:4/3;position:relative;overflow:hidden;background:var(--surface-2)}
+.es-img img{width:100%;height:100%;object-fit:cover;display:block}
+.es-ok{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:var(--green);color:var(--green-ink);display:grid;place-items:center;z-index:2}
+.es figcaption{padding:8px 10px 2px;display:flex;flex-direction:column;gap:1px}
+.es figcaption .inp{padding:5px 8px;font-size:12.5px}
+.es-act{display:flex;justify-content:space-between;gap:6px;padding:6px 10px 10px}
+.es.es-av{border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+.ent-ft{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+.eg{display:flex;flex-direction:column;gap:16px}
+.eg-strip{display:flex;gap:6px;flex-wrap:wrap}
+.eg-dot{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;display:grid;place-items:center}
+.eg-dot.on{background:var(--green);border-color:var(--green);color:var(--green-ink)}
+.eg-dot.cur{outline:3px solid var(--ink);outline-offset:2px}
+.eg-t{font-size:26px;margin-top:4px}
+.eg-frame{aspect-ratio:16/9;max-height:52vh;border-radius:16px;overflow:hidden;position:relative;background:var(--surface-2);border:1px solid var(--card-line)}
+.eg-frame > img{width:100%;height:100%;object-fit:contain;background:#111}
+.eg-guide{position:absolute;inset:0;opacity:.55}
+.eg-guide::after{content:"";position:absolute;inset:10% 8%;border:3px dashed var(--ink);border-radius:18px;opacity:.5}
+.eg-acts{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ok-note{background:var(--green-soft)}
+
+/* ================= contratos ================= */
+.ctr-list{display:flex;flex-direction:column;gap:8px}
+.ctr{display:grid;grid-template-columns:32px minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid var(--card-line);border-radius:14px;background:var(--surface)}
+.ctr.on{background:color-mix(in srgb,var(--green-soft) 45%,var(--surface));border-color:var(--green-line)}
+.ctr-n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface-3);font-weight:800;font-size:12.5px}
+.ctr.on .ctr-n{background:var(--green);color:var(--green-ink)}
+.ctr-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ctr-t b{font-size:14.5px}
+@media (max-width:820px){.ctr{grid-template-columns:32px 1fr}.ctr-st,.ctr .actions{grid-column:2}}
+.cgen{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.cgen{grid-template-columns:1fr}}
+.cgen-f{display:flex;flex-direction:column;gap:14px}
+.cgen-f fieldset{border:1px solid var(--card-line);border-radius:14px;padding:12px 14px 14px;margin:0;display:flex;flex-direction:column;gap:10px}
+.cgen-f legend{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);padding:0 6px}
+.cgen-p{position:sticky;top:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+.cgen-pt .inp{max-width:100%}
+#cprev{max-height:68vh;overflow:auto;background:#d9dde3;border-radius:14px;padding:18px}
+.paper{position:relative;background:#fff;color:#16181b;font:12.5px/1.6 Arial,Helvetica,sans-serif;padding:44px 48px 40px;box-shadow:0 2px 10px rgba(0,0,0,.15);max-width:720px;margin:0 auto 18px;overflow:hidden}
+.paper h1{font-size:15px;font-weight:800;text-align:center;letter-spacing:.01em;margin:22px 0 2px;color:#111}
+.paper h2{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin:16px 0 4px;color:#111}
+.paper p{margin:0 0 7px;text-align:justify}
+.paper .pp-sub{text-align:center;color:#6b7280;font-size:10.5px;margin-bottom:18px}
+.paper .pp-li{padding-left:16px;position:relative;text-align:left}
+.paper .pp-li::before{content:"•";position:absolute;left:4px}
+.paper .pp-h{display:flex;justify-content:space-between;gap:14px;border-bottom:2px solid #111;padding-bottom:10px}
+.paper .pp-h div{display:flex;flex-direction:column}
+.paper .pp-h b{font-size:15px}
+.paper .pp-h span{font-size:10.5px;color:#6b7280}
+.paper .pp-num{font-weight:800;font-size:10.5px;color:#374151;white-space:nowrap}
+.paper .pp-local{margin-top:16px;text-align:left}
+.paper .pp-ass{display:grid;grid-template-columns:1fr 1fr;gap:30px 28px;margin-top:34px}
+.paper .pp-ass div{display:flex;flex-direction:column;font-size:11px;color:#4b5563}
+.paper .pp-ass i{border-top:1px solid #111;margin-bottom:5px}
+.paper .pp-ass b{color:#111;font-size:12px}
+.paper .pp-tt{margin-top:26px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#6b7280}
+.paper .wm{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:110px;font-weight:900;color:rgba(0,0,0,.06);pointer-events:none;letter-spacing:.05em}
+#print-area{display:none}
+@media print{
+ body.printing > *:not(#print-area){display:none!important}
+ body.printing #print-area{display:block}
+ body.printing{background:#fff}
+ #print-area .paper{box-shadow:none;max-width:none;margin:0;padding:0 0 0;page-break-after:always}
+}
+
+/* indicadores do painel: cada um com sua cor, número maior e rótulo em caixa alta */
+.kpi{--k:#16a34a;border-top:3px solid var(--k)}
+.kpis > .kpi:nth-child(2),.kpi.k2{--k:#2563eb}
+.kpis > .kpi:nth-child(3),.kpi.k3{--k:#d97706}
+.kpis > .kpi:nth-child(4),.kpi.k4{--k:#7c3aed}
+.kpi .ico{background:color-mix(in srgb,var(--k) 15%,transparent);color:var(--k)}
+.kpi .lb{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-2)}
+.kpi .vl b{font-size:34px;font-weight:800}
+:root[data-theme="dark"] .fipe-tbl tr.cur .fv.up{color:#15803d}
+:root[data-theme="dark"] .fipe-tbl tr.cur .fv.down{color:#c62828}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fipe-tbl tr.cur .fv.up{color:#15803d}:root:not([data-theme="light"]) .fipe-tbl tr.cur .fv.down{color:#c62828}:root:not([data-theme="light"]) .fv.up{color:#4ade80}:root:not([data-theme="light"]) .fv.down{color:#f87171}}
+@media (max-width:720px){.fb-v,.fb .fpill{display:none}.fb-bar{height:90px}.fb-m{font-size:10.5px}.fipe-now{align-items:flex-start;text-align:left}}
+
+</style>
 </head>
 <body>
 
@@ -4032,7 +4284,7 @@ function viewNegociacoes(){
  <select class="inp" id="nf-tipo" data-ui="nf.tipo" aria-label="Tipo">${opts([['','Todos os tipos']].concat(Object.entries(NEG_TIPOS)),f.tipo)}</select>
  <select class="inp" id="nf-status" data-ui="nf.status" aria-label="Status">${opts([['','Todos os status']].concat(Object.entries(NEG_STATUS).map(([k,v])=>[k,v[0]])),f.status)}</select></div>
  <section class="card"><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Negociação</th><th>Cliente</th><th>Entrada</th><th>Saída</th><th class="n">Saldo</th><th>Movimentação</th><th></th></tr></thead><tbody>
- ${L.map(n=>{const c=negCalc(n);return `<tr><td><b>#${n.id}</b><div class="chips" style="margin-top:6px">${chip(NEG_TIPOS[n.tipo],'line')}${chip(NEG_STATUS[n.status][0],NEG_STATUS[n.status][1]+' dot')}</div></td>
+ ${L.map(n=>{const c=negCalc(n);return `<tr><td><b>#${n.id}</b><div class="chips" style="margin-top:6px">${chip(NEG_TIPOS[n.tipo],'line')}${chip(NEG_STATUS[n.status][0],NEG_STATUS[n.status][1]+' dot')}${['pendente-contrato','finalizada'].includes(n.status)?(r=>chip(r.ger+'/'+r.tot+' contratos',r.ger===r.tot?'ok':'warn'))(negCtrResumo(n)):''}</div></td>
  <td><b>${esc(cliNome(n.clienteId))}</b><span class="sub">${esc(S.cli[n.clienteId]?.tel||'')}</span></td>
  <td>${n.entradas.length?n.entradas.map(e=>vm(e.vid)).join(''):'<span class="muted">—</span>'}</td>
  <td>${n.saidaId?vm(n.saidaId):'<span class="muted">—</span>'}</td>
@@ -4097,7 +4349,7 @@ function viewNeg(id){
   const assin=CFG().negInt.find(x=>x.k==='assinatura');
   const nota=S.notas.find(x=>x.neg===n.id);
   const pend=nfePend();
-  body=`<section class="card"><header><div class="ht"><h3>Contratos</h3><p>Gerados com os dados da loja, do cliente e dos veículos${assin.ativo?` · assinatura digital via ${esc(assin.prov)} ativa`:''}</p></div></header><div class="bd rows">${lista.map(k=>{const a=n.assin?.[k];return `<div class="row"><span style="display:flex;gap:10px;align-items:center">${ic('file')}<span><b>${CONTRATOS[k]}</b>${['procuracao-venda','termo-entrega','procuracao-condutor'].includes(k)&&n.saidaId?` <span class="small muted">· ${esc(nome(S.veh[n.saidaId]))}</span>`:''}${['procuracao-compra','termo-recebimento','consignacao'].includes(k)&&n.entradas[0]?` <span class="small muted">· ${esc(nome(S.veh[n.entradas[0].vid]))}</span>`:''}</span></span><span class="actions">${a?chip(a.st==='assinado'?'Assinado':'Enviado para assinatura '+dtf(a.d),a.st==='assinado'?'ok dot':'info dot'):''}<button class="btn xs" type="button" data-act="contrato" data-id="${id}" data-k="${k}">Visualizar</button>${assin.ativo&&n.status!=='cancelada'?(a?(a.st!=='assinado'?`<button class="btn xs" type="button" data-act="assinOk" data-id="${id}" data-k="${k}">Marcar assinado</button>`:''):`<button class="btn xs dark" type="button" data-act="assin" data-id="${id}" data-k="${k}">${ic('sign','sm')} Enviar</button>`):''}</span></div>`}).join('')}</div></section>
+  body=`${negContratosHTML(n)}
   ${n.saidaId&&n.status==='finalizada'?`<section class="card"><header><div class="ht"><h3>Nota fiscal de venda</h3><p>Emissão configurada em Configurações › Notas fiscais</p></div>${nota?chip('NF-e nº '+nota.num+' · série '+nota.serie,'ok dot'):''}</header><div class="bd">${nota?`<div class="kv"><div><b>${nota.num}</b><span class="small muted">Número</span></div><div><b>${dtf(nota.data)}</b><span class="small muted">Emissão</span></div><div><b>${brl2(nota.valor)}</b><span class="small muted">Valor</span></div><div><b class="num small" style="word-break:break-all">${nota.chave}</b><span class="small muted">Chave de acesso</span></div></div>`:pend.length?`<div class="note warn"><b>Emissão de NF-e desativada.</b> ${pend.length} ${pend.length>1?'pendências':'pendência'}: ${pend.map(esc).join('; ')}.</div>${can('configuracoes')?`<div style="margin-top:12px"><a class="btn sm" href="#configuracoes" data-act="cfgGo" data-sec="notas">Ver o que falta</a></div>`:''}`:`<button class="btn pri" type="button" data-act="emitirNfe" data-id="${id}">${ic('receipt','sm')} Emitir NF-e</button>`}</div></section>`:''}
   <section class="card"><header><h3>Comentários internos</h3></header><div class="bd" style="display:flex;flex-direction:column;gap:10px">
    ${n.coments.map(cm=>`<div class="ev"><span class="av xs g">${esc(ini(cm.q))}</span><span><b>${esc(cm.q)}</b> <span class="small muted">${dtf(cm.d)}</span><br>${esc(cm.t)}</span></div>`).join('')||'<span class="muted small">Nenhum comentário.</span>'}
@@ -4721,7 +4973,7 @@ function vResumo(v){
  ${scCard(v,'precificacao','Precificação',`<div class="kv"><div><b>${brl(v.compra)}</b><span class="small muted">Preço de compra</span></div><div><b>${brl(gastoPrev(v))}</b><span class="small muted">Previsão de gastos</span></div><div><b>${v.venda?brl(v.venda):'—'}</b><span class="small muted">Preço de venda</span></div><div><b>${(v.prec&&v.prec.histCompra||[]).length}</b><span class="small muted">Propostas no histórico</span></div></div>`)}
  ${scCard(v,'negEntrada','Negociação de entrada',`<div class="kv"><div><b>${esc(cl.nome||'—')}</b><span class="small muted">Cliente</span></div><div><b>${brl(v.compra)}</b><span class="small muted">Preço de compra</span></div><div><b>${negsDoVeic(v.id).filter(n=>n.entradas.some(e=>e.vid===v.id)).length}</b><span class="small muted">Negociações</span></div></div>`)}
  ${scCard(v,'pericia','Perícia',`<div class="kv"><div><b>${esc(pst||'—')}</b><span class="small muted">Resultado</span></div><div><b>${(v.pericia.laudos||[]).length}</b><span class="small muted">Laudos</span></div><div><b>${(v.pericia.hist||[]).length}</b><span class="small muted">No histórico</span></div></div>`)}
- ${scCard(v,'recebimento','Recebimento',`<div class="kv"><div><b>${rc.entregue} / ${rc.nao} / ${rc.pendente} / 4</b><span class="small muted">entregue / não possui / pendente / total</span></div><div><b>${esc(v.garantia)}</b><span class="small muted">Garantia${v.garantiaVenc?' até '+v.garantiaVenc.split('-').reverse().join('/'):''}</span></div></div>`)}
+ ${scCard(v,'recebimento','Recebimento',`<div class="kv"><div><b>${rc.entregue} / ${rc.nao} / ${rc.pendente} / 4</b><span class="small muted">entregue / não possui / pendente / total</span></div><div><b>${esc(v.garantia)}</b><span class="small muted">Garantia${v.garantiaVenc?' até '+v.garantiaVenc.split('-').reverse().join('/'):''}</span></div><div><b>${entCount(v)} / ${ENT_ROTEIRO.length}</b><span class="small muted">Fotos de entrada</span></div></div>`)}
  ${scCard(v,'servicos','Serviços',`<div class="kv"><div><b>${v.servicos.filter(s=>s.status!=='recusado').length} itens · ${brl(gastoPrev(v))}</b><span class="small muted">Valor previsto</span></div><div><b>${v.servicos.filter(s=>s.feito).length} itens · ${brl(gastoReal(v))}</b><span class="small muted">Valor realizado</span></div></div>`)}
  ${scCard(v,'anuncios','Anúncios',`<div class="kv"><div><b>${pubCount(v)} de ${portaisAtivos().length}</b><span class="small muted">Canais publicados</span></div><div><b>${v.fotos}</b><span class="small muted">Fotos</span></div><div><b>${portaisAtivos().filter(([k])=>['erro','errodest','errodesp'].includes(anunStatus(v,k))).length}</b><span class="small muted">Com erro</span></div></div>`)}
  ${consultaCard(v)}
@@ -4827,17 +5079,21 @@ function vPreco(v){
   <div class="kv"><div><b>${v.aval.testDrive?'Sim':'Não'}</b><span class="small muted">Realizou test-drive?</span></div><div><b>${esc(v.aval.feedback||'Não informado')}</b><span class="small muted">Feedback do avaliador</span></div><div><b>${esc(v.aval.solicitante||'—')}</b><span class="small muted">Solicitante</span></div><div><b>${esc(v.aval.avaliador)}</b><span class="small muted">Avaliador</span></div></div>
   ${v.aval.done?avalResumoTbl(v,true):'<span class="muted">Avaliação ainda não realizada.</span>'}
  </div></section>
+ ${fipeExtratoHTML(v)}
+ ${mercadoHTML(v)}
  <section class="card"><header><div class="ht"><h3>Precificação de compra</h3><p>Simule quanto pagar a partir do preço de venda esperado</p></div></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
-  <div class="form"><label class="f">Valor de venda previsto${inp(P+'prec.simCompra.venda',pr.simCompra.venda,{type:'number'})}</label><label class="f">Margem desejada (%)${inp(P+'prec.simCompra.margemPct',pr.simCompra.margemPct,{type:'number'})}<small>${brl(c.mR)}</small></label><label class="f">Garantia (R$)${inp(P+'prec.simCompra.garantia',pr.simCompra.garantia,{type:'number'})}</label></div>
+  ${baseCompraHTML(v)}
+  <div class="form"><label class="f">Valor de venda previsto${inp(P+'prec.simCompra.venda',pr.simCompra.venda,{type:'number',attrs:(pr.simCompra.base&&pr.simCompra.base!=='manual')?'disabled':''})}</label><label class="f">Margem desejada (%)${inp(P+'prec.simCompra.margemPct',pr.simCompra.margemPct,{type:'number'})}<small>${brl(c.mR)}</small></label><label class="f">Garantia (R$)${inp(P+'prec.simCompra.garantia',pr.simCompra.garantia,{type:'number'})}</label></div>
   <div class="conta"><div class="row"><span>Valor de venda previsto</span><span class="num">${brl2(c.cv)}</span></div><div class="row muted"><span>Margem (${pct(c.mPct)})</span><span class="num">− ${brl2(c.mR)}</span></div><div class="row muted"><span>Previsão de gastos</span><span class="num">− ${brl2(c.gp)}</span></div><div class="row muted"><span>Garantia</span><span class="num">− ${brl2(c.gar)}</span></div><div class="row muted"><span>Impostos (${pct(L.impostoPct)} sobre a venda)</span><span class="num">− ${brl2(c.impC)}</span></div><div class="row muted"><span>Comissões (compra ${pct(L.comissaoCompraPct)} + venda ${pct(L.comissaoVendaPct)})</span><span class="num">− ${brl2(c.comC)}</span></div><div class="row tot"><span>Valor sugerido de compra</span><span class="num" style="color:var(--green-strong)">${brl2(c.sugerido)}</span></div></div>
-  <div><button class="btn dark sm" type="button" data-act="definirCompra" data-id="${v.id}" data-v="${c.sugerido}">Definir como valor final</button></div>
+  ${sugComparaHTML(v)}
+  <div><button class="btn dark sm" type="button" data-act="definirCompra" data-id="${v.id}" data-v="${c.sugerido}">Definir ${brl(c.sugerido)} como valor final</button></div>
   <div class="form"><label class="f">${v.neg==='consignado'?'Valor acordado com o proprietário (proposta final)':'Valor de compra (proposta final)'}${inp(P+'compra',v.compra,{type:'number'})}</label><label class="f">Cliente aprovou a proposta?${segm(P+'negEntrada',[['true','Sim','ok'],['false','Não']],String(v.negEntrada))}${pr.aprovadoEm&&v.negEntrada?`<small>Aprovada em ${fmtDT(pr.aprovadoEm)}</small>`:''}</label></div>
   <div><span class="eyebrow">Histórico de compra</span><div class="tbl-wrap" style="margin-top:6px"><table class="tbl"><thead><tr><th>Precificado por</th><th class="n">Valor</th><th>Data</th></tr></thead><tbody>${(pr.histCompra||[]).slice().sort((a,b)=>b.em.localeCompare(a.em)).map(h=>`<tr><td>${esc(h.por)}</td><td class="n">${brl2(h.valor)}</td><td>${fmtDT(h.em)}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">Nenhuma proposta registrada.</td></tr>'}</tbody></table></div></div>
  </div></section>
  <section class="card"><header><div class="ht"><h3>Precificação de venda</h3><p>Margem bruta e líquida com custo real, impostos e comissões</p></div></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
   <div class="form"><label class="f">Valor de venda previsto${inp(P+'prec.simVenda.venda',pr.simVenda.venda,{type:'number'})}</label></div>
   <div class="conta"><div class="row"><span>Margem bruta (venda − compra)</span><span class="num"><b>${brl2(c.mb)}</b> · ${pctTxt(c.mb,c.vv)}</span></div><div class="row muted"><span>Valor de compra</span><span class="num">${brl2(v.compra)}</span></div><div class="row muted"><span>Custo total (compra + gastos realizados)</span><span class="num">${brl2(c.custo)}</span></div><div class="row muted"><span>Impostos</span><span class="num">− ${brl2(c.impV)}</span></div><div class="row muted"><span>Comissões</span><span class="num">− ${brl2(c.comV)}</span></div><div class="row tot"><span>Margem líquida</span><span class="num" style="color:${c.ml>=0?'var(--green-strong)':'var(--bad)'}">${brl2(c.ml)} · ${pctTxt(c.ml,c.vv)}</span></div></div>
-  <div class="grid g2"><div><span class="eyebrow">FIPE · referência ${MESES[TODAY.getMonth()]}/${TODAY.getFullYear()}</span><div class="big" style="margin:6px 0">${brl(v.fipe)}</div><div class="form" style="grid-template-columns:1fr"><label class="f">Valor FIPE${inp(P+'fipe',v.fipe,{type:'number'})}</label></div></div><div><span class="eyebrow">Últimos valores da FIPE</span><div class="rows small" style="margin-top:6px">${fipeHist(v).map(([m,x])=>`<div class="row" style="padding:5px 0"><span>${m}</span><b>${brl(x)}</b></div>`).join('')}</div></div></div>
+  <div class="note" style="background:var(--surface-2);border-color:var(--line)">FIPE atual <b>${brl(v.fipe)}</b>${mercStats(v)?` · média de mercado <b>${brl(mercStats(v).media)}</b>`:''}. Os detalhes estão no extrato FIPE e na consulta de mercado, acima.</div>
   <div class="form"><label class="f">Valor de venda showroom${inp(P+'venda',v.venda,{type:'number'})}</label>${mostraAtacado?`<label class="f">Valor de venda atacado${inp(P+'prec.atacado',pr.atacado,{type:'number'})}</label>`:''}</div>
   ${sw(P+'prec.promoOn',pr.promoOn,'Colocar veículo em promoção','pr-'+v.id)}
   ${pr.promoOn?`<div class="form"><label class="f">Promoção showroom${inp(P+'promo',v.promo,{type:'number'})}</label>${mostraAtacado?`<label class="f">Promoção atacado${inp(P+'prec.promoAtacado',pr.promoAtacado,{type:'number'})}</label>`:''}</div>`:''}
@@ -4884,7 +5140,7 @@ function vPericia(v){
 function vReceb(v){
  const P='veh.'+v.id+'.';v.receb.fotos=v.receb.fotos||{};
  const fotosAval=Object.entries(v.aval.fotos).filter(([,x])=>x).map(([k])=>k.split('|')[1]);
- return `<div class="grid g-side"><div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+ return `${entradaHTML(v)}<div class="grid g-side"><div style="display:flex;flex-direction:column;gap:18px;min-width:0">
  <section class="card"><header><div class="ht"><h3>Checklist de recebimento</h3><p>Itens que o proprietário deve entregar junto com o veículo</p></div>${auditLine(vlog(v,'recebimento'))}</header><div class="bd">
  ${REC.map(([k,l])=>`<div class="item"><span class="nm" style="max-width:340px">${l}</span><span class="ctl"><button type="button" class="btn xs ${v.receb.fotos[k]?'':'ghost'}" data-act="recFoto" data-id="${v.id}" data-k="${k}">${ic(v.receb.fotos[k]?'check':'plus','sm')} ${v.receb.fotos[k]?'Foto anexada':'Adicionar foto'}</button>${segm(P+'receb.'+k,[['entregue','Entregue','ok'],['nao','Não possui','warn'],['pendente','Pendente']],v.receb[k])}</span></div>`).join('')}
  <div class="form" style="margin-top:14px"><label class="f">Garantia${sel(P+'garantia',GARANTIAS,v.garantia)}</label><label class="f">Vencimento${inp(P+'garantiaVenc',v.garantiaVenc||'',{type:'month'})}</label></div>
@@ -4922,9 +5178,7 @@ function vAnun(v){
  const filaN=PA.filter(([k])=>['fila','filadesp'].includes(anunStatus(v,k))).length;
  let body='';
  if(t==='fotos'){
-  body=`<section class="card"><header><div class="ht"><h3>Fotos</h3><p>Proporção 4×3, mínimo 1920 × 1440 px e até 5 MB. A primeira é a capa.</p></div><span class="actions"><label class="btn sm pri" for="fotos-${v.id}" style="cursor:pointer">${ic('plus','sm')} Adicionar fotos</label><input type="file" id="fotos-${v.id}" accept="image/*" multiple data-act-change="fotosAdd" data-id="${v.id}" hidden></span></header><div class="bd">
-  ${v.fotos?`<div class="ph-grid">${Array.from({length:v.fotos},(_,i)=>`<div class="ph-tile ${i===(v.capa||0)?'capa':''}"><div class="photo">${carSVG(v)}</div><span class="n">${i+1}</span>${i===(v.capa||0)?`<span class="cp">${ic('check','sm')} Capa</span>`:''}<div class="tl-act"><button class="btn xs" type="button" data-act="fotoCapa" data-id="${v.id}" data-i="${i}" ${i===(v.capa||0)?'disabled':''}>Capa</button><button class="btn xs" type="button" data-act="fotoMove" data-id="${v.id}" data-i="${i}" data-d="-1" ${i===0?'disabled':''} aria-label="Mover para a esquerda">${ic('left','sm')}</button><button class="btn xs" type="button" data-act="fotoMove" data-id="${v.id}" data-i="${i}" data-d="1" ${i===v.fotos-1?'disabled':''} aria-label="Mover para a direita">${ic('right','sm')}</button><button class="btn xs ghost danger" type="button" data-act="foto" data-id="${v.id}" data-d="-1" aria-label="Remover foto">${ic('x','sm')}</button></div></div>`).join('')}</div>`:'<div class="empty">Nenhuma foto. Adicione as fotos do anúncio.</div>'}
-  <p class="small muted" style="margin-top:10px">Mínimo por canal: ${PA.map(([k,l])=>`${esc(l)} ${regra(k).fotos}`).join(' · ')}. No protótipo as fotos são ilustrativas.</p></div></section>`;
+  body=galeriaHTML(v);
  } else if(t==='ficha'){
   body=`<section class="card"><header><h3>Ficha técnica no anúncio</h3><button class="btn sm" type="button" data-act="vtab" data-id="${v.id}" data-tab="ficha">Editar</button></header><div class="bd kv">${[['Carroceria',v.carroceria],['Câmbio',v.cambio],['Potência',v.potencia?v.potencia+' cv':'Não informado'],['Portas',v.portas],['Cor',v.cor],['Combustível',v.combustivel],['Tração',v.tracao||'—'],['Consumo urbano',v.consumoU?v.consumoU+' km/l':'Não informado'],['Consumo rodoviário',v.consumoR?v.consumoR+' km/l':'Não informado'],['KM',numf(v.km)]].map(([l,x])=>`<div><b>${esc(x)}</b><span class="small muted">${l}</span></div>`).join('')}</div></section>`;
  } else if(t==='acessorios'){
@@ -5575,7 +5829,7 @@ const ACT={
    UI.negStep[d.id]=7;
   }
   n.status=s;n.hist.unshift({a:{'pendente-contrato':'Aprovada',finalizada:'Finalizada',cancelada:'Cancelada',rascunho:'Reaberta'}[s],q:me().nome,d:TODAY_ISO});
-  save();toast({'pendente-contrato':'Negociação aprovada. Títulos lançados no financeiro.',finalizada:'Negociação finalizada. Estoque atualizado.',cancelada:'Negociação cancelada',rascunho:'Negociação reaberta para edição'}[s]);if(s==='pendente-contrato')UI.negStep[d.id]=7;render();
+  save();toast({'pendente-contrato':'Negociação aprovada. Títulos lançados no financeiro. Agora gere os contratos.',finalizada:'Negociação finalizada. Estoque atualizado.',cancelada:'Negociação cancelada',rascunho:'Negociação reaberta para edição'}[s]);if(s==='pendente-contrato')UI.negStep[d.id]=7;render();
  },
  contrato(d){const n=S.neg[d.id];const txt=contratoTexto(n,d.k);openModal(CONTRATOS[d.k],`<div class="doc" id="doc-txt">${esc(txt)}</div><p class="small muted" style="margin-top:10px">Na versão real este documento sai em PDF e pode ir para assinatura eletrônica.</p>`,`<button class="btn" type="button" data-act="closeModal">Fechar</button><button class="btn pri" type="button" data-act="copiar" data-src="doc-txt">Copiar texto</button>`,true)},
  copiar(d){const el=document.getElementById(d.src);copyText(el.textContent,el)},
@@ -5626,7 +5880,6 @@ document.addEventListener('click',e=>{
  f(t.dataset,t,e);
 });
 try{if(!location.hash||!can(modDe(curHash())))history.replaceState(null,'','#'+homeMod())}catch(e){}
-render();
 /* ================= módulos complementares: janelas, formulários e ações ================= */
 const cbOpts=(vazio)=>(vazio?[['',vazio]]:[]).concat(CFG().contasBanc.filter(c=>c.ativo).map(c=>[c.id,c.nome]));
 function modalBaixa(k){
@@ -6768,6 +7021,670 @@ Object.assign(ACT,{
 window.addEventListener('hashchange',chvCamStop);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)chvCamStop()});
 save=function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!UI._cheio){UI._cheio=1;toast('O navegador ficou sem espaço para salvar. Remova fotos de avaria antigas para continuar salvando.')}}};
+/* ================= v6: contratos, extrato FIPE, consulta de mercado, fotos de entrada e galeria arrastável ================= */
+Object.assign(UI,{entIdx:{},cMod:null,mercAberto:{}});
+
+/* ---------- utilitários ---------- */
+function hashStr(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function rng(seed){let a=(seed>>>0)||1;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const uid=p=>p+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);
+const mesCurto=d=>MESES[d.getMonth()].slice(0,3)+'/'+String(d.getFullYear()).slice(2);
+const sinal=(x,f=brl)=>(x>0?'+ ':x<0?'− ':'')+f(Math.abs(x));
+const pctS=x=>(x>0?'+':x<0?'−':'')+pct(Math.abs(x));
+
+/* downloads: usa o recurso da página publicada; fora dela, cai no download comum do navegador */
+let DL=null;
+try{if(window.claude&&window.claude.use)window.claude.use('downloads').then(x=>{DL=x}).catch(()=>{})}catch(e){}
+async function baixarArquivo(nomeArq,blob){
+ if(DL){
+  try{const r=await DL.save({filename:nomeArq,data:blob});if(r&&r.status==='saved')toast('Arquivo salvo: '+nomeArq);return true}
+  catch(e){const c=e&&e.code;if(c==='declined'){toast('Download cancelado');return false}if(c==='rate_limited'){toast('Já existe um download aguardando confirmação');return false}}
+ }
+ try{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=nomeArq;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);toast('Download iniciado: '+nomeArq);return true}
+ catch(e){toast('O navegador bloqueou o download');return false}
+}
+
+/* fotos reais ficam no IndexedDB (cabe muito mais que o localStorage); o estado guarda só o id */
+const IMG={};let IDB=null;
+function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open('patio-fotos',1);r.onupgradeneeded=()=>r.result.createObjectStore('img');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+function idbTx(mode,fn){return IDB?new Promise((res,rej)=>{const tx=IDB.transaction('img',mode);fn(tx.objectStore('img'));tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)}):Promise.reject(new Error('sem idb'))}
+function imgPut(url){const id=uid('img');IMG[id]=url;idbTx('readwrite',s=>s.put(url,id)).catch(()=>{if(!UI._idbAviso){UI._idbAviso=1;toast('Este navegador não liberou espaço: as fotos ficam só até fechar a página.')}});return id}
+function imgDel(id){if(!id)return;const usado=vals(S.veh).some(v=>(v.galeria||[]).some(g=>g.img===id)||Object.values((v.fotoEnt||{}).f||{}).some(f=>f.img===id)||((v.fotoEnt||{}).avarias||[]).some(a=>a.img===id));if(usado)return;delete IMG[id];idbTx('readwrite',s=>s.delete(id)).catch(()=>{})}
+async function imgBoot(){
+ try{IDB=await idbOpen();await new Promise(res=>{const rq=IDB.transaction('img','readonly').objectStore('img').openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){IMG[c.key]=c.value;c.continue()}else res()};rq.onerror=()=>res()});if(Object.keys(IMG).length)render()}catch(e){}
+}
+const imgSrc=id=>id&&IMG[id]||null;
+async function lerFotos(files,max=1600,q=.8){
+ const L=[...(files||[])].filter(f=>/^image\//.test(f.type));const out=[];
+ for(const f of L){try{out.push(await chvImgComprime(f,max,q))}catch(e){}}
+ if(L.length>out.length)toast(`${L.length-out.length} arquivo(s) não puderam ser lidos como imagem`);
+ return out;
+}
+
+/* ilustração para fotos de exemplo: ângulos diferentes deixam a ordem visível */
+const ANG=['Frente 3/4','Lateral','Traseira 3/4','Traseira','Interior','Painel','Bancos traseiros','Porta-malas','Rodas','Motor','Detalhe','Frente'];
+function fotoIlus(v,k,label){
+ const h=(hashStr(v.marca)%360+k*47)%360;
+ return `<div class="ilus" style="--h:${h}"><span class="ilus-car" style="${k%2?'transform:scaleX(-1)':''}">${carSVG(v)}</span><span class="ang">${esc(label||ANG[k%ANG.length])}</span></div>`;
+}
+const capaImg=v=>{const g=(v.galeria||[])[0];return g&&imgSrc(g.img)};
+photo=function(v,o={}){
+ const src=capaImg(v);
+ return `<div class="photo">${o.noPlate?'':`<span class="tl">${plate(v)}</span>`}${o.noCount?'':`<span class="tr">${chip(v.fotos+' fotos','line')}</span>`}${src?`<img class="ph-real" src="${src}" alt="">`:carSVG(v)}${o.noTags?'':`<span class="bl">${chip(v.neg==='consignado'?'Consignado':'Próprio')}${chip(v.estoque==='atacado'?'Atacado':'Showroom')}</span>`}</div>`;
+}
+
+/* =====================================================================
+   1. GALERIA DO ANÚNCIO · arrastar e soltar com o mouse
+   ===================================================================== */
+function galEnsure(v){
+ if(!Array.isArray(v.galeria)){
+  const n=+v.fotos||0, c=Math.min(+v.capa||0,Math.max(0,n-1));
+  const arr=Array.from({length:n},(_,i)=>({id:'g'+v.id+'-'+i,k:i}));
+  if(n&&c){const [x]=arr.splice(c,1);arr.unshift(x)}
+  v.galeria=arr;
+ }
+ if((+v.fotos||0)>v.galeria.length){for(let i=v.galeria.length;i<v.fotos;i++)v.galeria.push({id:uid('g'),k:i})}
+ v.fotos=v.galeria.length;v.capa=0;return v.galeria;
+}
+function galFoto(v,g,i){const src=imgSrc(g.img);return src?`<img src="${src}" alt="" draggable="false">`:fotoIlus(v,g.k,g.label)}
+function galeriaHTML(v){
+ const G=galEnsure(v), PA=portaisAtivos(), ent=entCount(v);
+ return `<section class="card" data-galdrop="${v.id}"><header><div class="ht"><h3>Fotos do anúncio</h3><p>Arraste com o mouse para mudar a ordem. A primeira foto é a capa. Também dá para soltar arquivos do computador aqui.</p></div><span class="actions">${ent?`<button class="btn sm" type="button" data-act="entToGal" data-id="${v.id}">${ic('refresh','sm')} Trazer fotos de entrada (${ent})</button>`:''}<label class="btn sm pri" for="fotos-${v.id}" style="cursor:pointer">${ic('plus','sm')} Adicionar fotos</label><input type="file" id="fotos-${v.id}" accept="image/*" multiple data-act-change="fotosAdd" data-id="${v.id}" hidden></span></header><div class="bd">
+ ${G.length?`<div class="gal" data-gal="${v.id}" role="list" aria-label="Fotos do anúncio na ordem de exibição">${G.map((g,i)=>`<div class="gt ${i===0?'capa':''}" role="listitem" tabindex="0" data-gi="${i}" data-gid="${esc(g.id)}" aria-label="Foto ${i+1}${i===0?', capa':''}. Arraste para mover, ou use Alt e as setas.">
+  <div class="gimg">${galFoto(v,g,i)}</div>
+  <span class="n">${i+1}</span><span class="cp">${ic('check','sm')} Capa</span>
+  <span class="grip" title="Arrastar" aria-hidden="true"><svg viewBox="0 0 10 16" width="10" height="16"><g fill="currentColor"><circle cx="2.5" cy="3" r="1.5"/><circle cx="7.5" cy="3" r="1.5"/><circle cx="2.5" cy="8" r="1.5"/><circle cx="7.5" cy="8" r="1.5"/><circle cx="2.5" cy="13" r="1.5"/><circle cx="7.5" cy="13" r="1.5"/></g></svg></span>
+  <div class="gact">${i?`<button class="btn xs" type="button" data-act="galCapa" data-id="${v.id}" data-i="${i}">Tornar capa</button>`:'<span></span>'}<button class="btn xs ghost danger" type="button" data-act="galDel" data-id="${v.id}" data-i="${i}" aria-label="Remover foto ${i+1}">${ic('x','sm')}</button></div>
+ </div>`).join('')}</div>`:`<label class="gal-empty" for="fotos-${v.id}">${ic('plus')}<b>Solte as fotos aqui</b><span class="small muted">ou clique para escolher no computador</span></label>`}
+ <div class="gal-ft"><span class="small muted">${G.length} foto${G.length===1?'':'s'} · mínimo por canal: ${PA.map(([k,l])=>`${esc(l)} ${regra(k).fotos}`).join(' · ')}</span>${G.some(g=>!g.img)?'<span class="small muted">Fotos sem imagem real são ilustrativas.</span>':''}</div>
+ </div></section>`;
+}
+function galReordena(v,ids){
+ const G=galEnsure(v), by=Object.fromEntries(G.map(g=>[g.id,g]));
+ const nova=ids.map(id=>by[id]).filter(Boolean);if(nova.length!==G.length)return false;
+ const capaAntes=G[0].id;v.galeria=nova;v.fotos=nova.length;
+ touch(v,'anuncios',nova[0].id!==capaAntes?'Trocou a foto de capa arrastando':'Reordenou as fotos do anúncio');save();
+ toast(nova[0].id!==capaAntes?'Nova capa definida':'Ordem das fotos atualizada');return true;
+}
+async function galAddFiles(v,files){
+ const G=galEnsure(v), espaco=40-G.length;if(espaco<=0){toast('Limite de 40 fotos por veículo');return}
+ const L=[...files].slice(0,espaco);if(!L.length)return;toast(`Processando ${L.length} foto(s)…`);
+ const urls=await lerFotos(L);if(!urls.length)return;
+ urls.forEach(u=>G.push({id:uid('g'),img:imgPut(u),k:0,origem:'upload'}));
+ v.fotos=G.length;touch(v,'anuncios',`Adicionou ${urls.length} foto(s)`);save();toast(urls.length+' foto(s) adicionada(s)');render();
+}
+/* arrasto com ponteiro: mouse em qualquer ponto da foto, toque pela alça */
+const GDRAG={s:null};
+function gTiles(gal){return [...gal.querySelectorAll('.gt')]}
+function gFlip(gal,fn){const T=gTiles(gal).filter(t=>!t.classList.contains('gt-ph'));const r=new Map(T.map(t=>[t,t.getBoundingClientRect()]));fn();T.forEach(t=>{const a=r.get(t),b=t.getBoundingClientRect();const dx=a.left-b.left,dy=a.top-b.top;if(dx||dy){t.style.transition='none';t.style.transform=`translate(${dx}px,${dy}px)`;requestAnimationFrame(()=>{t.style.transition='transform .18s ease';t.style.transform=''})}})}
+document.addEventListener('pointerdown',e=>{
+ const t=e.target.closest('.gal .gt');if(!t||e.button!==0||e.target.closest('button,a,input,label'))return;
+ if(e.pointerType==='touch'&&!e.target.closest('.grip'))return;
+ GDRAG.s={t,gal:t.closest('.gal'),x:e.clientX,y:e.clientY,pid:e.pointerId,on:false};
+});
+document.addEventListener('pointermove',e=>{
+ const d=GDRAG.s;if(!d||e.pointerId!==d.pid)return;
+ if(!d.on){if(Math.hypot(e.clientX-d.x,e.clientY-d.y)<6)return;
+  const r=d.t.getBoundingClientRect();d.on=true;d.ox=e.clientX-r.left;d.oy=e.clientY-r.top;
+  const gh=d.t.cloneNode(true);gh.classList.add('gt-ghost');gh.removeAttribute('tabindex');gh.style.width=r.width+'px';gh.style.height=r.height+'px';document.body.appendChild(gh);d.gh=gh;
+  d.t.classList.add('gt-ph');document.body.classList.add('g-dragging');d.ordem0=gTiles(d.gal).map(x=>x.dataset.gid).join();
+ }
+ e.preventDefault();
+ d.gh.style.transform=`translate(${e.clientX-d.ox}px,${e.clientY-d.oy}px) rotate(1.5deg)`;
+ const alvo=gTiles(d.gal).find(x=>{if(x===d.t)return false;const r=x.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom});
+ if(alvo){const r=alvo.getBoundingClientRect();const depois=e.clientX>r.left+r.width/2;const ref=depois?alvo.nextSibling:alvo;if(ref!==d.t&&ref!==d.t.nextSibling){gFlip(d.gal,()=>d.gal.insertBefore(d.t,ref));gTiles(d.gal).forEach((x,i)=>{const s=x.querySelector('.n');if(s)s.textContent=i+1})}}
+ const m=70;if(e.clientY<m)window.scrollBy(0,-12);else if(e.clientY>innerHeight-m)window.scrollBy(0,12);
+},{passive:false});
+function gFim(cancel){
+ const d=GDRAG.s;GDRAG.s=null;if(!d||!d.on)return;
+ d.gh.remove();d.t.classList.remove('gt-ph');document.body.classList.remove('g-dragging');
+ const ids=gTiles(d.gal).map(x=>x.dataset.gid);
+ if(cancel||ids.join()===d.ordem0){render();return}
+ galReordena(S.veh[d.gal.dataset.gal],ids);render();
+ const f=document.querySelector(`.gal .gt[data-gid="${CSS.escape(d.t.dataset.gid)}"]`);if(f)f.focus({preventScroll:true});
+}
+document.addEventListener('pointerup',()=>gFim(false));
+document.addEventListener('pointercancel',()=>gFim(true));
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&GDRAG.s&&GDRAG.s.on){gFim(true);return}
+ const t=e.target.closest&&e.target.closest('.gal .gt');if(!t||!e.altKey||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home'].includes(e.key))return;
+ e.preventDefault();const gal=t.closest('.gal'),v=S.veh[gal.dataset.gal],ids=gTiles(gal).map(x=>x.dataset.gid),i=ids.indexOf(t.dataset.gid);
+ const cols=Math.max(1,Math.round(gal.clientWidth/t.offsetWidth));
+ const j=e.key==='Home'?0:Math.max(0,Math.min(ids.length-1,i+({ArrowLeft:-1,ArrowRight:1,ArrowUp:-cols,ArrowDown:cols})[e.key]));if(j===i)return;
+ const [x]=ids.splice(i,1);ids.splice(j,0,x);galReordena(v,ids);render();
+ const f=document.querySelector(`.gal .gt[data-gid="${CSS.escape(x)}"]`);if(f)f.focus();
+});
+/* soltar arquivos do computador direto no card */
+['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{const c=e.target.closest&&e.target.closest('[data-galdrop],[data-entdrop]');if(!c||!e.dataTransfer||![...e.dataTransfer.types].includes('Files'))return;e.preventDefault();c.classList.add('drop-on')}));
+document.addEventListener('dragleave',e=>{const c=e.target.closest&&e.target.closest('[data-galdrop],[data-entdrop]');if(c&&!c.contains(e.relatedTarget))c.classList.remove('drop-on')});
+document.addEventListener('drop',e=>{
+ const c=e.target.closest&&e.target.closest('[data-galdrop],[data-entdrop]');if(!c||!e.dataTransfer||!e.dataTransfer.files.length)return;e.preventDefault();c.classList.remove('drop-on');
+ if(c.dataset.galdrop)galAddFiles(S.veh[c.dataset.galdrop],e.dataTransfer.files);
+ else entAddFiles(S.veh[c.dataset.entdrop],e.dataTransfer.files);
+});
+
+/* =====================================================================
+   2. SESSÃO DE FOTOS DE ENTRADA
+   ===================================================================== */
+const ENT_ROTEIRO=[
+ ['frente34','Frente 3/4','Diagonal dianteira, a uns 3 m, com o carro inteiro no quadro','ext',0],
+ ['frente','Frente','De frente, com faróis e placa visíveis','ext',11],
+ ['latEsq','Lateral esquerda','Perpendicular ao carro, rodas inteiras no quadro','ext',1],
+ ['traseira34','Traseira 3/4','Diagonal traseira, do lado oposto à primeira foto','ext',2],
+ ['traseira','Traseira','Placa e lanternas visíveis','ext',3],
+ ['latDir','Lateral direita','Perpendicular ao carro, rodas inteiras no quadro','ext',1],
+ ['painel','Painel com KM','Ignição ligada: hodômetro, nível de combustível e luzes de alerta','int',5],
+ ['intDiant','Interior dianteiro','Pela porta do motorista, mostrando bancos e console','int',4],
+ ['intTras','Banco traseiro','Bancos e forrações das portas traseiras','int',6],
+ ['portaMalas','Porta-malas e estepe','Tampa aberta, com estepe, macaco e chave de roda','int',7],
+ ['motor','Motor','Capô aberto, sem flash','mec',9],
+ ['pneus','Pneus e rodas','Banda de rodagem e aro de uma das rodas','mec',8],
+ ['chaves','Chaves','Chave principal e cópia, se houver','doc',10],
+ ['crlv','Documento (CRLV)','Documento aberto e legível','doc',10]
+];
+const ENT_GRUPOS=[['ext','Externas'],['int','Internas'],['mec','Mecânica'],['doc','Chaves e documentos']];
+const COMB_NIV=[['0','Reserva'],['25','1/4'],['50','1/2'],['75','3/4'],['100','Cheio']];
+function entEnsure(v){v.fotoEnt=v.fotoEnt||{f:{},avarias:[],km:'',comb:''};v.fotoEnt.f=v.fotoEnt.f||{};v.fotoEnt.avarias=v.fotoEnt.avarias||[];return v.fotoEnt}
+const entCount=v=>v.fotoEnt?ENT_ROTEIRO.filter(([k])=>v.fotoEnt.f&&v.fotoEnt.f[k]).length:0;
+function entThumb(v,k,f){const r=ENT_ROTEIRO.find(x=>x[0]===k);const src=imgSrc(f.img);return src?`<img src="${src}" alt="${esc(r?r[1]:k)}">`:fotoIlus(v,r?r[4]:0,r?r[1]:'')}
+function entSlot(v,r){
+ const [k,l,dica]=r, f=v.fotoEnt.f[k], fid2=`ent-${v.id}-${k}`;
+ const input=`<input type="file" id="${fid2}" accept="image/*" capture="environment" data-act-change="entFoto" data-id="${v.id}" data-k="${k}" hidden>`;
+ if(!f)return `<label class="es" for="${fid2}" title="${esc(dica)}"><span class="es-ic">${ic('plus')}</span><b>${esc(l)}</b><span class="small muted">${esc(dica)}</span>${input}</label>`;
+ return `<figure class="es on"><div class="es-img">${entThumb(v,k,f)}<span class="es-ok">${ic('check','sm')}</span></div><figcaption><b>${esc(l)}</b><span class="small muted">${fmtDT(f.em)} · ${esc(f.por)}</span></figcaption><div class="es-act"><label class="btn xs" for="${fid2}" style="cursor:pointer">Refazer</label><button class="btn xs ghost danger" type="button" data-act="entDel" data-id="${v.id}" data-k="${k}" aria-label="Remover foto: ${esc(l)}">${ic('x','sm')}</button></div>${input}</figure>`;
+}
+function entradaHTML(v){
+ const E=entEnsure(v), tot=ENT_ROTEIRO.length, ok=entCount(v), pc=Math.round(ok/tot*100), P='veh.'+v.id+'.fotoEnt.';
+ const falta=tot-ok;
+ return `<section class="card ent-card" data-entdrop="${v.id}"><header><div class="ht"><h3>Sessão de fotos de entrada</h3><p>Registre o estado do carro assim que ele chega, antes de qualquer serviço. Serve de prova em caso de avaria e já pode alimentar o anúncio.</p></div><span class="actions">${chip(ok+' de '+tot+' fotos',ok===tot?'ok dot':ok?'warn dot':'dot')}<button class="btn ${ok===tot?'':'pri'}" type="button" data-act="entGuiada" data-id="${v.id}">${ic('eye','sm')} ${ok===0?'Iniciar sessão guiada':ok===tot?'Revisar sessão':'Continuar sessão · faltam '+falta}</button></span></header>
+ <div class="bd" style="display:flex;flex-direction:column;gap:18px">
+  <div class="ent-prog"><i style="width:${pc}%"></i></div>
+  <div class="ent-meta">
+   <label class="f">KM na chegada${inp(P+'km',E.km,{type:'number',ph:numf(v.km)})}</label>
+   <label class="f">Combustível na chegada${segm(P+'comb',COMB_NIV,E.comb)}</label>
+   <div class="f ent-ses"><span>Sessão</span><span class="small">${E.inicio?`Iniciada ${fmtDT(E.inicio.em)} por <b>${esc(E.inicio.por)}</b>`:'<span class="muted">Ainda não iniciada</span>'}${E.fim?`<br>Concluída ${fmtDT(E.fim.em)}`:''}</span></div>
+  </div>
+  ${ENT_GRUPOS.map(([g,gl])=>{const R=ENT_ROTEIRO.filter(r=>r[3]===g);const n=R.filter(r=>E.f[r[0]]).length;return `<div class="ent-grp"><div class="ent-gh"><span class="eyebrow">${gl}</span><span class="small muted">${n} de ${R.length}</span></div><div class="es-grid">${R.map(r=>entSlot(v,r)).join('')}</div></div>`}).join('')}
+  <div class="ent-grp"><div class="ent-gh"><span class="eyebrow">Avarias encontradas na chegada</span><span class="small muted">${E.avarias.length} registrada${E.avarias.length===1?'':'s'}</span></div>
+   <div class="es-grid">${E.avarias.map((a,i)=>`<figure class="es on bad"><div class="es-img">${imgSrc(a.img)?`<img src="${imgSrc(a.img)}" alt="Avaria: ${esc(a.desc)}">`:fotoIlus(v,10,'Avaria')}</div><figcaption><input class="inp" id="entav-${v.id}-${i}" data-set="veh.${v.id}.fotoEnt.avarias.${i}.desc" value="${esc(a.desc)}" placeholder="Descreva a avaria" aria-label="Descrição da avaria ${i+1}"><span class="small muted">${fmtDT(a.em)} · ${esc(a.por)}</span></figcaption><div class="es-act"><span></span><button class="btn xs ghost danger" type="button" data-act="entAvDel" data-id="${v.id}" data-i="${i}" aria-label="Remover avaria ${i+1}">${ic('x','sm')}</button></div></figure>`).join('')}
+   <label class="es es-av" for="entav-${v.id}"><span class="es-ic">${ic('plus')}</span><b>Registrar avaria</b><span class="small muted">Risco, amassado, trinca, peça faltando</span><input type="file" id="entav-${v.id}" accept="image/*" capture="environment" multiple data-act-change="entAv" data-id="${v.id}" hidden></label></div>
+  </div>
+  <div class="ent-ft"><span class="small muted">Dica: no computador, você pode soltar várias fotos de uma vez sobre este card; elas preenchem o roteiro na ordem.</span><button class="btn" type="button" data-act="entToGal" data-id="${v.id}" ${ok?'':'disabled'}>${ic('refresh','sm')} Usar externas e internas no anúncio</button></div>
+ </div></section>`;
+}
+function entSet(v,k,url){
+ const E=entEnsure(v), s=stamp();if(!E.inicio)E.inicio=s;
+ const old=E.f[k];E.f[k]={img:imgPut(url),em:s.em,por:s.por};if(old&&old.img)setTimeout(()=>imgDel(old.img),0);
+ if(entCount(v)===ENT_ROTEIRO.length&&!E.fim){E.fim=stamp();touch(v,'recebimento','Concluiu a sessão de fotos de entrada')}
+}
+async function entAddFiles(v,files){
+ entEnsure(v);const livres=ENT_ROTEIRO.filter(([k])=>!v.fotoEnt.f[k]).map(r=>r[0]);
+ if(!livres.length){toast('O roteiro já está completo. Use "Refazer" em cada foto ou registre avarias.');return}
+ const urls=await lerFotos([...files].slice(0,livres.length),1280,.74);
+ urls.forEach((u,i)=>entSet(v,livres[i],u));
+ touch(v,'recebimento',`Adicionou ${urls.length} foto(s) de entrada`);save();toast(`${urls.length} foto(s) encaixadas no roteiro`);render();
+}
+function modalEntGuiada(v,idx){
+ const E=entEnsure(v), tot=ENT_ROTEIRO.length;
+ if(idx==null){idx=ENT_ROTEIRO.findIndex(([k])=>!E.f[k]);if(idx<0)idx=0}
+ UI.entIdx[v.id]=idx;
+ const [k,l,dica,g]=ENT_ROTEIRO[idx], f=E.f[k], ok=entCount(v);
+ const strip=ENT_ROTEIRO.map(([kk,ll],i)=>`<button type="button" class="eg-dot ${E.f[kk]?'on':''} ${i===idx?'cur':''}" data-act="entIr" data-id="${v.id}" data-i="${i}" aria-label="${esc(ll)}${E.f[kk]?' (feita)':''}" title="${esc(ll)}">${E.f[kk]?ic('check','sm'):i+1}</button>`).join('');
+ const fim=ok===tot;
+ openModal(`Fotos de entrada · ${nome(v)} ${v.placa||''}`,`
+ <div class="eg">
+  <div class="eg-strip">${strip}</div>
+  <div class="eg-step"><span class="eyebrow">Foto ${idx+1} de ${tot} · ${(ENT_GRUPOS.find(x=>x[0]===g)||[])[1]}</span><h2 class="eg-t">${esc(l)}</h2><p class="muted">${esc(dica)}</p></div>
+  <div class="eg-frame">${f?entThumb(v,k,f):`<div class="eg-guide">${fotoIlus(v,ENT_ROTEIRO[idx][4],'Enquadramento sugerido')}</div>`}</div>
+  <div class="eg-acts">
+   <button class="btn" type="button" data-act="entIr" data-id="${v.id}" data-i="${Math.max(0,idx-1)}" ${idx===0?'disabled':''}>${ic('left','sm')} Anterior</button>
+   <label class="btn pri lg" for="entm-${v.id}" style="cursor:pointer">${ic('plus','sm')} ${f?'Refazer foto':'Tirar foto'}</label>
+   <input type="file" id="entm-${v.id}" accept="image/*" capture="environment" data-act-change="entFotoM" data-id="${v.id}" data-k="${k}" hidden>
+   <button class="btn" type="button" data-act="entIr" data-id="${v.id}" data-i="${Math.min(tot-1,idx+1)}" ${idx===tot-1?'disabled':''}>${f?'Próxima':'Pular'} ${ic('right','sm')}</button>
+  </div>
+  ${fim?`<div class="note ok-note"><b>Sessão completa.</b> As ${tot} fotos do roteiro foram registradas.</div>`:''}
+ </div>`,`<span class="small muted" style="margin-right:auto">${ok} de ${tot} registradas</span><button class="btn" type="button" data-act="closeModal">Fechar</button>${fim?`<button class="btn pri" type="button" data-act="entToGal" data-id="${v.id}">Usar no anúncio</button>`:''}`,true);
+}
+
+/* =====================================================================
+   3. EXTRATO FIPE · 6 meses com alto contraste
+   ===================================================================== */
+function fipeSerie(v){
+ const R=rng(hashStr('fipe'+v.marca+v.modelo+v.versao+v.anoMod));const out=[];let val=+v.fipe||0;
+ for(let i=0;i<6;i++){const d=new Date(TODAY);d.setDate(1);d.setMonth(d.getMonth()-i);out.unshift({d,val:Math.round(val)});const chg=-0.013+R()*0.017;val=val/(1+chg)}
+ out.forEach((x,i)=>{const p=out[i-1];x.dv=p?x.val-p.val:0;x.dp=p&&p.val?x.dv/p.val*100:0;x.acc=out[0].val?(x.val-out[0].val)/out[0].val*100:0});
+ return out;
+}
+fipeHist=function(v){return fipeSerie(v).map(x=>[MESES[x.d.getMonth()]+'/'+x.d.getFullYear(),x.val])};
+function fipeExtratoHTML(v){
+ const P='veh.'+v.id+'.';
+ if(!+v.fipe)return `<section class="card fipe-card"><header><div class="ht"><h3>Extrato FIPE · últimos 6 meses</h3><p>Informe o valor FIPE de referência para ver o extrato</p></div></header><div class="bd"><div class="form"><label class="f">Valor FIPE atual${inp(P+'fipe',v.fipe,{type:'number'})}</label></div></div></section>`;
+ const H=fipeSerie(v), cur=H[5], acc=cur.acc, mx=Math.max(...H.map(x=>x.val)), mn=Math.min(...H.map(x=>x.val)), span=Math.max(1,mx-mn);
+ const pv=preco(v), dif=pv?(pv-cur.val)/cur.val*100:0;
+ const cls=x=>x>0.0001?'up':x<-0.0001?'down':'flat', seta=x=>x>0.0001?'▲':x<-0.0001?'▼':'■';
+ return `<section class="card fipe-card"><header><div class="ht"><h3>Extrato FIPE · últimos 6 meses</h3><p>${esc(v.marca+' '+v.modelo+' '+v.versao)} · ano modelo ${v.anoMod}</p></div>
+  <div class="fipe-now"><span class="eyebrow">Referência ${MESES[TODAY.getMonth()]}/${TODAY.getFullYear()}</span><b>${brl(cur.val)}</b><span class="fpill ${cls(acc)}">${seta(acc)} ${pctS(acc)} em 6 meses · ${sinal(cur.val-H[0].val)}</span></div></header>
+ <div class="bd" style="display:flex;flex-direction:column;gap:20px">
+  <div class="fipe-bars" role="img" aria-label="Valores FIPE dos últimos seis meses">${H.map((x,i)=>`<div class="fb ${i===5?'cur':''}"><span class="fb-v">${brlK(x.val)}</span><span class="fb-bar"><i style="height:${Math.round(28+(x.val-mn)/span*72)}%"></i></span><span class="fb-m">${mesCurto(x.d)}</span><span class="fpill sm ${i?cls(x.dp):'flat'}">${i?seta(x.dp)+' '+pctS(x.dp):'início'}</span></div>`).join('')}</div>
+  <div class="tbl-wrap"><table class="tbl fipe-tbl"><thead><tr><th>Mês</th><th class="n">Valor FIPE</th><th class="n">Variação no mês</th><th class="n">Acumulado</th></tr></thead><tbody>
+   ${H.slice().reverse().map((x,i)=>`<tr class="${i===0?'cur':''}"><td><b>${MESES[x.d.getMonth()].replace(/^./,c=>c.toUpperCase())}/${x.d.getFullYear()}</b>${i===0?' <span class="tag-atual">atual</span>':''}</td><td class="n"><b>${brl(x.val)}</b></td><td class="n">${x===H[0]?'<span class="muted">—</span>':`<span class="fv ${cls(x.dv)}">${seta(x.dv)} ${sinal(x.dv)} <small>(${pctS(x.dp)})</small></span>`}</td><td class="n">${x===H[0]?'<span class="muted">base</span>':`<span class="fv ${cls(x.acc)}">${pctS(x.acc)}</span>`}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="fipe-ft"><label class="f">Valor FIPE atual${inp(P+'fipe',v.fipe,{type:'number'})}</label><div class="fipe-cmp"><span class="small muted">Seu preço de venda</span><b>${pv?brl(pv):'—'}</b>${pv?`<span class="fpill ${dif>=0?'up':'down'}">${pctS(dif)} vs. FIPE</span>`:''}</div></div>
+ </div></section>`;
+}
+
+/* =====================================================================
+   4. CONSULTA DE MERCADO · média de preços praticados
+   ===================================================================== */
+const MERC_CID={pr:['Umuarama-PR','Maringá-PR','Cascavel-PR','Londrina-PR','Toledo-PR','Cianorte-PR','Paranavaí-PR','Curitiba-PR','Campo Mourão-PR'],br:['São Paulo-SP','Campinas-SP','Curitiba-PR','Belo Horizonte-MG','Goiânia-GO','Florianópolis-SC','Porto Alegre-RS','Ribeirão Preto-SP','Maringá-PR','Londrina-PR','Campo Grande-MS']};
+const MERC_PORT=['Webmotors','OLX','iCarros','Mobiauto','Usadosbr','Na Pista'];
+const KM_ANO=13500;
+function mercGerar(v,f,seed){
+ const R=rng(hashStr([v.marca,v.modelo,v.anoMod,f.reg,f.ano,seed].join('|')));
+ const base=+v.fipe||+v.venda||60000, n=(f.reg==='br'?16:9)+Math.floor(R()*7), cid=MERC_CID[f.reg]||MERC_CID.pr, Y=TODAY.getFullYear();
+ const vers=[v.versao,v.versao,v.versao.replace(/\s\S+$/,''),v.versao].filter(Boolean);
+ const L=[];
+ for(let i=0;i<n;i++){
+  const ano=v.anoMod+(f.ano==='1'?Math.round(R()*2-1):0), idade=Math.max(.5,Y-ano+.4);
+  const km=Math.max(2000,Math.round(idade*KM_ANO*(.5+R()*1.0)/100)*100), kmRef=idade*KM_ANO;
+  const part=R()<.22;
+  const p=base*(1+(ano-v.anoMod)*.065)*(1+(kmRef-km)/10000*.012)*(part?.95:1.04)*(.94+R()*.13);
+  L.push({portal:MERC_PORT[Math.floor(R()*MERC_PORT.length)],versao:vers[Math.floor(R()*vers.length)],ano,km,cidade:cid[Math.floor(R()*cid.length)],preco:Math.round(p/100)*100,dias:3+Math.floor(R()*85),tipo:part?'Particular':'Loja'});
+ }
+ return L.sort((a,b)=>a.preco-b.preco);
+}
+function mercEnsure(v){
+ v.prec=v.prec||{};const m=v.prec.merc;
+ if(!m||!m.anuncios){v.prec.merc={f:{reg:'pr',ano:'0'},seed:1,em:nowISO(),por:'Pátio (automático)',anuncios:[]};v.prec.merc.anuncios=mercGerar(v,v.prec.merc.f,1)}
+ return v.prec.merc;
+}
+function mercStats(v){
+ const m=mercEnsure(v), L=m.anuncios;if(!L.length)return null;
+ const P=L.map(x=>x.preco).sort((a,b)=>a-b), n=P.length, corte=Math.floor(n*.1), Pa=P.slice(corte,n-corte);
+ const media=Math.round(Pa.reduce((a,x)=>a+x,0)/Pa.length), mediana=n%2?P[(n-1)/2]:Math.round((P[n/2-1]+P[n/2])/2);
+ const kmMed=Math.round(L.reduce((a,x)=>a+x.km,0)/n/100)*100;
+ const ajKm=Math.round(media*((kmMed-(+v.km||0))/10000*.012)/100)*100;
+ return {n,media,mediana,min:P[0],max:P[n-1],kmMed,ajKm,ajustada:Math.max(0,media+ajKm),dias:Math.round(L.reduce((a,x)=>a+x.dias,0)/n),lojas:L.filter(x=>x.tipo==='Loja').length};
+}
+function sugDe(v,cv){
+ const L=CFG().loja, pr=v.prec, imp=x=>Math.round(x*(+L.impostoPct||0)/100), com=(x,p)=>Math.round(x*(+p||0)/100);
+ const mR=Math.round(cv*(+pr.simCompra.margemPct||0)/100);
+ return Math.max(0,Math.round((cv-mR-gastoPrev(v)-(+pr.simCompra.garantia||0)-imp(cv)-com(cv,L.comissaoCompraPct)-com(cv,L.comissaoVendaPct))/100)*100);
+}
+const _precCalcV5=precCalc;
+precCalc=function(v){
+ const sc=v.prec.simCompra, b=sc.base||'manual';
+ if(b==='fipe'&&+v.fipe)sc.venda=+v.fipe;
+ else if(b==='mercado'){const s=mercStats(v);if(s)sc.venda=s.ajustada}
+ return _precCalcV5(v);
+};
+function mercadoHTML(v){
+ const m=mercEnsure(v), s=mercStats(v), P='veh.'+v.id+'.prec.merc.f.';
+ if(!s)return '';
+ const fipe=+v.fipe||0, pv=preco(v), aberto=UI.mercAberto[v.id];
+ const lo=Math.min(s.min,fipe||s.min,pv||s.min), hi=Math.max(s.max,fipe||s.max,pv||s.max), sp=Math.max(1,hi-lo);
+ const pos=x=>((x-lo)/sp*100).toFixed(2)+'%';
+ const dFipe=fipe?(s.media-fipe)/fipe*100:0;
+ return `<section class="card merc-card"><header><div class="ht"><h3>Consulta de mercado</h3><p>Anúncios ativos de ${esc(v.marca+' '+v.modelo)} para calibrar o valor de venda previsto e o valor sugerido de compra</p></div><span class="actions"><span class="small muted">Consultado ${relTime(m.em)} · ${esc(m.por)}</span><button class="btn sm" type="button" data-act="mercAtualizar" data-id="${v.id}">${ic('refresh','sm')} Consultar de novo</button></span></header>
+ <div class="bd" style="display:flex;flex-direction:column;gap:18px">
+  <div class="merc-f"><label class="f">Região${segm(P+'reg',[['pr','Paraná'],['br','Brasil']],m.f.reg)}</label><label class="f">Ano modelo${segm(P+'ano',[['0',String(v.anoMod)],['1',(v.anoMod-1)+' a '+(v.anoMod+1)]],m.f.ano)}</label></div>
+  <div class="merc-stats">
+   <div class="ms hl"><span>Média de mercado</span><b>${brl(s.media)}</b><small>${s.n} anúncios · média aparada</small></div>
+   <div class="ms"><span>Mediana</span><b>${brl(s.mediana)}</b><small>metade abaixo, metade acima</small></div>
+   <div class="ms"><span>Faixa de preços</span><b>R$ ${Math.round(s.min/1000)} a ${Math.round(s.max/1000)} mil</b><small>${s.lojas} de lojas · ${s.n-s.lojas} particulares</small></div>
+   <div class="ms"><span>KM médio anunciado</span><b>${numf(s.kmMed)} km</b><small>este carro: ${numf(v.km)} km</small></div>
+   <div class="ms ${s.ajKm>=0?'pos':'neg'}"><span>Média ajustada para este KM</span><b>${brl(s.ajustada)}</b><small>${sinal(s.ajKm)} pela quilometragem</small></div>
+   <div class="ms"><span>Tempo médio anunciado</span><b>${s.dias} dias</b><small>${fipe?`média ${pctS(dFipe)} vs. FIPE`:'sem FIPE'}</small></div>
+  </div>
+  <div class="merc-range" aria-label="Distribuição dos preços anunciados">
+   <div class="mr-track">${m.anuncios.map(x=>`<i class="mr-dot" style="left:${pos(x.preco)}" title="${esc(x.portal+' · '+brl(x.preco))}"></i>`).join('')}
+    ${fipe?`<span class="mr-mk fipe" style="left:${pos(fipe)}"></span>`:''}
+    <span class="mr-mk media" style="left:${pos(s.media)}"></span>
+    ${pv?`<span class="mr-mk seu" style="left:${pos(pv)}"></span>`:''}
+   </div>
+   <div class="mr-ax"><span>${brl(lo)}</span><span>${brl(hi)}</span></div>
+   <div class="mr-leg"><span><i class="mr-dot-l"></i>Anúncios (${s.n})</span><span><i class="media"></i>Média <b>${brl(s.media)}</b></span>${fipe?`<span><i class="fipe"></i>FIPE <b>${brl(fipe)}</b></span>`:''}${pv?`<span><i class="seu"></i>Seu preço <b>${brl(pv)}</b></span>`:''}</div>
+  </div>
+  <div class="actions"><button class="btn dark sm" type="button" data-act="mercUsar" data-id="${v.id}">Usar média ajustada (${brl(s.ajustada)}) na precificação de compra</button><button class="btn sm" type="button" data-act="mercVer" data-id="${v.id}">${aberto?'Esconder':'Ver'} os ${s.n} anúncios</button></div>
+  ${aberto?`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Portal</th><th>Versão</th><th>Ano</th><th class="n">KM</th><th>Cidade</th><th>Anunciante</th><th class="n">Dias</th><th class="n">Preço</th></tr></thead><tbody>${m.anuncios.map(x=>`<tr><td><b>${esc(x.portal)}</b></td><td class="small">${esc(x.versao)}</td><td>${x.ano}</td><td class="n">${numf(x.km)}</td><td class="small">${esc(x.cidade)}</td><td class="small">${x.tipo}</td><td class="n">${x.dias}</td><td class="n"><b>${brl(x.preco)}</b></td></tr>`).join('')}</tbody></table></div>`:''}
+  <p class="small muted">No protótipo a amostra de anúncios é simulada a partir da FIPE. Na versão real ela vem das bases dos portais (Webmotors, OLX, iCarros, Mobiauto) para o mesmo modelo, ano e região.</p>
+ </div></section>`;
+}
+function baseCompraHTML(v){
+ const P='veh.'+v.id+'.', sc=v.prec.simCompra, s=mercStats(v), fipe=+v.fipe||0;
+ const opts=[['manual','Manual'],['fipe','FIPE'+(fipe?' · '+brlK(fipe):'')],['mercado','Mercado'+(s?' · '+brlK(s.ajustada):'')]];
+ return `<label class="f">Base do valor de venda previsto${segm(P+'prec.simCompra.base',opts,sc.base||'manual')}<small>${sc.base==='mercado'?'Usa a média de mercado ajustada pela quilometragem deste carro':sc.base==='fipe'?'Usa o valor FIPE atual':'Você digita o valor de venda esperado'}</small></label>`;
+}
+function sugComparaHTML(v){
+ const s=mercStats(v), fipe=+v.fipe||0, c=precCalc(v);
+ const sF=fipe?sugDe(v,fipe):0, sM=s?sugDe(v,s.ajustada):0, dif=sM-sF;
+ return `<div class="sug-cmp">
+  <div class="${(v.prec.simCompra.base||'manual')==='fipe'?'on':''}"><span>Sugerido pela FIPE</span><b>${fipe?brl(sF):'—'}</b><small>venda prevista ${fipe?brl(fipe):'—'}</small></div>
+  <div class="${v.prec.simCompra.base==='mercado'?'on':''}"><span>Sugerido pelo mercado</span><b>${s?brl(sM):'—'}</b><small>venda prevista ${s?brl(s.ajustada):'—'}</small></div>
+  <div class="${fipe&&s?(dif>=0?'pos':'neg'):''}"><span>Mercado vs. FIPE</span><b>${fipe&&s?sinal(dif):'—'}</b><small>${fipe&&s?(dif>=0?'o mercado paga mais que a FIPE':'o mercado paga menos que a FIPE'):''}</small></div>
+ </div>`;
+}
+
+/* =====================================================================
+   5. CONTRATOS · gerar documento (PDF, Word, impressão)
+   ===================================================================== */
+const cliEnd=cl=>{if(!cl)return '[ENDEREÇO]';const a=[cl.endereco&&(cl.endereco+(cl.numero?', '+cl.numero:'')),cl.complemento,cl.bairro,(cl.municipio?cl.municipio+(cl.uf?'-'+cl.uf:''):cl.cidade),cl.cep&&'CEP '+cl.cep].filter(Boolean);return a.join(', ')||'[ENDEREÇO]'};
+const cliDoc=cl=>cl&&cl.doc?(cl.tipo==='PJ'?'CNPJ ':'CPF ')+cl.doc:'CPF [NÃO INFORMADO]';
+const vDesc=v=>v?`${v.marca} ${v.modelo} ${v.versao}, ano ${v.anoFab}/${v.anoMod}, cor ${String(v.cor||'').toLowerCase()}, ${v.combustivel?String(v.combustivel).toLowerCase()+', ':''}placa ${v.placa||'(zero km)'}, Renavam ${v.renavam||'[NÃO INFORMADO]'}, chassi ${v.chassi||'[NÃO INFORMADO]'}, com ${numf(v.km)} km`:'[VEÍCULO]';
+function cOpts(n){
+ n.cOpts=n.cOpts||{};const o=n.cOpts,L=CFG().loja;
+ if(o.foro==null)o.foro=String(L.cidade||'').replace(/-.*$/,'');
+ if(o.prazo==null)o.prazo=30;if(o.multa==null)o.multa=10;if(o.rep==null)o.rep=me().nome;
+ if(!o.t1)o.t1={nome:n.vendedor||'',doc:''};if(!o.t2)o.t2={nome:'',doc:''};if(o.extra==null)o.extra='';
+ return o;
+}
+function contratoDoc(n,k,o){
+ o=o||cOpts(n);
+ const L=CFG().loja, cl=S.cli[n.clienteId], c=negCalc(n), sv=S.veh[n.saidaId], ev=n.entradas.map(e=>S.veh[e.vid]);
+ const minuta=n.status==='rascunho', lista=CONTR_POR_TIPO[n.tipo]||[];
+ const num=`${minuta?'MINUTA ':''}CT-${n.id}-${String(lista.indexOf(k)+1).padStart(2,'0')}`;
+ const hoje=TODAY.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});
+ const cN=cl?cl.nome:'[CLIENTE]';
+ const loja={nome:L.nome,doc:'CNPJ '+L.cnpj,end:`${L.endereco}, ${L.cidade}`};
+ const cli={nome:cN,doc:cliDoc(cl),end:cliEnd(cl)};
+ const qual=(p,papel)=>`${papel}: ${p.nome}, ${p===loja||/^CNPJ/.test(p.doc)?'inscrita':'inscrito(a)'} no ${p.doc}, ${p===loja||/^CNPJ/.test(p.doc)?'com sede em':'residente e domiciliado(a) em'} ${p.end}${p===loja&&o.rep?', neste ato representada por '+o.rep:''}.`;
+ const pags=n.pagamentos.length?n.pagamentos.map(p=>`${p.forma}${p.banco?' ('+bancoNome(p.banco)+')':''}: ${brl2(p.valor)}, em ${dtf(p.data)}, ${String(p.quem).toLowerCase()==='cliente'?'pago pelo(a) CLIENTE':String(p.quem).toLowerCase()==='loja'?'pago pela LOJA':'pago pela instituição financeira'}`):['A definir entre as partes'];
+ const deb=n.debitos.filter(d=>+d.valor);
+ const ass=[{nome:loja.nome,doc:loja.doc,papel:'LOJA'+(o.rep?' · '+o.rep:'')},{nome:cN,doc:cliDoc(cl),papel:'CLIENTE'}];
+ const test=[o.t1,o.t2].filter(t=>t&&t.nome);
+ const foro=o.foro||L.cidade;
+ const extra=o.extra&&o.extra.trim()?[{h:'Disposições adicionais',p:[o.extra.trim()]}]:[];
+ const D={num,minuta,titulo:CONTRATOS[k].toUpperCase(),sub:`Negociação nº ${n.id} · ${NEG_TIPOS[n.tipo]} · Documento ${num}`,partes:[],secoes:[],local:`${foro}, ${hoje}.`,assin:ass,test,loja:L};
+ const S2=(h,...p)=>D.secoes.push({h,p:p.flat().filter(Boolean)});
+ switch(k){
+  case 'compra-venda':{
+   const lojaVende=!!sv;
+   D.partes=lojaVende?[qual(loja,'VENDEDORA'),qual(cli,'COMPRADOR(A)')]:[qual(cli,'VENDEDOR(A)'),qual(loja,'COMPRADORA')];
+   D.intro='As partes acima identificadas celebram o presente contrato particular de compra e venda de veículo, que se rege pelas cláusulas seguintes.';
+   if(lojaVende){
+    S2('Cláusula 1ª · Do objeto',`A VENDEDORA vende ao(à) COMPRADOR(A) o veículo ${vDesc(sv)}, pelo valor de ${brl2(c.saida)}.`,ev.length?`Parágrafo único. Como parte do pagamento, o(a) COMPRADOR(A) entrega à VENDEDORA o(s) veículo(s) ${ev.map((v,i)=>vDesc(v)+', avaliado(s) em '+brl2(n.entradas[i].valor)).join('; ')}.`:'');
+   } else {
+    S2('Cláusula 1ª · Do objeto',`O(A) VENDEDOR(A) vende à COMPRADORA o(s) veículo(s) ${ev.map((v,i)=>vDesc(v)+', pelo valor de '+brl2(n.entradas[i].valor)).join('; ')}.`);
+   }
+   S2('Cláusula 2ª · Do preço e da forma de pagamento',`O saldo da operação é de ${brl2(Math.abs(c.total))}, ${c.total>=0?'a ser pago pelo(a) CLIENTE à LOJA':'a ser pago pela LOJA ao(à) CLIENTE'}, da seguinte forma:`,pags.map(x=>'• '+x),'Parágrafo único. Pagamentos em cheque, boleto ou transferência só se consideram quitados após a compensação. Parcelas financiadas ficam condicionadas à aprovação do crédito pela instituição financeira.');
+   if(deb.length||+n.desconto)S2('Cláusula 3ª · Dos débitos e descontos',deb.map(d=>`• ${d.desc||'Débito'}: ${+d.valor<0?'abatimento de ':''}${brl2(Math.abs(d.valor))}`),+n.desconto?`• Desconto concedido: ${brl2(n.desconto)}`:'','Os valores acima já estão considerados no saldo da Cláusula 2ª.');
+   S2(`Cláusula ${deb.length||+n.desconto?'4ª':'3ª'} · Da entrega e da responsabilidade`,`${lojaVende?'O veículo objeto deste contrato será entregue':'O(s) veículo(s) objeto deste contrato será(ão) entregue(s)'}${(lojaVende?n.agenda.entrega:n.agenda.receb)?' em '+dtf(lojaVende?n.agenda.entrega:n.agenda.receb)+' às '+(lojaVende?n.agenda.hEntrega:n.agenda.hReceb):' na data combinada entre as partes'}. A partir da entrega, quem recebe o veículo assume a responsabilidade civil, criminal e administrativa por ele, inclusive multas e infrações de trânsito.`);
+   S2('Cláusula seguinte · Do estado do veículo e da garantia',lojaVende?`O(A) COMPRADOR(A) declara ter vistoriado o veículo e recebê-lo no estado em que se encontra${sv.garantia&&sv.garantia!=='Sem garantia'?`, com garantia de ${sv.garantia} para motor e câmbio, que não cobre desgaste natural, mau uso, falta de manutenção ou peças de reposição periódica`:', sem garantia contratual além da prevista em lei'}.`:'A COMPRADORA declara ter avaliado o(s) veículo(s) e recebê-lo(s) no estado em que se encontra(m), conforme laudo de avaliação.');
+   if(ev.length)S2('Cláusula seguinte · Das declarações sobre o veículo recebido',`O(A) CLIENTE declara ser legítimo(a) proprietário(a) do(s) veículo(s) entregue(s), livre(s) de ônus, alienação, restrição judicial ou administrativa não informada, e responde por débitos, multas e infrações anteriores à data de entrega, bem como por vícios ocultos e irregularidades documentais, como adulteração de chassi ou motor e sinistro não declarado.`);
+   S2('Cláusula seguinte · Da transferência',`A transferência de propriedade junto ao DETRAN, com assinatura da ATPV-e ou registro no RENAVE, deve ser concluída em até ${+o.prazo||30} dias, sob responsabilidade de quem adquire o veículo. Até lá, a parte que vende pode fazer a comunicação de venda ao órgão de trânsito.`);
+   S2('Cláusula seguinte · Da desistência',`A parte que desistir do negócio após a assinatura pagará à outra multa de ${+o.multa||0}% sobre o valor do veículo, sem prejuízo de perdas e danos comprovados.`);
+   D.secoes.push(...extra);
+   S2('Cláusula final · Do foro',`Fica eleito o foro da comarca de ${foro} para dirimir qualquer dúvida oriunda deste contrato. E, por estarem de acordo, as partes assinam este instrumento em duas vias de igual teor, na presença das testemunhas.`);
+   break;}
+  case 'procuracao-venda':
+   D.partes=[qual(loja,'OUTORGANTE'),qual(cli,'OUTORGADO(A)')];
+   S2('Poderes',`Pelo presente instrumento, a OUTORGANTE nomeia e constitui o(a) OUTORGADO(A) seu(sua) procurador(a), com poderes para representá-la perante o DETRAN, CIRETRAN, despachantes e demais órgãos, assinar a ATPV-e, requerer segunda via de documentos, pagar taxas e praticar todos os atos necessários à transferência do veículo ${vDesc(sv)}.`);
+   S2('Validade',`Esta procuração é válida por ${+o.prazo||30} dias e se encerra com a conclusão da transferência.`);D.secoes.push(...extra);D.assin=[ass[0]];break;
+  case 'procuracao-condutor':
+   D.partes=[qual(loja,'OUTORGANTE'),qual(cli,'OUTORGADO(A)')];
+   S2('Poderes',`A OUTORGANTE confere ao(à) OUTORGADO(A) poderes para indicar o condutor responsável por infrações de trânsito cometidas com o veículo ${vDesc(sv)} a partir de ${n.agenda.entrega?dtf(n.agenda.entrega)+' às '+n.agenda.hEntrega:'a data de entrega'}, assinar formulários de identificação de condutor infrator e apresentar defesa e recursos.`);
+   S2('Validade','Válida até a conclusão da transferência de propriedade do veículo.');D.secoes.push(...extra);D.assin=[ass[0]];break;
+  case 'procuracao-compra':
+   D.partes=[qual(cli,'OUTORGANTE'),qual(loja,'OUTORGADA')];
+   S2('Poderes',`O(A) OUTORGANTE nomeia a OUTORGADA sua procuradora, com poderes para vender, ceder ou transferir o veículo ${vDesc(ev[0])}, assinar a ATPV-e e o registro no RENAVE, dar e receber quitação, requerer documentos, pagar débitos e praticar todos os atos necessários ao fiel cumprimento deste mandato, podendo substabelecer.`);
+   S2('Validade',`Esta procuração é irrevogável e irretratável, outorgada em razão do negócio da negociação nº ${n.id}, e vale até a conclusão da transferência.`);D.secoes.push(...extra);D.assin=[ass[1]];break;
+  case 'termo-entrega':
+   D.partes=[qual(loja,'LOJA'),qual(cli,'RECEBEDOR(A)')];
+   S2('Declaração',`O(A) RECEBEDOR(A) declara ter recebido da LOJA o veículo ${vDesc(sv)}${n.agenda.entrega?', em '+dtf(n.agenda.entrega)+' às '+n.agenda.hEntrega:''}, em perfeito estado de funcionamento e conservação, acompanhado dos itens conferidos no ato.`);
+   S2('Responsabilidade','A partir desta data, o(a) RECEBEDOR(A) assume total responsabilidade civil, criminal e administrativa pelo veículo, inclusive multas, infrações, pedágios e danos a terceiros, até a efetiva transferência de propriedade.');
+   D.secoes.push(...extra);break;
+  case 'termo-recebimento':
+   D.partes=[qual(loja,'LOJA'),qual(cli,'ENTREGADOR(A)')];
+   S2('Declaração',`A LOJA declara ter recebido do(a) ENTREGADOR(A) o(s) veículo(s) ${ev.map(vDesc).join('; ')}${n.agenda.receb?', em '+dtf(n.agenda.receb)+' às '+n.agenda.hReceb:''}.`);
+   const v0=ev[0];if(v0){const E=v0.fotoEnt;const nf=entCount(v0);S2('Estado no recebimento',`${nf?`Estado registrado em ${nf} fotos de entrada${E&&E.km?', com '+numf(E.km)+' km no painel':''}${E&&E.comb!==''&&E.comb!=null?' e combustível em '+(COMB_NIV.find(x=>x[0]===String(E.comb))||[])[1]:''}.`:'Estado do veículo conforme vistoria realizada no ato.'}${E&&E.avarias&&E.avarias.length?' Avarias constatadas: '+E.avarias.map(a=>a.desc||'sem descrição').join('; ')+'.':''}`)}
+   S2('Responsabilidade','O(A) ENTREGADOR(A) responde por débitos, multas e infrações anteriores a esta data, bem como por vícios ocultos e irregularidades documentais do(s) veículo(s).');
+   D.secoes.push(...extra);break;
+  case 'consignacao':
+   D.partes=[qual(cli,'CONSIGNANTE'),qual(loja,'CONSIGNATÁRIA')];
+   S2('Cláusula 1ª · Do objeto',`O(A) CONSIGNANTE entrega à CONSIGNATÁRIA, para exposição e venda, o veículo ${vDesc(ev[0])}.`);
+   S2('Cláusula 2ª · Do valor de repasse',`O valor líquido de repasse ao(à) CONSIGNANTE é de ${brl2(n.entradas[0]?.valor)}, a ser pago em até 5 dias úteis após a venda e a compensação do pagamento do comprador.`);
+   S2('Cláusula 3ª · Do prazo',`O prazo de consignação é de 90 dias, renovável por acordo entre as partes. Despesas de preparação previamente aprovadas pelo(a) CONSIGNANTE serão descontadas do repasse.`);
+   S2('Cláusula 4ª · Das responsabilidades','A CONSIGNATÁRIA responde pela guarda e conservação do veículo enquanto estiver em seu pátio. O(A) CONSIGNANTE responde por débitos, multas e vícios anteriores à data de entrega.');
+   S2('Cláusula 5ª · Da desistência',`A retirada do veículo antes do prazo, sem venda, obriga o(a) CONSIGNANTE a reembolsar as despesas de preparação e anúncio já realizadas, mais multa de ${+o.multa||0}% sobre o valor de repasse.`);
+   D.secoes.push(...extra);S2('Cláusula final · Do foro',`Fica eleito o foro da comarca de ${foro}.`);break;
+  case 'residencia':
+   D.partes=[];D.intro=`Eu, ${cN}, inscrito(a) no ${cliDoc(cl)}, declaro para os devidos fins, em especial para o registro de veículo junto ao DETRAN, que resido e mantenho domicílio em ${cliEnd(cl)}.`;
+   S2('','Declaro ainda estar ciente de que a falsidade desta declaração configura crime previsto no artigo 299 do Código Penal.');D.assin=[ass[1]];D.test=[];break;
+ }
+ /* numera as cláusulas na ordem em que entraram (as condicionais mudam a contagem) */
+ let i=0;D.secoes.forEach(s=>{if(/^Cláusula /.test(s.h)){i++;s.h=s.h.replace(/^Cláusula \S+/,'Cláusula '+i+'ª')}});
+ return D;
+}
+function docTexto(D){
+ return [D.titulo,D.sub,'',...D.partes,D.partes.length?'':null,D.intro||null,D.intro?'':null,...D.secoes.flatMap(s=>[s.h?s.h.toUpperCase():null,...s.p,'']),D.local,'','',...D.assin.flatMap(a=>['_______________________________________',a.nome,a.doc,'']),...(D.test.length?['TESTEMUNHAS',...D.test.flatMap(t=>['_______________________________________',t.nome,t.doc?'CPF '+t.doc:'',''])]:[])].filter(x=>x!==null).join('\n');
+}
+contratoTexto=function(n,k){return docTexto(contratoDoc(n,k))};
+function docHTML(D){
+ const L=D.loja;
+ return `<article class="paper ${D.minuta?'minuta':''}">${D.minuta?'<span class="wm" aria-hidden="true">MINUTA</span>':''}
+ <header class="pp-h"><div><b>${esc(L.nome)}</b><span>CNPJ ${esc(L.cnpj)} · ${esc(L.endereco)} · ${esc(L.cidade)}</span><span>${esc(L.tel||'')}${L.email?' · '+esc(L.email):''}</span></div><span class="pp-num">${esc(D.num)}</span></header>
+ <h1>${esc(D.titulo)}</h1><p class="pp-sub">${esc(D.sub)}</p>
+ ${D.partes.map(p=>`<p class="pp-parte">${esc(p).replace(/^([A-ZÁÉÍÓÚÂÊÔÃÕÇ()]+):/,'<b>$1:</b>')}</p>`).join('')}
+ ${D.intro?`<p>${esc(D.intro)}</p>`:''}
+ ${D.secoes.map(s=>`${s.h?`<h2>${esc(s.h)}</h2>`:''}${s.p.map(x=>x.startsWith('• ')?`<p class="pp-li">${esc(x.slice(2))}</p>`:`<p>${esc(x)}</p>`).join('')}`).join('')}
+ <p class="pp-local">${esc(D.local)}</p>
+ <div class="pp-ass">${D.assin.map(a=>`<div><i></i><b>${esc(a.nome)}</b><span>${esc(a.doc)}</span><span>${esc(a.papel||'')}</span></div>`).join('')}</div>
+ ${D.test.length?`<div class="pp-tt">Testemunhas</div><div class="pp-ass">${D.test.map(t=>`<div><i></i><b>${esc(t.nome)}</b><span>${t.doc?'CPF '+esc(t.doc):'CPF: ______________'}</span></div>`).join('')}</div>`:''}
+ </article>`;
+}
+/* ---------- PDF (Helvetica, WinAnsi) sem bibliotecas ---------- */
+const PDF_W={"r":[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,0,556,0,222,556,333,1000,556,556,333,1000,667,333,1000,0,611,0,0,222,222,333,333,350,556,1000,333,1000,500,333,944,0,500,667,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],"b":[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,0,556,0,278,556,500,1000,556,556,333,1000,667,333,1000,0,611,0,0,278,278,500,500,350,556,1000,333,1000,556,333,944,0,500,667,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556]};
+const PDF_U={338:140,339:156,352:138,353:154,376:159,381:142,382:158,402:131,710:136,732:152,8211:150,8212:151,8216:145,8217:146,8218:130,8220:147,8221:148,8222:132,8224:134,8225:135,8226:149,8230:133,8240:137,8249:139,8250:155,8364:128,8482:153,8722:45,8594:62};
+const pdfCode=ch=>{let c=ch.codePointAt(0);if(c>255||(c>=127&&c<160))c=PDF_U[c]||63;return c};
+function pdfEnc(s){let o='';for(const ch of String(s)){const c=pdfCode(ch);if(c===40||c===41||c===92)o+='\\'+String.fromCharCode(c);else if(c<32||c>126)o+='\\'+c.toString(8).padStart(3,'0');else o+=String.fromCharCode(c)}return o}
+function pdfW(s,b,size){let w=0;const T=b?PDF_W.b:PDF_W.r;for(const ch of String(s)){const c=pdfCode(ch);w+=c>=32?(T[c-32]||556):0}return w*size/1000}
+function pdfWrap(s,b,size,max){const out=[];String(s).split('\n').forEach(par=>{let line='';par.split(/ +/).forEach(w=>{const t=line?line+' '+w:w;if(pdfW(t,b,size)<=max||!line)line=t;else{out.push(line);line=w}});out.push(line)});return out}
+function docsPDF(docs){
+ const W=595.28,H=841.89,M=58,CW=W-2*M,FOOT=40;const pages=[];let ops,y,cur;
+ const T=(x,yy,s,size,b,gray=0,tw=0)=>ops.push(`BT /${b?'F2':'F1'} ${size} Tf ${gray} g ${tw.toFixed(3)} Tw 1 0 0 1 ${x.toFixed(2)} ${yy.toFixed(2)} Tm (${pdfEnc(s)}) Tj ET`);
+ const Ln=(x1,y1,x2,y2,w=.6,g=0)=>ops.push(`${g} G ${w} w ${x1.toFixed(2)} ${y1.toFixed(2)} m ${x2.toFixed(2)} ${y2.toFixed(2)} l S`);
+ const nova=()=>{ops=[];pages.push({ops,doc:cur});y=H-M;if(cur.minuta)ops.push('q 0.91 g BT /F2 96 Tf 0.7071 0.7071 -0.7071 0.7071 170 250 Tm (MINUTA) Tj ET Q');if(pages.filter(p=>p.doc===cur).length>1){T(M,y,cur.titulo,8,true,.45);y-=18}};
+ const precisa=h=>{if(y-h<M+FOOT)nova()};
+ const par=(s,{size=10,b=false,lead=1.5,ind=0,just=true,gap=6,gray=0,center=false}={})=>{const lines=pdfWrap(s,b,size,CW-ind);lines.forEach((l,i)=>{precisa(size*lead);y-=size*lead;const last=i===lines.length-1;let x=M+ind,tw=0;if(center)x=M+(CW-pdfW(l,b,size))/2;else if(just&&!last){const sp=(l.match(/ /g)||[]).length;if(sp)tw=(CW-ind-pdfW(l,b,size))/sp;if(tw>6)tw=0}T(x,y,l,size,b,gray,tw)});y-=gap};
+ docs.forEach(D=>{
+  cur=D;nova();const L=D.loja;
+  T(M,y-12,L.nome,13,true);T(W-M-pdfW(D.num,true,9),y-12,D.num,9,true,.4);
+  T(M,y-26,`CNPJ ${L.cnpj} · ${L.endereco} · ${L.cidade}`,8.5,false,.4);
+  T(M,y-37,[L.tel,L.email].filter(Boolean).join(' · '),8.5,false,.4);y-=48;Ln(M,y,W-M,y,1.2,0);y-=26;
+  par(D.titulo,{size:13.5,b:true,center:true,just:false,gap:2,lead:1.3});
+  par(D.sub,{size:8.5,gray:.4,center:true,just:false,gap:16});
+  D.partes.forEach(p=>par(p,{size:10,gap:5}));if(D.partes.length)y-=6;
+  if(D.intro)par(D.intro,{gap:8});
+  D.secoes.forEach(s=>{if(s.h){precisa(40);y-=6;par(s.h.toUpperCase(),{size:9.5,b:true,just:false,gap:3})}s.p.forEach(x=>x.startsWith('• ')?par('•  '+x.slice(2),{ind:14,gap:2,just:false}):par(x,{gap:6}))});
+  y-=8;par(D.local,{just:false,gap:0});
+  const assina=(lst,titulo)=>{if(!lst.length)return;if(titulo){precisa(80);y-=14;T(M,y,titulo.toUpperCase(),8.5,true,.4)}for(let i=0;i<lst.length;i+=2){precisa(78);y-=50;[lst[i],lst[i+1]].forEach((a,j)=>{if(!a)return;const x=M+j*(CW/2+10),w=CW/2-10;Ln(x,y,x+w,y,.7,0);T(x,y-13,a.nome,9.5,true);T(x,y-25,a.doc||'',8.5,false,.35);if(a.papel)T(x,y-36,a.papel,8,false,.45)});y-=38}};
+  assina(D.assin);assina(D.test.map(t=>({nome:t.nome,doc:t.doc?'CPF '+t.doc:'CPF: ______________'})),'Testemunhas');
+ });
+ const tot=new Map();pages.forEach(p=>tot.set(p.doc,(tot.get(p.doc)||0)+1));const idx=new Map();
+ pages.forEach(p=>{const k=(idx.get(p.doc)||0)+1;idx.set(p.doc,k);ops=p.ops;Ln(M,M+16,W-M,M+16,.4,.75);T(M,M+4,`${p.doc.num} · gerado pelo Pátio em ${dtf(TODAY_ISO)}`,7.5,false,.5);const pg=`Página ${k} de ${tot.get(p.doc)}`;T(W-M-pdfW(pg,false,7.5),M+4,pg,7.5,false,.5)});
+ const objs=[];const add=s=>{objs.push(s);return objs.length};
+ add('<< /Type /Catalog /Pages 2 0 R >>');add('PAGES');
+ add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');
+ add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+ const kids=[];pages.forEach(p=>{const st=p.ops.join('\n');const c=add(`<< /Length ${st.length} >>\nstream\n${st}\nendstream`);kids.push(add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${c} 0 R >>`))});
+ objs[1]=`<< /Type /Pages /Kids [${kids.map(k=>k+' 0 R').join(' ')}] /Count ${kids.length} >>`;
+ const PCT='%';let out=PCT+'PDF-1.4\n'+PCT+'\xE2\xE3\xCF\xD3\n';const offs=[];
+ objs.forEach((o,i)=>{offs.push(out.length);out+=`${i+1} 0 obj\n${o}\nendobj\n`});
+ const xref=out.length;out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n${offs.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')}trailer\n<< /Size ${objs.length+1} /Root 1 0 R /Info << /Producer (Patio) /Title (${pdfEnc(docs.length===1?docs[0].titulo:'Contratos')}) >> >>\nstartxref\n${xref}\n${PCT+PCT}EOF`;
+ const b=new Uint8Array(out.length);for(let i=0;i<out.length;i++)b[i]=out.charCodeAt(i)&255;
+ return new Blob([b],{type:'application/pdf'});
+}
+/* ---------- Word (.docx) com zip sem compressão ---------- */
+const CRC_T=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC_T[(c^b[i])&255]^(c>>>8);return(c^0xFFFFFFFF)>>>0}
+function zipStore(files){
+ const te=new TextEncoder(),parts=[],cen=[];let off=0;const dd=((TODAY.getFullYear()-1980)<<9)|((TODAY.getMonth()+1)<<5)|TODAY.getDate();
+ files.forEach(f=>{const nm=te.encode(f.name),data=typeof f.data==='string'?te.encode(f.data):f.data,crc=crc32(data);
+  const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);h.setUint16(10,0,true);h.setUint16(12,dd,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,nm.length,true);h.setUint16(28,0,true);
+  parts.push(h.buffer,nm,data);
+  const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);c.setUint16(12,0,true);c.setUint16(14,dd,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,nm.length,true);c.setUint32(42,off,true);
+  cen.push(c.buffer,nm);off+=30+nm.length+data.length});
+ const cs=cen.reduce((a,x)=>a+(x.byteLength),0);const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+ return new Blob([...parts,...cen,e.buffer],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function docsDOCX(docs){
+ const x=s=>esc(s);
+ const run=(t,{b,sz,c}={})=>`<w:r><w:rPr>${b?'<w:b/>':''}${sz?`<w:sz w:val="${sz}"/>`:''}${c?`<w:color w:val="${c}"/>`:''}</w:rPr><w:t xml:space="preserve">${x(t)}</w:t></w:r>`;
+ const p=(runs,{jc='both',after=120,before=0,ind=0}={})=>`<w:p><w:pPr><w:spacing w:before="${before}" w:after="${after}" w:line="300" w:lineRule="auto"/>${ind?`<w:ind w:left="${ind}"/>`:''}<w:jc w:val="${jc}"/></w:pPr>${runs}</w:p>`;
+ const nb='<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/><w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>';
+ const assTbl=lst=>{let r='';for(let i=0;i<lst.length;i+=2){r+=`<w:tr>${[lst[i],lst[i+1]].map(a=>`<w:tc><w:tcPr><w:tcW w:w="4500" w:type="dxa"/></w:tcPr>${a?p(run('________________________________'),{jc:'left',before:600,after:0})+p(run(a.nome,{b:true}),{jc:'left',after:0})+p(run(a.doc||'',{sz:18,c:'555555'}),{jc:'left',after:0})+(a.papel?p(run(a.papel,{sz:16,c:'777777'}),{jc:'left',after:0}):''):p('')}</w:tc>`).join('')}</w:tr>`}return `<w:tbl><w:tblPr><w:tblW w:w="9000" w:type="dxa"/>${nb}</w:tblPr><w:tblGrid><w:gridCol w:w="4500"/><w:gridCol w:w="4500"/></w:tblGrid>${r}</w:tbl>`};
+ const body=docs.map((D,di)=>{const L=D.loja;return (di?'<w:p><w:r><w:br w:type="page"/></w:r></w:p>':'')+
+  p(run(L.nome,{b:true,sz:26}),{jc:'left',after:0})+p(run(`CNPJ ${L.cnpj} · ${L.endereco} · ${L.cidade}`,{sz:17,c:'666666'}),{jc:'left',after:0})+p(run([L.tel,L.email].filter(Boolean).join(' · '),{sz:17,c:'666666'}),{jc:'left',after:240})+
+  p(run(D.titulo,{b:true,sz:27}),{jc:'center',after:40,before:240})+p(run(D.sub,{sz:17,c:'666666'}),{jc:'center',after:320})+
+  (D.minuta?p(run('MINUTA · documento sem validade até a aprovação da negociação',{b:true,c:'B45309',sz:18}),{jc:'center',after:240}):'')+
+  D.partes.map(t=>{const m=t.match(/^([^:]+):(.*)$/);return p(m?run(m[1]+':',{b:true})+run(m[2]):run(t))}).join('')+
+  (D.intro?p(run(D.intro)):'')+
+  D.secoes.map(s=>(s.h?p(run(s.h.toUpperCase(),{b:true,sz:19}),{jc:'left',before:200,after:80}):'')+s.p.map(t=>t.startsWith('• ')?p(run('•  '+t.slice(2)),{jc:'left',ind:360,after:60}):p(run(t))).join('')).join('')+
+  p(run(D.local),{jc:'left',before:240,after:0})+assTbl(D.assin)+(D.test.length?p(run('TESTEMUNHAS',{b:true,sz:17,c:'666666'}),{jc:'left',before:360,after:0})+assTbl(D.test.map(t=>({nome:t.nome,doc:t.doc?'CPF '+t.doc:'CPF: ______________'}))):'')}).join('');
+ const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+ const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial" w:eastAsia="Arial"/><w:sz w:val="20"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120"/></w:pPr></w:pPrDefault></w:docDefaults></w:styles>`;
+ return zipStore([
+  {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>'},
+  {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'},
+  {name:'word/_rels/document.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+  {name:'word/document.xml',data:doc},
+  {name:'word/styles.xml',data:styles}
+ ]);
+}
+function imprimirDocs(docs){
+ let a=document.getElementById('print-area');if(!a){a=document.createElement('div');a.id='print-area';a.className='printable';document.body.appendChild(a)}
+ a.innerHTML=docs.map(docHTML).join('');document.body.classList.add('printing');
+ const fim=()=>{document.body.classList.remove('printing');a.innerHTML=''};
+ try{window.addEventListener('afterprint',fim,{once:true});window.print();setTimeout(()=>{if(document.body.classList.contains('printing'))fim()},1500)}catch(e){fim();toast('A impressão não está disponível aqui. Baixe o PDF e imprima por ele.')}
+}
+/* ---------- tela da etapa Contratos ---------- */
+function negCtrResumo(n){const L=CONTR_POR_TIPO[n.tipo]||[];n.contr=n.contr||{};return {tot:L.length,ger:L.filter(k=>n.contr[k]&&!n.contr[k].minuta).length,ass:L.filter(k=>n.assin&&n.assin[k]&&n.assin[k].st==='assinado').length}}
+function negContratosHTML(n){
+ const id=n.id, lista=CONTR_POR_TIPO[n.tipo], assin=CFG().negInt.find(x=>x.k==='assinatura');n.contr=n.contr||{};
+ const r=negCtrResumo(n), minuta=n.status==='rascunho', canc=n.status==='cancelada';
+ const veicDe=k=>['procuracao-venda','termo-entrega','procuracao-condutor'].includes(k)&&n.saidaId?nome(S.veh[n.saidaId]):['procuracao-compra','termo-recebimento','consignacao'].includes(k)&&n.entradas[0]?nome(S.veh[n.entradas[0].vid]):k==='residencia'?cliNome(n.clienteId):'';
+ return `<section class="card ctr-card"><header><div class="ht"><h3>Contratos da negociação</h3><p>Montados com os dados da loja, do cliente, dos veículos e dos pagamentos${assin.ativo?` · assinatura digital via ${esc(assin.prov)}`:''}</p></div><span class="actions">${chip(r.ger+' de '+r.tot+' gerados',r.ger===r.tot?'ok dot':r.ger?'warn dot':'dot')}${assin.ativo&&r.ass?chip(r.ass+' assinados','ok'):''}${canc?'':`<button class="btn pri" type="button" data-act="contrTodos" data-id="${id}">${ic('download','sm')} ${minuta?'Gerar minutas':'Gerar todos'}</button>`}</span></header>
+ ${minuta?`<div class="bd" style="padding-bottom:0"><div class="note">Negociação em edição: os documentos saem como <b>minuta</b>, com marca-d'água. Aprove a negociação para gerar as versões finais e enviar para assinatura.</div></div>`:''}
+ <div class="bd"><div class="ctr-list">${lista.map((k,i)=>{const g=n.contr[k],a=n.assin?.[k],vd=veicDe(k);
+  const st=a?chip(a.st==='assinado'?'Assinado':'Aguardando assinatura',a.st==='assinado'?'ok dot':'info dot'):g?chip(g.minuta?'Minuta gerada':'Gerado · versão '+g.ver,g.minuta?'warn dot':'ok dot'):chip('Não gerado','dot');
+  const meta=g?`Nº ${esc(g.num)} · ${fmtDT(g.em)} por ${esc(g.por)}${g.fmt?' · '+esc(g.fmt):''}`:(vd?esc(vd):'Ainda não gerado');
+  const podeAss=assin.ativo&&g&&!g.minuta&&!canc;
+  return `<div class="ctr ${g?'on':''}"><span class="ctr-n">${i+1}</span><span class="ctr-t"><b>${CONTRATOS[k]}</b><span class="small muted">${meta}</span></span><span class="ctr-st">${st}</span><span class="actions">${canc&&!g?'':`<button class="btn xs ${g?'':'dark'}" type="button" data-act="contrato" data-id="${id}" data-k="${k}">${g?'Abrir':ic('file','sm')+' Gerar'}</button>`}${g?`<button class="btn xs" type="button" data-act="contrPdf" data-id="${id}" data-k="${k}">${ic('download','sm')} PDF</button>`:''}${podeAss?(a?(a.st!=='assinado'?`<button class="btn xs" type="button" data-act="assinOk" data-id="${id}" data-k="${k}">Marcar assinado</button>`:''):`<button class="btn xs dark" type="button" data-act="assin" data-id="${id}" data-k="${k}">${ic('sign','sm')} Enviar</button>`):''}</span></div>`}).join('')}</div></div></section>`;
+}
+function contrPendencias(n){
+ const p=[],cl=S.cli[n.clienteId],c=negCalc(n);
+ if(!cl)p.push('Cliente não definido');else{if(!cl.doc)p.push('CPF/CNPJ do cliente');if(!cl.endereco&&!cl.cidade)p.push('Endereço do cliente')}
+ [S.veh[n.saidaId]].concat(n.entradas.map(e=>S.veh[e.vid])).filter(Boolean).forEach(v=>{if(!v.placa&&!v.zeroKm)p.push('Placa de '+nome(v));if(!v.renavam)p.push('Renavam de '+nome(v));if(!v.chassi)p.push('Chassi de '+nome(v))});
+ if(n.tipo!=='consignacao'&&c.falta)p.push('Pagamentos não fecham o saldo');
+ return p;
+}
+function modalContr(n,ks,todos){
+ const o=cOpts(n), lista=CONTR_POR_TIPO[n.tipo];
+ UI.cMod={id:n.id,ks:ks.slice(),todos,prev:ks[0]};
+ const pend=contrPendencias(n);
+ openModal(todos?`Gerar contratos · negociação #${n.id}`:CONTRATOS[ks[0]],`<div class="cgen">
+ <form class="cgen-f" data-cform="${n.id}" id="cform-${n.id}" onsubmit="return false">
+  ${todos?`<fieldset><legend>Documentos</legend>${lista.map(k=>`<label class="check"><input type="checkbox" name="ks" value="${k}" ${ks.includes(k)?'checked':''}> ${esc(CONTRATOS[k])}</label>`).join('')}</fieldset>`:''}
+  <fieldset><legend>Dados do documento</legend>
+   ${mf('Representante da loja',mi('rep',o.rep))}
+   <div class="form" style="grid-template-columns:1fr 1fr">${mf('Foro (comarca)',mi('foro',o.foro))}${mf('Prazo de transferência (dias)',mi('prazo',o.prazo,{type:'number'}))}</div>
+   ${mf('Multa por desistência (%)',mi('multa',o.multa,{type:'number'}))}
+  </fieldset>
+  <fieldset><legend>Testemunhas</legend>
+   <div class="form" style="grid-template-columns:1.4fr 1fr">${mf('Testemunha 1',mi('t1n',o.t1.nome,{ph:'Nome'}))}${mf('CPF',mi('t1d',o.t1.doc,{ph:'000.000.000-00'}))}${mf('Testemunha 2',mi('t2n',o.t2.nome,{ph:'Nome'}))}${mf('CPF',mi('t2d',o.t2.doc,{ph:'000.000.000-00'}))}</div>
+  </fieldset>
+  <fieldset><legend>Cláusula adicional</legend><textarea class="inp" name="extra" id="m-extra" rows="3" placeholder="Ex.: o veículo será entregue com tanque cheio e película nos vidros.">${esc(o.extra)}</textarea></fieldset>
+  ${pend.length?`<div class="note warn"><b>Confira antes de gerar:</b> ${pend.map(esc).join('; ')}. O documento sai com o campo marcado como não informado.</div>`:''}
+ </form>
+ <div class="cgen-p"><div class="cgen-pt">${todos?`<select class="inp" id="cprev-sel" aria-label="Documento em pré-visualização">${opts(ks.map(k=>[k,CONTRATOS[k]]),ks[0])}</select>`:`<span class="eyebrow">Pré-visualização</span>`}</div><div id="cprev">${docHTML(contratoDoc(n,ks[0],o))}</div></div>
+ </div>`,`<button class="btn" type="button" data-act="contrCopiar">Copiar texto</button><button class="btn" type="button" data-act="contrSai" data-fmt="docx">${ic('download','sm')} Word (.docx)</button><button class="btn pri" type="button" data-act="contrSai" data-fmt="pdf">${ic('download','sm')} ${todos?'Gerar PDF único':'Gerar PDF'}</button>`,true);
+ const b=$modal.querySelector('.box');if(b)b.classList.add('xwide');
+}
+function cFormLer(f){
+ const n=S.neg[f.dataset.cform];if(!n)return;const o=cOpts(n),d=new FormData(f);
+ o.rep=d.get('rep')||'';o.foro=d.get('foro')||'';o.prazo=+d.get('prazo')||0;o.multa=+d.get('multa')||0;o.t1={nome:d.get('t1n')||'',doc:d.get('t1d')||''};o.t2={nome:d.get('t2n')||'',doc:d.get('t2d')||''};o.extra=d.get('extra')||'';
+ if(UI.cMod&&UI.cMod.todos)UI.cMod.ks=d.getAll('ks');
+}
+function cPrevAtualiza(){
+ const m=UI.cMod;if(!m)return;const n=S.neg[m.id],box=document.getElementById('cprev');if(!box)return;
+ const sel=document.getElementById('cprev-sel');
+ if(sel&&m.todos){const cur=sel.value;sel.innerHTML=opts(m.ks.map(k=>[k,CONTRATOS[k]]),cur);if(!m.ks.includes(cur)&&m.ks[0])sel.value=m.ks[0]}
+ const k=sel?sel.value:m.ks[0];m.prev=k;const st=box.scrollTop;box.innerHTML=k?docHTML(contratoDoc(n,k)):'<div class="empty">Selecione ao menos um documento.</div>';box.scrollTop=st;
+}
+let cPrevT=0;
+document.addEventListener('input',e=>{const f=e.target.closest&&e.target.closest('form[data-cform]');if(!f)return;cFormLer(f);clearTimeout(cPrevT);cPrevT=setTimeout(()=>{save();cPrevAtualiza()},180)});
+document.addEventListener('change',e=>{if(e.target.id==='cprev-sel'){cPrevAtualiza();return}const f=e.target.closest&&e.target.closest('form[data-cform]');if(f){cFormLer(f);save();cPrevAtualiza()}});
+function contrRegistra(n,ks,fmt){
+ n.contr=n.contr||{};const s=stamp();
+ ks.forEach(k=>{const D=contratoDoc(n,k),old=n.contr[k];n.contr[k]={ver:(old&&!old.minuta&&!D.minuta?old.ver+1:1),num:D.num,em:s.em,por:s.por,minuta:D.minuta,fmt}});
+ n.hist.unshift({a:ks.length>1?`Gerou ${ks.length} ${n.status==='rascunho'?'minutas':'contratos'}`:`Gerou ${CONTRATOS[ks[0]].toLowerCase()}`,q:s.por,d:TODAY_ISO});save();
+}
+const arqNome=(n,ks,ext)=>(ks.length===1?slug(CONTRATOS[ks[0]]):'contratos')+`-negociacao-${n.id}${n.status==='rascunho'?'-minuta':''}.${ext}`;
+
+/* =====================================================================
+   ações e mudanças de campo
+   ===================================================================== */
+Object.assign(ACT,{
+ galCapa(d){const v=S.veh[d.id],G=galEnsure(v),[g]=G.splice(+d.i,1);G.unshift(g);touch(v,'anuncios','Trocou a foto de capa');save();toast('Nova capa definida');render()},
+ galDel(d){const v=S.veh[d.id],G=galEnsure(v),[g]=G.splice(+d.i,1);v.fotos=G.length;if(g&&g.img)setTimeout(()=>imgDel(g.img),0);touch(v,'anuncios','Removeu uma foto do anúncio');save();toast('Foto removida');render()},
+ foto(d){const v=S.veh[d.id],G=galEnsure(v);if(+d.d<0&&G.length){const g=G.pop();if(g.img)setTimeout(()=>imgDel(g.img),0)}else if(+d.d>0&&G.length<40)G.push({id:uid('g'),k:G.length});v.fotos=G.length;save();render()},
+ fotoCapa(d){ACT.galCapa(d)},
+ fotoMove(d){const v=S.veh[d.id],G=galEnsure(v),i=+d.i,j=i+ +d.d;if(j<0||j>=G.length)return;[G[i],G[j]]=[G[j],G[i]];save();render()},
+ entGuiada(d){modalEntGuiada(S.veh[d.id])},
+ entIr(d){modalEntGuiada(S.veh[d.id],+d.i)},
+ entDel(d){const v=S.veh[d.id],E=entEnsure(v),f=E.f[d.k];delete E.f[d.k];E.fim=null;if(f&&f.img)setTimeout(()=>imgDel(f.img),0);touch(v,'recebimento','Removeu a foto de entrada: '+(ENT_ROTEIRO.find(r=>r[0]===d.k)||[])[1]);save();render()},
+ entAvDel(d){const v=S.veh[d.id],E=entEnsure(v),[a]=E.avarias.splice(+d.i,1);if(a&&a.img)setTimeout(()=>imgDel(a.img),0);save();render()},
+ entToGal(d){
+  const v=S.veh[d.id],E=entEnsure(v),G=galEnsure(v);
+  const R=ENT_ROTEIRO.filter(r=>['ext','int'].includes(r[3])&&E.f[r[0]]);if(!R.length){toast('Ainda não há fotos externas ou internas');return}
+  const ja=new Set(G.map(g=>g.ent).filter(Boolean));const novos=R.filter(r=>!ja.has(r[0]));
+  if(!novos.length){toast('Essas fotos já estão no anúncio');return}
+  const reais=G.filter(g=>g.img), add=novos.map(r=>({id:uid('g'),img:E.f[r[0]].img,k:r[4],label:r[1],ent:r[0]}));
+  v.galeria=add.concat(reais).slice(0,40);v.fotos=v.galeria.length;
+  touch(v,'anuncios',`Usou ${add.length} foto(s) de entrada no anúncio`);save();closeModal();toast(`${add.length} foto(s) de entrada no anúncio. Arraste para ajustar a ordem.`);UI.anTab[v.id]='fotos';UI.vTab[v.id]='anuncios';render();
+ },
+ mercAtualizar(d){const v=S.veh[d.id],m=mercEnsure(v);m.seed=Date.now()%100000;m.anuncios=mercGerar(v,m.f,m.seed);m.em=nowISO();m.por=me().nome;touch(v,'precificacao','Consultou o mercado: '+m.anuncios.length+' anúncios');save();toast('Consulta de mercado atualizada');render()},
+ mercUsar(d){const v=S.veh[d.id];v.prec.simCompra.base='mercado';const s=mercStats(v);touch(v,'precificacao','Usou a média de mercado ('+brl(s.ajustada)+') na precificação de compra');save();toast('Valor de venda previsto: '+brl(s.ajustada)+' (mercado)');render();const el=document.querySelector('.sug-cmp');if(el)el.scrollIntoView({block:'center',behavior:'smooth'})},
+ mercVer(d){UI.mercAberto[d.id]=!UI.mercAberto[d.id];render()},
+ contrato(d){modalContr(S.neg[d.id],[d.k],false)},
+ contrTodos(d){const n=S.neg[d.id];modalContr(n,CONTR_POR_TIPO[n.tipo].slice(),true)},
+ async contrPdf(d){const n=S.neg[d.id];const D=contratoDoc(n,d.k);if(await baixarArquivo(arqNome(n,[d.k],'pdf'),docsPDF([D]))){}},
+ contrCopiar(){const m=UI.cMod;if(!m)return;const n=S.neg[m.id];copyText(m.ks.map(k=>docTexto(contratoDoc(n,k))).join('\n\n\n'),document.getElementById('cprev'))},
+ async contrSai(d){
+  const m=UI.cMod;if(!m)return;const f=document.getElementById('cform-'+m.id);if(f)cFormLer(f);
+  const n=S.neg[m.id],ks=m.ks.slice();if(!ks.length){toast('Selecione ao menos um documento');return}
+  const docs=ks.map(k=>contratoDoc(n,k));
+  if(d.fmt==='print'){contrRegistra(n,ks,'impresso');imprimirDocs(docs);render();return}
+  const ok=await baixarArquivo(arqNome(n,ks,d.fmt),d.fmt==='pdf'?docsPDF(docs):docsDOCX(docs));
+  if(ok){contrRegistra(n,ks,d.fmt==='pdf'?'PDF':'Word');closeModal();UI.cMod=null;render()}
+ },
+ assin(d){const n=S.neg[d.id];if(!n.contr||!n.contr[d.k]||n.contr[d.k].minuta){toast('Gere o contrato final antes de enviar');return}n.assin=n.assin||{};n.assin[d.k]={st:'enviado',d:TODAY_ISO};n.hist.unshift({a:'Enviou '+CONTRATOS[d.k].toLowerCase()+' para assinatura',q:me().nome,d:TODAY_ISO});save();toast(`${CONTRATOS[d.k]} enviado para assinatura (simulado)`);render()}
+});
+Object.assign(CH_EXT,{
+ fotosAdd(t){const v=S.veh[t.dataset.id];const fs=[...(t.files||[])];t.value='';if(fs.length)galAddFiles(v,fs);return 1},
+ entFoto(t){const v=S.veh[t.dataset.id],f=t.files&&t.files[0],k=t.dataset.k;t.value='';if(!f)return 1;lerFotos([f],1280,.74).then(u=>{if(!u.length)return;entSet(v,k,u[0]);touch(v,'recebimento','Foto de entrada: '+(ENT_ROTEIRO.find(r=>r[0]===k)||[])[1]);save();render()});return 1},
+ entFotoM(t){const v=S.veh[t.dataset.id],f=t.files&&t.files[0],k=t.dataset.k;t.value='';if(!f)return 1;lerFotos([f],1280,.74).then(u=>{if(!u.length)return;entSet(v,k,u[0]);touch(v,'recebimento','Foto de entrada: '+(ENT_ROTEIRO.find(r=>r[0]===k)||[])[1]);save();render();const prox=ENT_ROTEIRO.findIndex(([kk])=>!v.fotoEnt.f[kk]);modalEntGuiada(v,prox<0?ENT_ROTEIRO.findIndex(r=>r[0]===k):prox);if(prox<0)toast('Sessão de fotos de entrada concluída')});return 1},
+ entAv(t){const v=S.veh[t.dataset.id],fs=[...(t.files||[])];t.value='';if(!fs.length)return 1;lerFotos(fs,1280,.74).then(us=>{const E=entEnsure(v),s=stamp();us.forEach(u=>E.avarias.push({img:imgPut(u),desc:'',em:s.em,por:s.por}));touch(v,'recebimento',`Registrou ${us.length} avaria(s) na entrada`);save();render();const el=document.getElementById(`entav-${v.id}-${E.avarias.length-1}`);if(el)el.focus()});return 1}
+});
+CAMPO_ETAPA.unshift([/^fotoEnt\./,'recebimento']);
+Object.assign(CAMPO_LABEL,{'fotoEnt.km':'KM na chegada','fotoEnt.comb':'Combustível na chegada','prec.simCompra.base':'Base do valor de venda previsto','prec.merc.f.reg':'Região da consulta de mercado','prec.merc.f.ano':'Ano da consulta de mercado'});
+{const _af=afterSet;afterSet=function(path){_af(path);const ks=path.split('.');if(ks[0]==='veh'&&ks[2]==='prec'&&ks[3]==='merc'&&ks[4]==='f'){const v=S.veh[ks[1]],m=mercEnsure(v);m.anuncios=mercGerar(v,m.f,m.seed);m.em=nowISO();m.por=me().nome}}}
+
+/* migração e dados de demonstração */
+function v6Migra(){
+ vals(S.veh).forEach(v=>{galEnsure(v)});
+ if(!S.v6demo){
+  S.v6demo=1;
+  const recente=vals(S.veh).filter(v=>v.status==='estoque').sort((a,b)=>daysSince(a.entrada)-daysSince(b.entrada))[0];
+  if(recente){const E=entEnsure(recente),s={por:recente.cad?recente.cad.por:me().nome,em:(recente.entrada||TODAY_ISO)+'T09:12'};E.inicio=s;E.km=recente.km;E.comb='50';ENT_ROTEIRO.slice(0,8).forEach((r,i)=>{E.f[r[0]]={img:null,em:(recente.entrada||TODAY_ISO)+'T09:'+String(12+i*2).padStart(2,'0'),por:s.por}});E.avarias.push({img:null,desc:'Risco de aprox. 6 cm no para-choque traseiro',em:s.em,por:s.por})}
+  /* negociações já finalizadas antes desta versão: contratos considerados gerados na data da venda */
+  vals(S.neg).filter(x=>x.status==='finalizada').forEach(n=>{n.contr=n.contr||{};const dt=(n.hist.find(h=>h.a==='Finalizada')||{}).d||n.criado||TODAY_ISO;CONTR_POR_TIPO[n.tipo].forEach((k,i)=>{if(!n.contr[k])n.contr[k]={ver:1,num:`CT-${n.id}-${String(i+1).padStart(2,'0')}`,em:dt+'T'+String(10+i).padStart(2,'0')+':30',por:n.vendedor,minuta:false,fmt:'PDF'}})});
+ }
+ save();
+}
+save=function(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!UI._cheio){UI._cheio=1;toast('O navegador ficou sem espaço para salvar. Remova fotos de avaria antigas para continuar salvando.')}}};
+v6Migra();imgBoot();
+
 chvEnsure();
 render();
 </script>
