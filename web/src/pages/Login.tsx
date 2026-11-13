@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { Field } from '../ui';
 
@@ -7,7 +7,7 @@ export function Login() {
   const { user, login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <GoApp />;
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,6 +16,7 @@ export function Login() {
     setError(null);
     try {
       await login(String(f.get('email')), String(f.get('password')));
+      window.location.href = '/app';
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -74,4 +75,10 @@ export function AuthSide() {
         <div className="small">© {new Date().getFullYear()} Pátio</div>
       </div>
   );
+}
+
+/** O sistema completo é servido pelo servidor em /app (fora do React). */
+export function GoApp() {
+  window.location.replace('/app');
+  return null;
 }

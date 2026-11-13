@@ -35,6 +35,7 @@ const trustProxy = process.env.TRUST_PROXY ?? (production ? '1' : 'loopback');
 const app = createApp(tenants, {
   uploadDir: join(dataDir, 'uploads'),
   webDir: join(root, 'web', 'dist'),
+  appHtml: join(root, 'prototipo', 'index.html'),
   secureCookies: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === '1' : production,
   platformAdmins,
   trustProxy: /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy,

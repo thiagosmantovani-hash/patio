@@ -6,7 +6,7 @@ Leva uns 20 minutos. Não precisa saber programar.
 ## O que você vai ter no final
 
 - Um endereço como `https://patio-production.up.railway.app` (depois dá para usar um domínio seu, como `app.patio.com.br`).
-- Qualquer loja abre `<endereço>/cadastro`, cria a conta e começa a usar. Cada loja tem um banco de dados separado.
+- Qualquer loja abre `<endereço>/cadastro`, cria a conta e entra direto no sistema completo, com todos os módulos. Cada loja tem um banco de dados separado.
 - Você entra com seu e-mail e vê o menu **Plataforma**: lista de lojas cadastradas, último acesso e quanto cada uma está usando, com opção de suspender o acesso.
 - Cópia de segurança automática de todos os bancos, uma vez por dia (guarda os últimos 14 dias).
 
@@ -24,7 +24,7 @@ Leva uns 20 minutos. Não precisa saber programar.
 
    As demais (`NODE_ENV`, `DATA_DIR`, `PORT`) já vêm prontas no `Dockerfile`.
 6. **Endereço público:** em **Settings › Networking**, clique em **Generate Domain**. Esse é o link do sistema.
-7. Abra `<endereço>/cadastro` e cadastre a **sua** loja de teste com o e-mail que pôs em `PLATFORM_ADMINS`. Confira se aparece o menu **Plataforma**.
+7. Abra `<endereço>/cadastro` e cadastre a **sua** loja de teste com o e-mail que pôs em `PLATFORM_ADMINS`. Você cai no sistema; no rodapé do menu lateral aparece **Plataforma**.
 8. Mande para a loja piloto o link `<endereço>/cadastro`.
 
 ### Domínio próprio (opcional)
@@ -67,12 +67,20 @@ docker run -d --name patio --restart unless-stopped -p 3000:3000 -v /srv/patio:/
 ```
 /data
 ├── control.db            empresas cadastradas e qual e-mail pertence a qual empresa
-├── empresas/<nº>/patio.db  banco de cada loja
+├── empresas/<nº>/patio.db  banco de cada loja (usuários e todos os registros do sistema)
 ├── uploads/              fotos dos veículos e das avaliações
 └── backups/AAAA-MM-DD/   cópia diária de todos os bancos
 ```
 
 Os backups ficam no mesmo disco. Se a hospedagem oferecer backup do volume (o Railway oferece), ative também: assim há uma cópia fora do servidor. As fotos não entram no backup diário; ficam só no volume.
+
+## Como a loja começa
+
+1. O dono cadastra a loja em `<endereço>/cadastro` e entra no sistema (perfil Revenda, acesso a tudo).
+2. Em **Configurações › Loja**, completa endereço, telefone e dados fiscais.
+3. Em **Configurações › Usuários**, adiciona a equipe: o sistema cria o login e mostra uma senha provisória para mandar por WhatsApp.
+4. Os carros entram por **Avaliações › Nova avaliação** e seguem a esteira até o anúncio.
+5. Para aparecer na vitrine pública (`<endereço>/v/<endereço-da-loja>`), o carro precisa estar em estoque, com preço, e com o canal **Site da loja** ligado nos anúncios.
 
 ## Antes de chamar mais lojas
 

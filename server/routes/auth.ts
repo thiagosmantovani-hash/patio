@@ -20,7 +20,7 @@ export const companyInfo = (t: Tenant) => {
   return { id: t.company.id, slug: t.company.slug, name: s.store_name || t.company.name, trial_ends_at: t.company.trial_ends_at, created_at: t.company.created_at };
 };
 
-const isPlatform = (opts: AuthOptions, email: string) => (opts.platformAdmins ?? []).includes(email.toLowerCase());
+export const isPlatform = (opts: AuthOptions, email: string) => (opts.platformAdmins ?? []).includes(email.toLowerCase());
 
 function setSession(res: Response, opts: AuthOptions, t: Tenant, userId: number) {
   const { token, expires } = createSession(t.db, userId);

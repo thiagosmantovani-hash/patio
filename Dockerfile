@@ -16,6 +16,7 @@ COPY --from=build /app/package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/server ./server
 COPY --from=build /app/web/dist ./web/dist
+COPY --from=build /app/prototipo ./prototipo
 RUN mkdir -p /data
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \

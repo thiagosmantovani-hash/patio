@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { Field } from '../ui';
-import { AuthSide } from './Login';
+import { AuthSide, GoApp } from './Login';
 
 export function Signup() {
   const { user, signup } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <GoApp />;
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,6 +31,7 @@ export function Signup() {
         password: get('password'),
         accept_terms: f.get('accept_terms') === 'on',
       });
+      window.location.href = '/app';
     } catch (err) {
       setError((err as Error).message);
     } finally {

@@ -35,7 +35,7 @@ async function login(email: string, password: string) {
 before(async () => {
   dir = mkdtempSync(join(tmpdir(), 'patio-test-'));
   tenants = new Tenants(dir);
-  server = createApp(tenants, { uploadDir: join(dir, 'uploads'), platformAdmins: ['dono@patio.app'], limits: { signupPerHour: 100, loginPer15Min: 100 } }).listen(0);
+  server = createApp(tenants, { uploadDir: join(dir, 'uploads'), appHtml: join(import.meta.dirname, '..', 'prototipo', 'index.html'), platformAdmins: ['dono@patio.app'], limits: { signupPerHour: 100, loginPer15Min: 100 } }).listen(0);
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   const s = await call('POST', '/api/auth/signup', { company_name: 'Loja Teste', name: 'Admin', email: 'admin@t.com', password: 'segredo1', accept_terms: true });
   assert.equal(s.status, 201, s.body.error);
@@ -91,12 +91,8 @@ test('fluxo completo: avaliação → estoque → anúncio → lead pela vitrine
   await call('PATCH', `/api/vehicles/${vid}/status`, { status: 'disponivel' }, admin);
   await call('POST', `/api/vehicles/${vid}/listings/bulk`, { channels: ['OLX', 'Site próprio'] }, admin);
 
-  // Vitrine pública mostra o carro e gera lead
-  const pub = await call('GET', `/api/public/${slug}/vehicles`);
-  assert.equal(pub.body.length, 1);
-  assert.equal(pub.body[0].purchase_price, undefined, 'preço de compra não pode vazar na vitrine');
-  assert.equal((await call('POST', `/api/public/${slug}/vehicles/${vid}/interest`, { name: 'Ana' })).status, 400);
-  assert.equal((await call('POST', `/api/public/${slug}/vehicles/${vid}/interest`, { name: 'Ana', phone: '11999990000' })).status, 201);
+  // Lead vindo do site
+  assert.equal((await call('POST', '/api/leads', { customer: { name: 'Ana', phone: '11999990000' }, vehicle_id: vid, source: 'site' }, admin)).status, 201);
   const leads = (await call('GET', '/api/leads', undefined, admin)).body;
   assert.equal(leads.length, 1);
   assert.equal(leads[0].source, 'site');
@@ -118,7 +114,6 @@ test('fluxo completo: avaliação → estoque → anúncio → lead pela vitrine
   assert.equal(v.profit.profit, 64000 - 52500 - 1800 - 1280);
   assert.ok(v.listings.every((l: { status: string }) => l.status === 'removido'));
   assert.equal((await call('GET', `/api/leads/${leads[0].id}`, undefined, admin)).body.stage, 'ganho');
-  assert.equal((await call('GET', `/api/public/${slug}/vehicles`)).body.length, 0);
 
   const fin = (await call('GET', '/api/finance', undefined, admin)).body;
   assert.equal(fin.totals.received, 10000);
@@ -189,4 +184,63 @@ test('cadastro de empresa: dados isolados, e-mail único, vitrine própria e pai
   assert.equal((await call('PUT', `/api/platform/companies/${b.body.company.id}/status`, { status: 'suspensa' }, dono.cookie)).status, 200);
   assert.equal((await call('GET', '/api/vehicles', undefined, b.cookie)).status, 403);
   assert.equal((await call('POST', '/api/auth/login', { email: 'bia@b.com', password: 'segredo99' })).status, 403);
+});
+
+test('sistema completo: gravação por itens, mudanças, números, fotos, vitrine e caixa de entrada', async () => {
+  const a = await login('admin@t.com', 'segredo1');
+  const veh = { id: 10050, marca: 'Jeep', modelo: 'Renegade', versao: 'Longitude', anoFab: 2022, anoMod: 2022, km: 41000, status: 'estoque', venda: 109900, promo: 0, compra: 95000, pubs: { site: true }, galeria: [{ id: 'g1', img: '/uploads/x.jpg' }, { id: 'g2', k: 1 }] };
+  const cfg = { loja: { nome: 'Loja Teste Ltda', fantasia: 'Loja Teste', tel: '(44) 3000-0000', cidade: 'Umuarama-PR' } };
+  const s1 = await call('POST', '/api/store/save', { put: [['m:veh:10050', JSON.stringify(veh)], ['v:cfg', JSON.stringify(cfg)]], del: [] }, a);
+  assert.equal(s1.status, 200);
+  assert.equal((await call('POST', '/api/store/save', { put: [['../etc', '{}']] }, a)).status, 400, 'chave inválida');
+  assert.equal((await call('POST', '/api/store/save', { put: [['m:veh:1', '{quebrado']] }, a)).status, 400, 'JSON inválido');
+
+  const all = await call('GET', '/api/store', undefined, a);
+  assert.equal(all.body.items.length, 2);
+  const ch = await call('GET', `/api/store/changes?since=${s1.body.rev - 1}`, undefined, a);
+  assert.deepEqual(ch.body.items.map((x: string[]) => x[0]), ['v:cfg']);
+
+  // números de registro nunca se repetem e começam acima dos catálogos
+  const i1 = (await call('POST', '/api/store/ids', { n: 10 }, a)).body;
+  const i2 = (await call('POST', '/api/store/ids', { n: 10 }, a)).body;
+  assert.ok(i1.from > 10000 && i2.from === i1.to + 1);
+
+  // vitrine pública só com campos públicos e fotos reais
+  const pub = await call('GET', `/api/public/${slug}/vehicles`);
+  assert.equal(pub.body.length, 1);
+  assert.equal(pub.body[0].sale_price, 109900);
+  assert.equal(pub.body[0].compra, undefined, 'preço de compra não pode vazar');
+  assert.deepEqual(pub.body[0].photos, ['/uploads/x.jpg']);
+  assert.equal((await call('GET', `/api/public/${slug}/store`)).body.store_name, 'Loja Teste');
+  assert.equal((await call('POST', `/api/public/${slug}/vehicles/10050/interest`, { name: 'Ana' })).status, 400);
+  assert.equal((await call('POST', `/api/public/${slug}/vehicles/10050/interest`, { name: 'Ana', phone: '11999990000' })).status, 201);
+  const inbox = (await call('GET', '/api/store', undefined, a)).body.items.filter((x: string[]) => x[0].startsWith('m:inbox:'));
+  assert.equal(inbox.length, 1);
+  assert.equal((await call('POST', '/api/store/inbox/claim', { k: inbox[0][0] }, a)).body.ok, true);
+  assert.equal((await call('POST', '/api/store/inbox/claim', { k: inbox[0][0] }, a)).body.ok, false, 'só um navegador converte');
+
+  // carro vendido sai da vitrine; apagar vira "tombstone" nas mudanças
+  const s2 = await call('POST', '/api/store/save', { put: [['m:veh:10050', JSON.stringify({ ...veh, status: 'vendido' })]], del: ['v:cfg'] }, a);
+  assert.equal((await call('GET', `/api/public/${slug}/vehicles`)).body.length, 0);
+  const ch2 = await call('GET', `/api/store/changes?since=${s2.body.rev - 1}`, undefined, a);
+  assert.deepEqual(ch2.body.items, [['v:cfg', null]]);
+
+  // foto enviada como data URL vira arquivo servido em /uploads
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+  const up = await call('POST', '/api/store/files', { data: png }, a);
+  assert.equal(up.status, 201);
+  assert.equal((await fetch(base + up.body.url)).status, 200);
+  assert.equal((await call('POST', '/api/store/files', { data: 'data:text/html;base64,PGgxPg==' }, a)).status, 400);
+
+  // outra empresa não enxerga estes itens
+  const o = await call('POST', '/api/auth/signup', { company_name: 'Isolada', name: 'Iz', email: 'iz@o.com', password: 'segredo99', accept_terms: true });
+  assert.equal((await call('GET', '/api/store', undefined, o.cookie)).body.items.length, 0);
+
+  // sistema completo exige login; com login chega com os dados embutidos
+  const anon = await fetch(base + '/app', { redirect: 'manual' });
+  assert.equal(anon.status, 302);
+  const page = await fetch(base + '/app', { headers: { cookie: a } });
+  const html = await page.text();
+  assert.ok(html.includes('window.PATIO_BOOT='), 'página com os dados da loja');
+  assert.ok(!html.includes('"password_hash"'), 'nenhum hash de senha na página');
 });

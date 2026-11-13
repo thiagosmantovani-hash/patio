@@ -32,14 +32,14 @@ export function Platform() {
         <div className="card kpi"><div className="label">Empresas</div><div className="value">{data.length}</div></div>
         <div className="card kpi"><div className="label">Usaram nos últimos 7 dias</div><div className="value">{ativas7}</div></div>
         <div className="card kpi"><div className="label">Veículos em estoque (total)</div><div className="value">{data.reduce((s, c) => s + c.vehicles, 0)}</div></div>
-        <div className="card kpi"><div className="label">Vendas registradas (total)</div><div className="value">{data.reduce((s, c) => s + c.sales, 0)}</div></div>
+        <div className="card kpi"><div className="label">Negociações finalizadas (total)</div><div className="value">{data.reduce((s, c) => s + c.sales, 0)}</div></div>
       </div>
       <div className="card mt">
         {!data.length ? <Empty>Nenhuma empresa cadastrada ainda.</Empty> : (
           <div className="table-wrap">
             <table className="table">
               <thead>
-                <tr><th>Empresa</th><th>Administrador</th><th>Cadastro</th><th>Último uso</th><th className="num">Usuários</th><th className="num">Estoque</th><th className="num">Avaliações</th><th className="num">Leads</th><th className="num">Vendas</th><th>Situação</th><th /></tr>
+                <tr><th>Empresa</th><th>Administrador</th><th>Cadastro</th><th>Último uso</th><th className="num">Usuários</th><th className="num">Estoque</th><th className="num">Clientes</th><th className="num">Leads</th><th className="num">Negociações</th><th>Situação</th><th /></tr>
               </thead>
               <tbody>
                 {data.map((c) => (
@@ -47,8 +47,8 @@ export function Platform() {
                     <td><strong>{c.name}</strong><div className="small muted">{c.city ?? ''} · <a href={`/v/${c.slug}`} target="_blank" rel="noreferrer">/v/{c.slug}</a></div></td>
                     <td>{c.admin_name}<div className="small muted">{c.admin_email}</div>{c.phone && <div className="small muted">{c.phone}</div>}</td>
                     <td>{date(c.created_at)}<div className="small muted">teste até {date(c.trial_ends_at)}</div></td>
-                    <td>{c.last_seen_at ? dateTime(c.last_seen_at) : <span className="muted">nunca</span>}</td>
-                    <td className="num">{c.users}</td><td className="num">{c.vehicles}</td><td className="num">{c.appraisals}</td><td className="num">{c.leads}</td><td className="num">{c.sales}</td>
+                    <td>{c.last_seen_at ? dateTime(c.last_seen_at) : <span className="muted">nunca</span>}{c.last_change && <div className="small muted">últ. alteração {dateTime(c.last_change.replace(' ', 'T') + 'Z')}</div>}</td>
+                    <td className="num">{c.users}</td><td className="num">{c.vehicles}</td><td className="num">{c.customers}</td><td className="num">{c.leads}</td><td className="num">{c.sales}</td>
                     <td>{c.status === 'ativa' ? <Badge tone="ok">Ativa</Badge> : <Badge tone="bad">Suspensa</Badge>}</td>
                     <td><button className="btn sm" onClick={() => toggle(c)}>{c.status === 'ativa' ? 'Suspender' : 'Reativar'}</button></td>
                   </tr>

@@ -362,3 +362,5 @@ table.table { width: 100%; border-collapse: collapse; }
 .ob-steps li p { margin: 2px 0 8px; }
 .ob-n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; font-weight: 700; font-size: 12.5px; background: var(--border); }
 .ob-steps li.done .ob-n { background: var(--ok); color: #fff; }
+.platform-shell { min-height: 100%; }
+.platform-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }

@@ -23,15 +23,18 @@ export function platformRoutes(tenants: Tenants, opts: AuthOptions) {
       tenants.all().map((c) => {
         const t = tenants.get(c.id)!;
         const admin = t.db.prepare("SELECT name, email FROM users WHERE role = 'admin' ORDER BY id LIMIT 1").get() as { name: string; email: string } | undefined;
+        const n = (sql: string) => (t.db.prepare(sql).get() as { n: number }).n;
+        const live = "data IS NOT NULL";
         return {
           ...c,
           admin_name: admin?.name ?? null,
           admin_email: admin?.email ?? null,
           users: count(t.db, 'SELECT COUNT(*) AS n FROM users WHERE active = 1'),
-          vehicles: count(t.db, "SELECT COUNT(*) AS n FROM vehicles WHERE status != 'vendido'"),
-          sales: count(t.db, "SELECT COUNT(*) AS n FROM sales WHERE status = 'concluida'"),
-          leads: count(t.db, 'SELECT COUNT(*) AS n FROM leads'),
-          appraisals: count(t.db, 'SELECT COUNT(*) AS n FROM appraisals'),
+          vehicles: n(`SELECT COUNT(*) AS n FROM store_items WHERE k LIKE 'm:veh:%' AND ${live} AND json_extract(data, '$.status') = 'estoque'`),
+          sales: n(`SELECT COUNT(*) AS n FROM store_items WHERE k LIKE 'm:neg:%' AND ${live} AND json_extract(data, '$.status') = 'finalizada'`),
+          leads: n(`SELECT COUNT(*) AS n FROM store_items WHERE k LIKE 'm:lead:%' AND ${live}`),
+          customers: n(`SELECT COUNT(*) AS n FROM store_items WHERE k LIKE 'm:cli:%' AND ${live}`),
+          last_change: (t.db.prepare('SELECT MAX(updated_at) AS d FROM store_items').get() as { d: string | null }).d,
         };
       }),
     );

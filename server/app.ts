@@ -1,12 +1,14 @@
+import compression from 'compression';
 import express, { Router, type NextFunction, type Request, type Response } from 'express';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { requireAuth, sessionCompany } from './auth.ts';
+import { requireAuth, sessionCompany, sessionUser } from './auth.ts';
+import { allocIds, storeItems, storeRev, storeRoutes } from './store.ts';
 import { errorHandler, HttpError } from './http.ts';
 import { securityHeaders } from './security.ts';
 import type { Tenant, Tenants } from './tenants.ts';
 import { appraisalRoutes } from './routes/appraisals.ts';
-import { authRoutes, type AuthOptions } from './routes/auth.ts';
+import { authRoutes, companyInfo, isPlatform, type AuthOptions } from './routes/auth.ts';
 import { customerRoutes } from './routes/customers.ts';
 import { financeRoutes } from './routes/finance.ts';
 import { leadRoutes } from './routes/leads.ts';
@@ -21,6 +23,8 @@ import { vehicleRoutes } from './routes/vehicles.ts';
 export interface AppOptions extends AuthOptions {
   uploadDir: string;
   webDir?: string;
+  /** HTML do sistema completo (protótipo em modo servidor), servido em /app. */
+  appHtml?: string;
   /** Valor do "trust proxy" do Express (ex.: 1 atrás do proxy da hospedagem). */
   trustProxy?: string | number | boolean;
 }
@@ -40,6 +44,7 @@ function tenantApi(t: Tenant, tenants: Tenants, uploadDir: string): Router {
   api.use('/sales', saleRoutes(db));
   api.use('/finance', financeRoutes(db));
   api.use('/reports', reportRoutes(db));
+  api.use('/store', storeRoutes(db, uploadDir));
   return api;
 }
 
@@ -50,6 +55,9 @@ export function createApp(tenants: Tenants, opts: AppOptions) {
   app.disable('x-powered-by');
   app.set('trust proxy', opts.trustProxy ?? 'loopback');
   app.use(securityHeaders);
+  app.use(compression());
+  // Gravações do sistema completo podem trazer muitos registros ou uma foto de uma vez.
+  app.use('/api/store', express.json({ limit: '25mb' }));
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
@@ -76,6 +84,31 @@ export function createApp(tenants: Tenants, opts: AppOptions) {
     routerOf(t, 'api', () => tenantApi(t, tenants, opts.uploadDir))(req, res, next);
   });
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Rota não encontrada.')));
+
+  // Sistema completo: a página chega com os dados da loja embutidos, para abrir já pronta.
+  if (opts.appHtml && existsSync(opts.appHtml)) {
+    const html = readFileSync(opts.appHtml, 'utf8');
+    const at = html.indexOf('<script');
+    app.get(['/app', '/app/'], (req: Request, res: Response) => {
+      const t = tenants.get(sessionCompany(req));
+      const user = t && t.company.status === 'ativa' ? sessionUser(t.db, req) : null;
+      if (!t || !user) return res.redirect('/login');
+      tenants.touch(t.company.id);
+      const users = t.db.prepare('SELECT id, name, email, role, commission_rate, active FROM users ORDER BY name').all() as any[];
+      const boot = {
+        items: storeItems(t.db),
+        rev: storeRev(t.db),
+        ids: allocIds(t.db, 200),
+        user,
+        company: { ...companyInfo(t), document: t.company.document, city: t.company.city, phone: t.company.phone },
+        users: users.map((u) => ({ ...u, active: Boolean(u.active) })),
+        platform: isPlatform(opts, user.email),
+      };
+      const json = JSON.stringify(boot).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+      res.setHeader('Cache-Control', 'no-store');
+      res.type('html').send(html.slice(0, at) + `<script>window.PATIO_BOOT=${json};</script>\n` + html.slice(at));
+    });
+  }
 
   // Front-end compilado (SPA): qualquer rota fora da API devolve o index.html.
   if (opts.webDir && existsSync(join(opts.webDir, 'index.html'))) {
