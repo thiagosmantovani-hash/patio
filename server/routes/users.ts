@@ -2,11 +2,20 @@ import { Router } from 'express';
 import type { DB } from '../db.ts';
 import { hashPassword, requireRole, sessionToken, verifyPassword } from '../auth.ts';
 import { HttpError, idParam, notFound, num, oneOf, str } from '../http.ts';
+import { EMAIL_RE } from '../security.ts';
 
 const ROLES = ['admin', 'gerente', 'vendedor'] as const;
 const PUBLIC_FIELDS = 'id, name, email, role, commission_rate, active, created_at';
 
-export function userRoutes(db: DB) {
+/** Ganchos para manter o índice central de e-mails (login multiempresa) em dia. */
+export interface AccountHooks {
+  claim(email: string): void;
+  release(email: string): void;
+}
+
+const noHooks: AccountHooks = { claim() {}, release() {} };
+
+export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
   const r = Router();
 
   // Lista resumida para seletores (vendedor responsável etc.), disponível a todos.
@@ -34,11 +43,15 @@ export function userRoutes(db: DB) {
   r.post('/', (req, res) => {
     const password = str(req.body, 'password', { required: true, label: 'senha' })!;
     if (password.length < 6) throw new HttpError(400, 'A senha deve ter pelo menos 6 caracteres.');
+    const email = str(req.body, 'email', { required: true, label: 'e-mail' })!.toLowerCase();
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Informe um e-mail válido.');
+    if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) throw new HttpError(409, 'Já existe um usuário com este e-mail.');
+    accounts.claim(email);
     const info = db
       .prepare('INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES (?, ?, ?, ?, ?)')
       .run(
         str(req.body, 'name', { required: true, label: 'nome' }),
-        str(req.body, 'email', { required: true, label: 'e-mail' }),
+        email,
         hashPassword(password),
         oneOf(req.body, 'role', ROLES, 'vendedor'),
         num(req.body, 'commission_rate', { min: 0 }) ?? 0,
@@ -48,15 +61,22 @@ export function userRoutes(db: DB) {
 
   r.put('/:id', (req, res) => {
     const id = idParam(req);
-    const existing = db.prepare('SELECT id FROM users WHERE id = ?').get(id);
+    const existing = db.prepare('SELECT id, email FROM users WHERE id = ?').get(id) as { id: number; email: string } | undefined;
     if (!existing) throw notFound('Usuário');
+    const email = str(req.body, 'email', { required: true, label: 'e-mail' })!.toLowerCase();
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Informe um e-mail válido.');
+    if (email !== existing.email.toLowerCase()) {
+      if (db.prepare('SELECT 1 FROM users WHERE email = ? AND id != ?').get(email, id)) throw new HttpError(409, 'Já existe um usuário com este e-mail.');
+      accounts.claim(email);
+      accounts.release(existing.email);
+    }
     const active = req.body.active === false || req.body.active === 0 ? 0 : 1;
     if (id === req.user!.id && (active === 0 || req.body.role !== 'admin')) {
       throw new HttpError(400, 'Você não pode remover seu próprio acesso de administrador.');
     }
     db.prepare('UPDATE users SET name = ?, email = ?, role = ?, commission_rate = ?, active = ? WHERE id = ?').run(
       str(req.body, 'name', { required: true, label: 'nome' }),
-      str(req.body, 'email', { required: true, label: 'e-mail' }),
+      email,
       oneOf(req.body, 'role', ROLES),
       num(req.body, 'commission_rate', { min: 0 }) ?? 0,
       active,

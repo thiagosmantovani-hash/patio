@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { STORE_SCHEMA } from './store.ts';
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
@@ -212,6 +213,7 @@ export function openDatabase(file: string): DB {
   const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
   db.exec(SCHEMA);
+  db.exec(STORE_SCHEMA);
   return db;
 }
 

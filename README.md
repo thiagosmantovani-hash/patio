@@ -1,66 +1,58 @@
 # Pátio — Gestão de Revendas de Veículos
 
-Sistema web completo para lojas de seminovos: estoque, avaliação de usados, anúncios, CRM de leads, vendas,
-financeiro e relatórios, com vitrine pública para os clientes.
+Sistema web para lojas de seminovos. Qualquer loja se cadastra em `/cadastro`, entra no sistema completo e começa a usar.
+Cada empresa tem o próprio banco de dados. Para colocar no ar, siga o guia [PUBLICAR.md](PUBLICAR.md).
 
-## Funcionalidades
+## O que tem
 
-| Módulo | O que faz |
+Todos os módulos estão liberados para todas as lojas:
+
+| Área | Módulos |
 | --- | --- |
-| **Painel** | Estoque, valor investido, vendas e lucro do mês, gráfico de 6 meses, carros parados há 60+ dias, funil e retornos do dia |
-| **Estoque** | Cadastro completo do veículo, fotos (ordem e capa), opcionais, situação (preparação → disponível → reservado → vendido), dias em estoque e lucro previsto/realizado |
-| **Preparação** | Custos por veículo com valor previsto × real e desvio |
-| **Avaliações** | Checklist guiado em 8 seções (frente, laterais, traseira, pneus, interior, mecânica, documentação), fotos por seção (abre a câmera no celular) e preço sugerido = referência − margem − reparos. Com um clique a avaliação vai para o estoque, e os reparos viram custos previstos |
-| **Anúncios** | Matriz veículo × canal (OLX, Webmotors, iCarros etc., configuráveis), publicação em lote, visualizações e contatos por canal, feed XML do estoque |
-| **Leads** | Funil kanban com arrastar e soltar, origem, vendedor, próximo contato, histórico de interações, motivo de perda e WhatsApp em um clique. Leads da vitrine entram sozinhos |
-| **Clientes** | Ficha com compras, leads e avaliações |
-| **Vendas** | Entrada + financiamento + troca, com validação de que o pagamento fecha o valor da venda. O carro da troca entra no estoque, a comissão é calculada pelo % do vendedor e os lançamentos financeiros são gerados automaticamente. Inclui recibo para impressão e cancelamento com estorno |
-| **Financeiro** | Contas a pagar e a receber, baixa e estorno, vencidos |
-| **Relatórios** | Vendas e lucro por veículo, vendedor e forma de pagamento; conversão por origem de lead; motivos de perda; preparação prevista × real; desempenho por canal; idade do estoque; exportação CSV |
-| **Usuários** | Perfis administrador, gerente e vendedor (vendedor não vê custos, financeiro nem relatórios), com % de comissão |
-| **Vitrine** | Site público com os veículos disponíveis, galeria, ficha técnica e formulário de interesse |
+| **Operação** | Painel, avaliações (9 passos), veículos com a esteira de 8 etapas, precificação (extrato FIPE, consulta de mercado, valor sugerido de compra), sessão de fotos de entrada, serviços, consulta veicular, anúncios por portal com galeria arrastável |
+| **Comercial** | Atendimentos (CRM com quadros e fila), negociações (venda, troca, compra, consignação) com contratos em PDF e Word, intermediação, clientes, site da loja |
+| **Gestão** | Financeiro (títulos, recorrência, extrato, adiantamentos, retornos), relatórios, configurações (usuários, perfis e permissões, fornecedores, portais, CRM, plano de contas, custos, contas bancárias, notas fiscais) |
+| **Integrações** | Chaves (etiquetas QR, retirada e devolução, checklist com fotos, reservas, test drive) e conexões |
+| **Em volta do sistema** | Cadastro de lojas com 30 dias de teste, login, vitrine pública de cada loja em `/v/<endereço-da-loja>`, feed XML, menu Plataforma para o dono do Pátio |
 
-## Tecnologia
+O que ainda é **simulado** dentro do sistema: publicação automática nos portais, emissão de NF-e e certificado digital, assinatura digital, resultados da consulta veicular, amostra de anúncios da consulta de mercado, conexão com o claviculário IdentKey e envio de convites por e-mail (o administrador recebe uma senha provisória para repassar).
 
-- **Servidor:** Node.js 22.18+ (TypeScript executado nativamente), Express 5, SQLite embutido (`node:sqlite`). Não há dependências nativas para compilar.
-- **Interface:** React 19 + Vite, CSS próprio com tema claro/escuro e layout responsivo.
-- Os dados ficam em `data/patio.db` e as fotos em `data/uploads/`.
+## Como funciona por dentro
+
+- **Servidor:** Node.js 22.18+ (TypeScript executado nativamente), Express 5, SQLite embutido (`node:sqlite`).
+- **Sistema da loja (`/app`):** a interface completa vem de `prototipo/index.html`. Aberta pelo servidor, ela recebe os dados da
+  loja embutidos na página e passa a salvar no servidor: cada veículo, cliente, negociação e atendimento é um registro próprio,
+  gravado alguns instantes depois de cada alteração. A cada 8 segundos o navegador busca o que os colegas mudaram. Os números de
+  registro vêm em blocos reservados pelo servidor, então duas pessoas nunca criam o mesmo número. Fotos vão para `/uploads`.
+  Aberto direto como arquivo (ou no GitHub Pages), o mesmo HTML continua funcionando como protótipo com dados de exemplo.
+- **Em volta (React + Vite, pasta `web`):** login, cadastro, termos, vitrine pública e o painel da plataforma.
+- **Dados:** banco central `data/control.db` (empresas e e-mail de login de cada usuário) e um banco por empresa em
+  `data/empresas/<nº>/patio.db` (usuários, sessões e os registros do sistema). Backup diário em `data/backups/`.
+- **Usuários:** o login é real (senha cifrada, sessão por cookie). Perfil e permissões de cada pessoa são definidos dentro do
+  sistema, em Configurações › Usuários e Perfis. Criar um usuário ali gera o login e mostra uma senha provisória.
 
 ## Como rodar
 
 ```bash
 npm install
-npm run seed      # opcional: cria dados de demonstração (apaga data/patio.db)
-npm run build     # compila a interface
-npm start         # http://localhost:3000
+npm run build     # compila as telas em volta do sistema
+npm start         # http://localhost:3000  → cadastre uma loja em /cadastro
 ```
 
-Desenvolvimento com recarga automática: `npm run dev` (interface em http://localhost:5173).
+Desenvolvimento com recarga automática: `npm run dev` (telas em volta em http://localhost:5173; o sistema em http://localhost:3000/app).
 
-Na primeira execução sem `seed`, é criado o usuário `admin@patio.local` / `admin123`. Defina outro com
-`ADMIN_EMAIL` e `ADMIN_PASSWORD`. Troque a senha em **Configurações** após o primeiro acesso.
-
-Acessos de demonstração (após `npm run seed`):
-
-- `admin@patio.local` / `admin123` (administrador)
-- `carla@patio.local` / `patio123` (gerente)
-- `rafael@patio.local` / `patio123` (vendedor)
-
-Variáveis de ambiente: `PORT` (padrão 3000), `DATA_DIR` (padrão `./data`), `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+Variáveis de ambiente: veja a tabela em [PUBLICAR.md](PUBLICAR.md). As principais: `PORT` (padrão 3000),
+`DATA_DIR` (padrão `./data`) e `PLATFORM_ADMINS` (seu e-mail, para ver o menu Plataforma).
 
 ## Testes
 
 ```bash
-npm test          # regras de negócio e fluxo completo da API
+npm test          # cadastro, isolamento entre empresas, gravação do sistema, vitrine e regras da API
 npm run typecheck
 ```
 
 ## Integração com portais
 
-A publicação automática em portais de terceiros exige credenciais e contrato de API de cada portal. O sistema
-já oferece:
-
-- o feed XML em `/api/public/feed.xml`, para portais e agregadores que importam o estoque por URL;
-- o controle manual da situação, do link, das visualizações e dos contatos de cada anúncio.
-
-Conectores diretos podem ser adicionados em `server/routes/vehicles.ts` (rota `listings/bulk`).
+A publicação automática em portais de terceiros exige credenciais e contrato de API de cada portal. Por enquanto o sistema
+oferece o feed XML de cada loja em `/api/public/<endereço-da-loja>/feed.xml`, com os veículos em estoque marcados para o site,
+para portais e agregadores que importam o estoque por URL.
