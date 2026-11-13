@@ -21,6 +21,9 @@ import { Reports } from './pages/Reports';
 import { Users } from './pages/Users';
 import { Settings } from './pages/Settings';
 import { Vitrine, VitrineVehicle } from './pages/Vitrine';
+import { Signup } from './pages/Signup';
+import { Terms } from './pages/Terms';
+import { Platform } from './pages/Platform';
 import './styles.css';
 
 try {
@@ -41,12 +44,27 @@ function Only({ roles, children }: { roles: User['role'][]; children: ReactNode 
   return can(...roles) ? <>{children}</> : <Navigate to="/" replace />;
 }
 
+/** Atalho antigo: leva à vitrine da própria loja. */
+function MyVitrine() {
+  const { company, ready } = useAuth();
+  if (!ready) return <Loading />;
+  return <Navigate to={company ? `/v/${company.slug}` : '/login'} replace />;
+}
+
+function PlatformOnly() {
+  const { platform } = useAuth();
+  return platform ? <Platform /> : <Navigate to="/" replace />;
+}
+
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/vitrine" element={<Vitrine />} />
-      <Route path="/vitrine/:id" element={<VitrineVehicle />} />
+      <Route path="/cadastro" element={<Signup />} />
+      <Route path="/termos" element={<Terms />} />
+      <Route path="/v/:slug" element={<Vitrine />} />
+      <Route path="/v/:slug/:id" element={<VitrineVehicle />} />
+      <Route path="/vitrine" element={<MyVitrine />} />
       <Route
         element={
           <Private>
@@ -69,6 +87,7 @@ function App() {
         <Route path="relatorios" element={<Only roles={['admin', 'gerente']}><Reports /></Only>} />
         <Route path="usuarios" element={<Only roles={['admin']}><Users /></Only>} />
         <Route path="configuracoes" element={<Settings />} />
+        <Route path="plataforma" element={<PlatformOnly />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

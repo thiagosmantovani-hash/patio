@@ -4,7 +4,7 @@ import { useAuth } from '../auth';
 import { Field, formData, Loading, useAction, useLoad } from '../ui';
 
 export function Settings() {
-  const { can } = useAuth();
+  const { can, company, refresh } = useAuth();
   const { data, reload } = useLoad(() => api.get('/settings'));
   const { run, busy } = useAction();
   const [channels, setChannels] = useState<string[]>([]);
@@ -16,7 +16,10 @@ export function Settings() {
 
   const save = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (await run(() => api.put('/settings', { ...formData(e.currentTarget), channels }), 'Configurações salvas.')) reload();
+    if (await run(() => api.put('/settings', { ...formData(e.currentTarget), channels }), 'Configurações salvas.')) {
+      reload();
+      refresh();
+    }
   };
   const changePassword = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -82,10 +85,10 @@ export function Settings() {
           <div className="card card-pad small">
             <h3>Integrações</h3>
             <p className="muted">
-              Feed XML do estoque para portais e agregadores: <a href="/api/public/feed.xml" target="_blank" rel="noreferrer">{location.origin}/api/public/feed.xml</a>
+              Feed XML do estoque para portais e agregadores: <a href={`/api/public/${company?.slug}/feed.xml`} target="_blank" rel="noreferrer">{location.origin}/api/public/{company?.slug}/feed.xml</a>
             </p>
             <p className="muted">
-              Vitrine pública da loja: <a href="/vitrine" target="_blank" rel="noreferrer">{location.origin}/vitrine</a>
+              Vitrine pública da loja: <a href={`/v/${company?.slug}`} target="_blank" rel="noreferrer">{location.origin}/v/{company?.slug}</a>
             </p>
           </div>
         </div>

@@ -7,12 +7,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createApp } from '../server/app.ts';
 import { hashPassword } from '../server/auth.ts';
-import { openDatabase, type DB } from '../server/db.ts';
+import type { DB } from '../server/db.ts';
+import { Tenants } from '../server/tenants.ts';
 
 let server: Server;
 let db: DB;
+let tenants: Tenants;
 let base = '';
 let dir = '';
+let slug = '';
 
 async function call(method: string, path: string, body?: unknown, cookie = '') {
   const res = await fetch(base + path, {
@@ -29,17 +32,23 @@ async function login(email: string, password: string) {
   return r.cookie;
 }
 
-before(() => {
+before(async () => {
   dir = mkdtempSync(join(tmpdir(), 'patio-test-'));
-  db = openDatabase(':memory:');
-  db.prepare("INSERT INTO users (name, email, password_hash, role) VALUES ('Admin', 'admin@t.com', ?, 'admin')").run(hashPassword('segredo1'));
-  db.prepare("INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES ('Vendedor', 'vend@t.com', ?, 'vendedor', 2)").run(hashPassword('segredo2'));
-  server = createApp(db, { uploadDir: join(dir, 'uploads') }).listen(0);
+  tenants = new Tenants(dir);
+  server = createApp(tenants, { uploadDir: join(dir, 'uploads'), platformAdmins: ['dono@patio.app'], limits: { signupPerHour: 100, loginPer15Min: 100 } }).listen(0);
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const s = await call('POST', '/api/auth/signup', { company_name: 'Loja Teste', name: 'Admin', email: 'admin@t.com', password: 'segredo1', accept_terms: true });
+  assert.equal(s.status, 201, s.body.error);
+  slug = s.body.company.slug;
+  const t = tenants.get(s.body.company.id)!;
+  db = t.db;
+  db.prepare("INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES ('Vendedor', 'vend@t.com', ?, 'vendedor', 2)").run(hashPassword('segredo2'));
+  tenants.claim('vend@t.com', t.company.id);
 });
 
 after(() => {
   server.close();
+  tenants.close();
   rmSync(dir, { recursive: true, force: true });
 });
 
@@ -83,11 +92,11 @@ test('fluxo completo: avaliação → estoque → anúncio → lead pela vitrine
   await call('POST', `/api/vehicles/${vid}/listings/bulk`, { channels: ['OLX', 'Site próprio'] }, admin);
 
   // Vitrine pública mostra o carro e gera lead
-  const pub = await call('GET', '/api/public/vehicles');
+  const pub = await call('GET', `/api/public/${slug}/vehicles`);
   assert.equal(pub.body.length, 1);
   assert.equal(pub.body[0].purchase_price, undefined, 'preço de compra não pode vazar na vitrine');
-  assert.equal((await call('POST', `/api/public/vehicles/${vid}/interest`, { name: 'Ana' })).status, 400);
-  assert.equal((await call('POST', `/api/public/vehicles/${vid}/interest`, { name: 'Ana', phone: '11999990000' })).status, 201);
+  assert.equal((await call('POST', `/api/public/${slug}/vehicles/${vid}/interest`, { name: 'Ana' })).status, 400);
+  assert.equal((await call('POST', `/api/public/${slug}/vehicles/${vid}/interest`, { name: 'Ana', phone: '11999990000' })).status, 201);
   const leads = (await call('GET', '/api/leads', undefined, admin)).body;
   assert.equal(leads.length, 1);
   assert.equal(leads[0].source, 'site');
@@ -109,7 +118,7 @@ test('fluxo completo: avaliação → estoque → anúncio → lead pela vitrine
   assert.equal(v.profit.profit, 64000 - 52500 - 1800 - 1280);
   assert.ok(v.listings.every((l: { status: string }) => l.status === 'removido'));
   assert.equal((await call('GET', `/api/leads/${leads[0].id}`, undefined, admin)).body.stage, 'ganho');
-  assert.equal((await call('GET', '/api/public/vehicles')).body.length, 0);
+  assert.equal((await call('GET', `/api/public/${slug}/vehicles`)).body.length, 0);
 
   const fin = (await call('GET', '/api/finance', undefined, admin)).body;
   assert.equal(fin.totals.received, 10000);
@@ -137,4 +146,47 @@ test('lead perdido exige motivo', async () => {
   assert.equal((await call('PATCH', `/api/leads/${lead.body.id}/stage`, { stage: 'perdido' }, admin)).status, 400);
   const ok = await call('PATCH', `/api/leads/${lead.body.id}/stage`, { stage: 'perdido', lost_reason: 'Preço' }, admin);
   assert.equal(ok.body.stage, 'perdido');
+});
+
+test('cadastro de empresa: dados isolados, e-mail único, vitrine própria e painel da plataforma', async () => {
+  // e-mail já usado em outra empresa
+  assert.equal((await call('POST', '/api/auth/signup', { company_name: 'Outra', name: 'X', email: 'ADMIN@t.com', password: 'segredo99', accept_terms: true })).status, 409);
+  // sem aceite dos termos / senha curta
+  assert.equal((await call('POST', '/api/auth/signup', { company_name: 'Outra', name: 'X', email: 'x@b.com', password: 'segredo99' })).status, 400);
+  assert.equal((await call('POST', '/api/auth/signup', { company_name: 'Outra', name: 'X', email: 'x@b.com', password: '123', accept_terms: true })).status, 400);
+
+  const a = await login('admin@t.com', 'segredo1');
+  await call('POST', '/api/vehicles', { brand: 'Fiat', model: 'Uno', status: 'disponivel', sale_price: 30000 }, a);
+  const nA = (await call('GET', '/api/vehicles', undefined, a)).body.length;
+  assert.ok(nA > 0);
+
+  const b = await call('POST', '/api/auth/signup', { company_name: 'Loja Teste', name: 'Bia', email: 'bia@b.com', password: 'segredo99', accept_terms: true, city: 'Umuarama - PR' });
+  assert.equal(b.status, 201);
+  assert.notEqual(b.body.company.slug, slug, 'mesmo nome gera endereço diferente');
+  assert.equal((await call('GET', '/api/vehicles', undefined, b.cookie)).body.length, 0, 'empresa nova não vê o estoque da outra');
+  assert.equal((await call('GET', '/api/settings', undefined, b.cookie)).body.city, 'Umuarama - PR');
+  assert.equal((await call('GET', `/api/public/${b.body.company.slug}/vehicles`)).body.length, 0);
+  assert.equal((await call('GET', '/api/public/nao-existe/vehicles')).status, 404);
+
+  // usuário criado na empresa B não pode reusar e-mail da A; login da B funciona
+  assert.equal((await call('POST', '/api/users', { name: 'V', email: 'vend@t.com', password: 'abcdef', role: 'vendedor' }, b.cookie)).status, 409);
+  assert.equal((await call('POST', '/api/users', { name: 'Caio', email: 'caio@b.com', password: 'abcdef', role: 'vendedor' }, b.cookie)).status, 201);
+  const caio = await login('caio@b.com', 'abcdef');
+  assert.equal((await call('GET', '/api/auth/me', undefined, caio)).body.company.slug, b.body.company.slug);
+
+  // sessão adulterada (token da B com o número da empresa A) não entra
+  const forged = b.cookie.replace(/=(\d+)\./, `=${tenants.companyForEmail('admin@t.com')}.`);
+  assert.equal((await call('GET', '/api/vehicles', undefined, forged)).status, 401);
+
+  // painel da plataforma: só para o e-mail autorizado
+  assert.equal((await call('GET', '/api/platform/companies', undefined, a)).status, 403);
+  const dono = await call('POST', '/api/auth/signup', { company_name: 'Pátio HQ', name: 'Dono', email: 'dono@patio.app', password: 'segredo99', accept_terms: true });
+  const list = await call('GET', '/api/platform/companies', undefined, dono.cookie);
+  assert.equal(list.status, 200);
+  assert.equal(list.body.length, 3);
+
+  // empresa suspensa perde o acesso
+  assert.equal((await call('PUT', `/api/platform/companies/${b.body.company.id}/status`, { status: 'suspensa' }, dono.cookie)).status, 200);
+  assert.equal((await call('GET', '/api/vehicles', undefined, b.cookie)).status, 403);
+  assert.equal((await call('POST', '/api/auth/login', { email: 'bia@b.com', password: 'segredo99' })).status, 403);
 });

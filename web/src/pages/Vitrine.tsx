@@ -6,12 +6,12 @@ import { Badge, CarPlaceholder, Empty, Field, formData, Icon, Loading, useLoad }
 
 // Vitrine pública: não exige login e só recebe campos públicos da API.
 
-function StoreHeader({ store }: { store: any }) {
+function StoreHeader({ store, slug }: { store: any; slug: string }) {
   const wa = (store?.whatsapp ?? '').replace(/\D/g, '');
   return (
     <div className="store-top">
       <div className="inner spread">
-        <Link to="/vitrine" className="row" style={{ color: 'var(--text)', fontWeight: 700, fontSize: 18 }}>
+        <Link to={`/v/${slug}`} className="row" style={{ color: 'var(--text)', fontWeight: 700, fontSize: 18 }}>
           <Icon name="car" size={22} /> {store?.store_name ?? ''}
         </Link>
         <div className="row small">
@@ -24,12 +24,14 @@ function StoreHeader({ store }: { store: any }) {
 }
 
 export function Vitrine() {
+  const { slug = '' } = useParams();
   const [q, setQ] = useState('');
-  const store = useLoad(() => api.get('/public/store'));
-  const { data } = useLoad(() => api.get<any[]>(`/public/vehicles${qs({ q })}`), [q]);
+  const store = useLoad(() => api.get(`/public/${slug}/store`), [slug]);
+  const { data, error } = useLoad(() => api.get<any[]>(`/public/${slug}/vehicles${qs({ q })}`), [slug, q]);
+  if (store.error || error) return <div className="store-wrap"><Empty>Loja não encontrada. Confira o endereço.</Empty></div>;
   return (
     <div style={{ minHeight: '100%' }}>
-      <StoreHeader store={store.data} />
+      <StoreHeader store={store.data} slug={slug} />
       <div className="store-hero">
         <div className="inner">
           <h1>Encontre seu próximo carro</h1>
@@ -43,7 +45,7 @@ export function Vitrine() {
             <p className="muted">{data.length} veículo(s) disponível(is)</p>
             <div className="vgrid">
               {data.map((v) => (
-                <Link key={v.id} to={`/vitrine/${v.id}`} className="card vcard" style={{ color: 'inherit', textDecoration: 'none' }}>
+                <Link key={v.id} to={`/v/${slug}/${v.id}`} className="card vcard" style={{ color: 'inherit', textDecoration: 'none' }}>
                   <div className="thumb">
                     {v.photos[0] ? <img src={v.photos[0]} alt={`${v.brand} ${v.model}`} loading="lazy" /> : <CarPlaceholder />}
                     {v.featured ? <Badge tone="ok">Destaque</Badge> : null}
@@ -61,6 +63,7 @@ export function Vitrine() {
         )}
         <footer className="small muted" style={{ padding: '32px 0', textAlign: 'center' }}>
           {store.data?.store_name} · {store.data?.address} {store.data?.city} · {store.data?.email}
+          <div style={{ marginTop: 6 }}>Vitrine feita com o Pátio</div>
         </footer>
       </div>
     </div>
@@ -68,9 +71,9 @@ export function Vitrine() {
 }
 
 export function VitrineVehicle() {
-  const { id } = useParams();
-  const store = useLoad(() => api.get('/public/store'));
-  const { data: v, error } = useLoad(() => api.get(`/public/vehicles/${id}`), [id]);
+  const { slug = '', id } = useParams();
+  const store = useLoad(() => api.get(`/public/${slug}/store`), [slug]);
+  const { data: v, error } = useLoad(() => api.get(`/public/${slug}/vehicles/${id}`), [slug, id]);
   const [photo, setPhoto] = useState(0);
   const [sent, setSent] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -79,7 +82,7 @@ export function VitrineVehicle() {
     e.preventDefault();
     setFormError(null);
     try {
-      await api.post(`/public/vehicles/${id}/interest`, formData(e.currentTarget));
+      await api.post(`/public/${slug}/vehicles/${id}/interest`, formData(e.currentTarget));
       setSent(true);
     } catch (err) {
       setFormError((err as Error).message);
@@ -88,9 +91,9 @@ export function VitrineVehicle() {
 
   return (
     <div style={{ minHeight: '100%' }}>
-      <StoreHeader store={store.data} />
+      <StoreHeader store={store.data} slug={slug} />
       <div className="store-wrap">
-        <Link to="/vitrine" className="back"><Icon name="left" size={14} /> Todos os veículos</Link>
+        <Link to={`/v/${slug}`} className="back"><Icon name="left" size={14} /> Todos os veículos</Link>
         {error ? <Empty>Veículo não encontrado ou já vendido.</Empty> : !v ? <Loading /> : (
           <div className="grid g-main">
             <div className="stack">

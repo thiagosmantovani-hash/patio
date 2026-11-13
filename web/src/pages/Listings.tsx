@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth';
 import { api } from '../api';
 import { money0 } from '../format';
 import { CarPlaceholder, Empty, Icon, Loading, useAction, useLoad } from '../ui';
@@ -7,6 +8,7 @@ import { CarPlaceholder, Empty, Icon, Loading, useAction, useLoad } from '../ui'
 /** Matriz veículo × canal: mostra onde cada carro disponível está anunciado e publica em lote. */
 export function Listings() {
   const nav = useNavigate();
+  const { company } = useAuth();
   const { run, busy } = useAction();
   const [selected, setSelected] = useState<number[]>([]);
   const settings = useLoad(() => api.get('/settings'));
@@ -40,8 +42,8 @@ export function Listings() {
           <p>Cadastre uma vez e acompanhe a publicação de todo o estoque em cada canal.</p>
         </div>
         <div className="actions">
-          <a className="btn" href="/api/public/feed.xml" target="_blank" rel="noreferrer"><Icon name="download" /> Feed XML do estoque</a>
-          <a className="btn" href="/vitrine" target="_blank" rel="noreferrer"><Icon name="store" /> Abrir vitrine</a>
+          <a className="btn" href={`/api/public/${company?.slug}/feed.xml`} target="_blank" rel="noreferrer"><Icon name="download" /> Feed XML do estoque</a>
+          <a className="btn" href={`/v/${company?.slug}`} target="_blank" rel="noreferrer"><Icon name="store" /> Abrir vitrine</a>
         </div>
       </div>
 

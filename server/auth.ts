@@ -49,7 +49,8 @@ export function destroySession(db: DB, token: string) {
   db.prepare('DELETE FROM sessions WHERE token = ?').run(token);
 }
 
-function readToken(req: Request): string | null {
+// A sessão é "<id da empresa>.<token>": o prefixo diz em qual banco procurar, o token é validado nele.
+function readRaw(req: Request): string | null {
   const header = req.headers.authorization;
   if (header?.startsWith('Bearer ')) return header.slice(7);
   const cookie = req.headers.cookie;
@@ -61,8 +62,39 @@ function readToken(req: Request): string | null {
   return null;
 }
 
+function readToken(req: Request): string | null {
+  const raw = readRaw(req);
+  if (!raw) return null;
+  const i = raw.indexOf('.');
+  return i > 0 ? raw.slice(i + 1) : raw;
+}
+
 export function sessionToken(req: Request) {
   return readToken(req);
+}
+
+/** Empresa indicada pela sessão (ainda não validada: quem valida é o banco da empresa). */
+export function sessionCompany(req: Request): number | null {
+  const raw = readRaw(req);
+  const i = raw ? raw.indexOf('.') : -1;
+  if (!raw || i <= 0) return null;
+  const id = Number(raw.slice(0, i));
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+export function sessionValue(companyId: number, token: string) {
+  return `${companyId}.${token}`;
+}
+
+/** Busca o usuário da sessão no banco da empresa, sem lançar erro. */
+export function sessionUser(db: DB, req: Request): SessionUser | null {
+  const token = readToken(req);
+  if (!token) return null;
+  const u = db
+    .prepare(`SELECT u.id, u.name, u.email, u.role FROM sessions s JOIN users u ON u.id = s.user_id
+      WHERE s.token = ? AND s.expires_at > ? AND u.active = 1`)
+    .get(token, new Date().toISOString()) as SessionUser | undefined;
+  return u ? { ...u } : null;
 }
 
 export function requireAuth(db: DB) {

@@ -340,3 +340,25 @@ table.table { width: 100%; border-collapse: collapse; }
   .hbar { grid-template-columns: 90px 1fr 70px; }
 }
 .page-head .actions .input { width: auto; }
+
+/* ---------- cadastro de empresa, termos, primeiros passos ---------- */
+.auth-form form.signup-form { max-width: 480px; }
+.signup-form fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px 14px; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.signup-form legend { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-2); padding: 0 6px; }
+.check-line { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; }
+.check-line input { margin-top: 3px; width: 16px; height: 16px; flex: none; }
+.legal { max-width: 760px; margin: 0 auto; padding: 40px 24px 80px; line-height: 1.65; }
+.legal h1 { font-size: 28px; margin: 8px 0 4px; }
+.legal h2 { font-size: 17px; margin: 28px 0 6px; }
+.legal p { margin: 0 0 10px; }
+.trial-tag { margin-top: 8px; display: inline-block; font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--ok-soft, rgba(20, 184, 166, .15)); color: var(--ok); }
+.onboarding { padding: 18px 20px; margin-bottom: 16px; border-left: 4px solid var(--ok); }
+.onboarding h2 { font-size: 18px; margin: 0 0 2px; }
+.ob-bar { height: 8px; border-radius: 999px; background: var(--border); overflow: hidden; margin: 12px 0 14px; }
+.ob-bar i { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
+.ob-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.ob-steps li { display: flex; gap: 10px; border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.ob-steps li.done { opacity: .6; }
+.ob-steps li p { margin: 2px 0 8px; }
+.ob-n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; font-weight: 700; font-size: 12.5px; background: var(--border); }
+.ob-steps li.done .ob-n { background: var(--ok); color: #fff; }

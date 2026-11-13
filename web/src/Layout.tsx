@@ -55,7 +55,8 @@ function useTheme() {
 }
 
 export function Layout() {
-  const { user, logout, can } = useAuth();
+  const { user, company, platform, logout, can } = useAuth();
+  const trialDays = company?.trial_ends_at ? Math.ceil((new Date(company.trial_ends_at + 'T23:59:59').getTime() - Date.now()) / 86_400_000) - 1 : null;
   const [open, setOpen] = useState(false);
   const [theme, toggleTheme] = useTheme();
   const location = useLocation();
@@ -70,7 +71,7 @@ export function Layout() {
             <path d="M7 20l2.2-6.2A2 2 0 0 1 11.1 12h9.8a2 2 0 0 1 1.9 1.8L25 20v4h-3v-2H10v2H7z" fill="#fff" />
           </svg>
           <div>
-            Pátio<small>Gestão de revendas</small>
+            Pátio<small title={company?.name}>{company?.name ?? 'Gestão de revendas'}</small>
           </div>
         </div>
         <nav className="nav">
@@ -89,13 +90,20 @@ export function Layout() {
             );
           })}
           <div className="nav-section">Loja</div>
-          <a href="/vitrine" target="_blank" rel="noreferrer">
+          <a href={`/v/${company?.slug ?? ''}`} target="_blank" rel="noreferrer">
             <Icon name="store" /> Vitrine pública
           </a>
+          {platform && (
+            <>
+              <div className="nav-section">Pátio</div>
+              <NavLink to="/plataforma"><Icon name="chart" /> Plataforma</NavLink>
+            </>
+          )}
         </nav>
         <div className="sidebar-footer">
           <div className="who">{user?.name}</div>
           <div className="small">{user && ROLE[user.role]}</div>
+          {trialDays != null && trialDays >= 0 && <div className="trial-tag">Período de teste: {trialDays} dia{trialDays === 1 ? '' : 's'}</div>}
           <div className="row" style={{ marginTop: 10, gap: 14 }}>
             <button onClick={toggleTheme} title="Alternar tema">
               <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />

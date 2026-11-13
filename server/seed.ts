@@ -1,21 +1,27 @@
-// Popula o banco com dados de demonstração usando a própria API (mesmas regras de negócio).
-// Uso: npm run seed            (recria data/patio.db)
-import { rmSync } from 'node:fs';
+// Cria uma empresa de demonstração com dados de exemplo, usando a própria API (mesmas regras de negócio).
+// Uso: npm run seed   (se a empresa de demonstração já existir, use SEED_FORCE=1 para recriá-la)
+// Não mexe nas outras empresas cadastradas.
 import type { AddressInfo } from 'node:net';
 import { join, resolve } from 'node:path';
 import { createApp } from './app.ts';
-import { hashPassword } from './auth.ts';
-import { openDatabase } from './db.ts';
+import { Tenants } from './tenants.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const dataDir = process.env.DATA_DIR ?? join(root, 'data');
-const dbFile = join(dataDir, 'patio.db');
-for (const suffix of ['', '-wal', '-shm']) rmSync(dbFile + suffix, { force: true });
+const DEMO_EMAIL = 'admin@patio.local';
+const DEMO_PASSWORD = 'admin12345';
 
-const db = openDatabase(dbFile);
-db.prepare("INSERT INTO users (name, email, password_hash, role) VALUES ('Administrador', 'admin@patio.local', ?, 'admin')").run(hashPassword('admin123'));
+const tenants = new Tenants(dataDir);
+const existing = tenants.companyForEmail(DEMO_EMAIL);
+if (existing) {
+  if (process.env.SEED_FORCE !== '1') {
+    console.log('A empresa de demonstração já existe. Rode com SEED_FORCE=1 para recriá-la.');
+    process.exit(0);
+  }
+  tenants.destroy(existing);
+}
 
-const server = createApp(db, { uploadDir: join(dataDir, 'uploads') }).listen(0);
+const server = createApp(tenants, { uploadDir: join(dataDir, 'uploads') }).listen(0);
 const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}/api`;
 let cookie = '';
 
@@ -35,7 +41,9 @@ async function api<T = any>(method: string, path: string, body?: unknown): Promi
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
 
 try {
-  await api('POST', '/auth/login', { email: 'admin@patio.local', password: 'admin123' });
+  await api('POST', '/auth/signup', {
+    company_name: 'Pátio Automóveis (demonstração)', name: 'Administrador', email: DEMO_EMAIL, password: DEMO_PASSWORD, accept_terms: true,
+  });
 
   await api('PUT', '/settings', {
     store_name: 'Pátio Automóveis',
@@ -200,11 +208,11 @@ try {
     await api('POST', '/finance', { type: 'despesa', category: 'marketing', description: 'Planos dos portais de anúncio', amount: 1890, due_date: due, paid_at: paid });
   }
   // Repasses de financiamento antigos já recebidos
-  db.prepare("UPDATE transactions SET paid_at = due_date WHERE category IN ('financiamento','comissao') AND due_date < date('now')").run();
+  tenants.get(tenants.companyForEmail(DEMO_EMAIL))!.db.prepare("UPDATE transactions SET paid_at = due_date WHERE category IN ('financiamento','comissao') AND due_date < date('now')").run();
 
   console.log('Dados de demonstração criados.');
-  console.log('Acessos: admin@patio.local / admin123 · carla@patio.local / patio123 (gerente) · rafael@patio.local / patio123 (vendedor)');
+  console.log('Acessos: admin@patio.local / admin12345 · carla@patio.local / patio123 (gerente) · rafael@patio.local / patio123 (vendedor)');
 } finally {
   server.close();
-  db.close();
+  tenants.close();
 }

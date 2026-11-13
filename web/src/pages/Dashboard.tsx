@@ -3,6 +3,7 @@ import { api } from '../api';
 import { useAuth } from '../auth';
 import { date, LEAD_STAGE, money0, monthLabel, VEHICLE_STATUS } from '../format';
 import { Badge, Empty, Loading, StatusBadge, useLoad } from '../ui';
+import { GettingStarted } from './GettingStarted';
 
 export function Dashboard() {
   const { user, can } = useAuth();
@@ -26,6 +27,8 @@ export function Dashboard() {
           <Link className="btn primary" to="/vendas/nova">Registrar venda</Link>
         </div>
       </div>
+
+      <GettingStarted />
 
       <div className="grid g4">
         <div className="card kpi">
