@@ -8152,9 +8152,9 @@ Object.assign(ACT,{
 
 /* ================= v8.1: cabeçalhos pretos e exclusão de usuários ================= */
 (function(){const st=document.createElement('style');st.textContent=`
-:root{--hd:#121417;--hd-mut:rgba(255,255,255,.64)}
-:root[data-theme="dark"]{--hd:#000}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hd:#000}}
+:root{--hd:#121417;--hd-2:#2c3137;--hd-mut:rgba(255,255,255,.64)}
+:root[data-theme="dark"]{--hd:#000;--hd-2:#22272d}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hd:#000;--hd-2:#22272d}}
 .card > header,.sc > header{background:var(--hd);color:#fff;border-bottom-color:var(--hd)}
 .card.pad > header{margin:-18px -20px 14px;padding:15px 20px 14px;border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
 .card > header h3,.sc > header h3,.card > header b,.card > header strong{color:#fff}
@@ -8174,6 +8174,13 @@ Object.assign(ACT,{
 .col > header .muted{color:var(--hd-mut)}
 .col > header i{width:10px;height:10px;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
 .chip.dot:not(.ok):not(.warn):not(.bad):not(.info):not(.dark)::before{background:#f59e0b}
+.tbl th{background:var(--hd-2);color:#fff;border-bottom-color:var(--hd-2)}
+.tbl th a,.tbl th button{color:#fff}
+.modal .box > header{background:var(--hd);color:#fff;border-bottom-color:var(--hd);border-radius:19px 19px 0 0;padding:16px 22px}
+.modal .box > header h2{color:#fff}
+.modal .box > header .x{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.cfg-nav > span:first-child{background:var(--hd);color:#fff;border-radius:10px;padding:9px 12px;margin-bottom:4px}
+.cfg-nav > span:not(:first-child){border-top:1px solid var(--card-line);margin-top:6px;padding-top:12px;color:var(--ink-2)}
 `;document.head.appendChild(st)})();
 
 /* quem foi excluído some das listas, mas o nome continua nos registros antigos */
