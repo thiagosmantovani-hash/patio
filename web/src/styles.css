@@ -364,3 +364,34 @@ table.table { width: 100%; border-collapse: collapse; }
 .ob-steps li.done .ob-n { background: var(--ok); color: #fff; }
 .platform-shell { min-height: 100%; }
 .platform-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
+
+/* Vitrine com o conteúdo do Editor de site */
+.vt-bar { background: var(--vt, var(--primary)); color: #fff; text-align: center; font-size: 13px; font-weight: 600; padding: 7px 12px; }
+.store-top.vt-dark { background: #16181b; border-bottom-color: #16181b; color: #fff; }
+.store-top.vt-dark .vt-logo, .store-top.vt-dark .vt-menu button, .store-top.vt-dark .vt-phone { color: #fff; }
+.vt-logo { color: var(--text); font-weight: 800; font-size: 19px; letter-spacing: .03em; text-transform: uppercase; text-decoration: none; }
+.vt-menu { display: flex; gap: 4px; flex-wrap: wrap; }
+.vt-menu button { background: none; border: 0; font: inherit; font-size: 13px; font-weight: 650; text-transform: uppercase; color: var(--text); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+.vt-menu button:hover { background: color-mix(in srgb, var(--vt, var(--primary)) 18%, transparent); }
+.vt-phone { font-weight: 700; }
+.vt-dots { display: flex; gap: 6px; margin-top: 16px; }
+.vt-dots button { width: 26px; height: 5px; border-radius: 4px; border: 0; background: rgba(255,255,255,.35); cursor: pointer; padding: 0; }
+.vt-dots button.on { background: var(--vt, #fff); }
+.vt-brands { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin: 14px 0 22px; }
+.vt-brands button { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 12px 6px; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
+.vt-brands button.on, .vt-brands button:hover { border-color: var(--vt, var(--primary)); color: var(--vt, var(--primary)); }
+.vt-price { color: var(--vt, inherit); }
+.vt-blocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 32px; }
+.vt-blocks > div { background: var(--surface-2, #f4f5f6); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.vt-btn { background: var(--vt, var(--primary)); color: #fff; border-color: transparent; }
+.vt-btn:hover { filter: brightness(.95); }
+.vt-depo { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.vt-depo .card { display: flex; flex-direction: column; gap: 8px; }
+.vt-link { background: none; border: 0; padding: 0; font: inherit; color: var(--vt, var(--primary)); text-decoration: underline; cursor: pointer; }
+.vt-foot { background: #16181b; color: #d1d5db; margin-top: 40px; }
+.vt-foot a { color: #fff; }
+.vt-foot h3 { color: #fff; }
+.vt-foot .muted { color: #9ca3af; }
+.vt-foot.light { background: var(--surface-2, #f4f5f6); color: var(--text); }
+.vt-foot.light a, .vt-foot.light h3 { color: var(--text); }
+.vt-units { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }

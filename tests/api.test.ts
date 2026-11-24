@@ -218,6 +218,30 @@ test('sistema completo: gravação por itens, mudanças, números, fotos, vitrin
   assert.equal(inbox.length, 1);
   assert.equal((await call('POST', '/api/store/inbox/claim', { k: inbox[0][0] }, a)).body.ok, true);
   assert.equal((await call('POST', '/api/store/inbox/claim', { k: inbox[0][0] }, a)).body.ok, false, 'só um navegador converte');
+  assert.equal(JSON.parse(inbox[0][1]).form, 'interesse');
+
+  // editor de site: só vale para o público depois de publicar; scripts não saem na API pública
+  const ed = { logo: 'Loja Nova', horario: 'Seg a sáb', menu: ['Estoque', 'Venda seu carro'], marcas: ['VW', ''], venda: { on: true, titulo: 'Venda', texto: 't', botao: 'Avalie' }, financie: { on: false }, tema: { cor: '#123456' }, redes: { instagram: 'https://instagram.com/x', facebook: 'javascript:alert(1)' }, scripts: { head: '<script>x</script>' }, unidades: [{ nome: 'Matriz', endereco: 'Rua A' }] };
+  await call('POST', '/api/store/save', { put: [['s:site:ed', JSON.stringify(ed)], ['s:site:banners', JSON.stringify([{ titulo: 'B1', sub: 's', ativo: true }, { titulo: 'B2', ativo: false }])]], del: [] }, a);
+  assert.equal((await call('GET', `/api/public/${slug}/store`)).body.site, null, 'rascunho não aparece');
+  await call('POST', '/api/store/save', { put: [['s:site:ed', JSON.stringify({ ...ed, publicado: '24/11/2026' })]], del: [] }, a);
+  const st = (await call('GET', `/api/public/${slug}/store`)).body;
+  assert.equal(st.store_name, 'Loja Nova');
+  assert.equal(st.site.color, '#123456');
+  assert.deepEqual(st.site.brands, ['VW']);
+  assert.equal(st.site.finance.on, false);
+  assert.equal(st.site.banners.length, 1);
+  assert.equal(st.site.socials.facebook, '', 'só links https');
+  assert.equal(JSON.stringify(st).includes('<script>'), false, 'scripts não vão para a vitrine');
+
+  // formulários do site viram itens da caixa de entrada com o tipo
+  assert.equal((await call('POST', `/api/public/${slug}/contact`, { kind: 'x', name: 'Bia', phone: '1' })).status, 400);
+  assert.equal((await call('POST', `/api/public/${slug}/contact`, { kind: 'compra', name: 'Bia' })).status, 400);
+  assert.equal((await call('POST', `/api/public/${slug}/contact`, { kind: 'compra', name: 'Bia', phone: '44999', brand: 'Fiat', model: 'Uno', year: '2015' })).status, 201);
+  const inbox2 = (await call('GET', '/api/store', undefined, a)).body.items.filter((x: string[]) => x[0].startsWith('m:inbox:')).map((x: string[]) => JSON.parse(x[1]));
+  assert.equal(inbox2.length, 1);
+  assert.equal(inbox2[0].form, 'compra');
+  assert.match(inbox2[0].msg, /Marca: Fiat · Modelo: Uno · Ano: 2015/);
 
   // carro vendido sai da vitrine; apagar vira "tombstone" nas mudanças
   const s2 = await call('POST', '/api/store/save', { put: [['m:veh:10050', JSON.stringify({ ...veh, status: 'vendido' })]], del: ['v:cfg'] }, a);

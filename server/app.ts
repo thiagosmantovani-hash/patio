@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { requireAuth, sessionCompany, sessionUser } from './auth.ts';
 import { allocIds, storeItems, storeRev, storeRoutes } from './store.ts';
 import { errorHandler, HttpError } from './http.ts';
-import { securityHeaders } from './security.ts';
+import { rateLimiter, securityHeaders } from './security.ts';
 import type { Tenant, Tenants } from './tenants.ts';
 import { appraisalRoutes } from './routes/appraisals.ts';
 import { authRoutes, companyInfo, isPlatform, type AuthOptions } from './routes/auth.ts';
@@ -69,7 +69,10 @@ export function createApp(tenants: Tenants, opts: AppOptions) {
   app.use('/api/platform', platformRoutes(tenants, opts));
 
   // Vitrine e feed de cada loja: /api/public/<endereço-da-loja>/...
+  // Formulários públicos (interesse, venda seu carro, financiamento, SAC): limite por IP contra spam.
+  const publicPosts = rateLimiter(30, 60 * 60 * 1000);
   app.use('/api/public/:slug', (req: Request, res: Response, next: NextFunction) => {
+    if (req.method === 'POST') publicPosts.hit(req.ip ?? 'desconhecido');
     const t = tenants.bySlug(String(req.params.slug));
     if (!t || t.company.status !== 'ativa') return next(new HttpError(404, 'Loja não encontrada.'));
     routerOf(t, 'public', () => publicRoutes(t.db))(req, res, next);

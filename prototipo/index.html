@@ -7690,6 +7690,465 @@ function v6Migra(){
 save=function(){if(window.PATIO_BOOT)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(!UI._cheio){UI._cheio=1;toast('O navegador ficou sem espaço para salvar. Remova fotos de avaria antigas para continuar salvando.')}}};
 v6Migra();imgBoot();
 
+/* ================= v8: novidades vistas no Autoconf (nov/2026) =================
+   Painel "Visão geral" com mês anterior, rankings e retorno por banco; central de notificações;
+   Novidades; Cursos e treinamentos; Meus produtos (plano, cotas e módulos); editor visual do site;
+   Contatos do site; relatório de comissões; registro de impressão do cabide. */
+Object.assign(IC,{
+ eyeOff:'<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.1A10 10 0 0 1 12 5c6 0 9.5 7 9.5 7a17 17 0 0 1-3.2 4.1"/><path d="M6.1 6.1C3.8 7.7 2.5 12 2.5 12S6 19 12 19a9.7 9.7 0 0 0 4.2-1"/>',
+ grad:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v5"/>',
+ spark:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 3v4M17 5h4"/>',
+ pkg:'<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
+ inbox:'<path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
+ trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v4M8 21h8M9 17h6"/>'
+});
+
+(function(){const st=document.createElement('style');st.textContent=`
+.dsh-sec{display:flex;flex-direction:column;gap:14px;margin-top:24px}
+.dsh-sec>h2{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:10px;margin:0}
+.dsh-sec>h2:after{content:"";flex:1;height:1px;background:var(--line)}
+.dk{padding:16px 18px;display:flex;flex-direction:column;gap:8px;border-top:3px solid var(--k,var(--green))}
+.dk-h{display:flex;align-items:center;justify-content:space-between;gap:8px}.dk-h .lb{font-weight:600;color:var(--ink-2)}
+.dk-v{font-size:28px;font-weight:750;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+.dk-f{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.spark{width:120px;height:34px;flex:none}
+.trend.down{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.trend.flat{color:var(--muted);background:var(--surface-2)}
+.hbar .tr i.b{background:var(--bad)}.hbar .tr i.i{background:var(--info)}
+.gauge{display:flex;flex-direction:column;align-items:center;gap:2px;margin-bottom:10px}
+.funil{display:flex;flex-direction:column;gap:8px}
+.funil .fs{display:flex;align-items:center;gap:12px}
+.funil .fs i{display:block;height:32px;border-radius:8px;background:var(--green);opacity:var(--o,1);min-width:6px}
+.funil .fs span{min-width:112px;font-weight:600}.funil .fs b{font-variant-numeric:tabular-nums;margin-left:auto;white-space:nowrap}
+.badge-mini{display:inline-block;font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;background:var(--surface-2);color:var(--ink-2);margin-left:6px;white-space:nowrap;letter-spacing:0;text-transform:none}
+.badge-mini.ok{background:var(--green-soft);color:var(--green-strong)}.badge-mini.w{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.dsh-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.dsh-tools select.inp{width:auto;min-width:170px}
+.nt-list{display:flex;flex-direction:column}
+.nt{display:flex;gap:14px;align-items:flex-start;padding:14px 18px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.nt:last-child{border-bottom:0}.nt.un{background:color-mix(in srgb,var(--green) 6%,transparent)}
+.nt .ico{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);flex:none}
+.nt.un .ico{background:var(--green-soft);color:var(--green-strong)}
+.nt .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.nt .ac{display:flex;gap:6px;align-items:center;flex:none}
+.pop .it.un b{color:var(--ink)}
+.cursos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.curso{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;color:#fff;text-align:left;border:0;padding:16px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;cursor:pointer;background:var(--c,#0f1113);font:inherit;transition:transform .15s}
+.curso:hover{transform:translateY(-2px)}
+.curso:before{content:"";position:absolute;inset:0;background:radial-gradient(120% 70% at 80% 0%,rgba(255,255,255,.2),transparent 60%),linear-gradient(180deg,transparent 35%,rgba(0,0,0,.55))}
+.curso>*{position:relative}.curso .ci{position:absolute;top:16px;left:16px;opacity:.9}.curso h3{font-size:19px;line-height:1.1;text-transform:uppercase;letter-spacing:.02em;margin:0;color:#fff}
+.curso .pb{height:6px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden}.curso .pb i{display:block;height:100%;background:#fff}
+.curso .small{color:rgba(255,255,255,.85)}
+.aula{display:flex;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line);align-items:flex-start}.aula:last-child{border-bottom:0}
+.aula .n{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:700;flex:none}
+.aula.ok .n{background:var(--green);color:var(--green-ink)}
+.cota{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.cota .t{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.cota .tr{height:8px;border-radius:8px;background:var(--surface-3);overflow:hidden}.cota .tr i{display:block;height:100%;background:var(--green);border-radius:8px}
+.cota.w .tr i{background:var(--warn)}.cota.b .tr i{background:var(--bad)}
+.cota .btn{align-self:flex-start}
+.cotas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.ed-wrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start}
+.ed-canvas{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;color:#111;font-size:14px}
+.ed-blk{position:relative;outline:2px dashed transparent;outline-offset:-2px;transition:outline-color .15s;cursor:pointer}
+.ed-blk:hover{outline-color:color-mix(in srgb,var(--green) 70%,transparent)}
+.ed-blk.on{outline-color:var(--green);outline-style:solid}
+.ed-tag{position:absolute;top:6px;right:6px;z-index:2;display:none;align-items:center;gap:4px;font:600 11.5px var(--font);background:var(--green);color:var(--green-ink);border-radius:6px;padding:4px 8px}
+.ed-blk:hover>.ed-tag,.ed-blk.on>.ed-tag{display:inline-flex}
+.ed-bar{background:var(--tc,#e8891a);color:#fff;text-align:center;font-size:12.5px;font-weight:600;padding:7px}
+.ed-hd{background:#16181b;color:#fff;display:flex;align-items:center;gap:18px;padding:14px 22px;flex-wrap:wrap}
+.ed-hd .lg{font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase}
+.ed-hd nav{display:flex;gap:16px;margin-left:auto;font-size:12.5px;font-weight:600;text-transform:uppercase;flex-wrap:wrap}
+.ed-ban{height:180px;display:flex;flex-direction:column;justify-content:center;padding:0 28px;background:linear-gradient(120deg,#16181b,#2a2f35);color:#fff;gap:4px}
+.ed-ban h3{font-size:24px;margin:0;color:#fff}
+.ed-sec{padding:20px 22px}.ed-sec h4{font-size:17px;margin:0 0 12px;color:#111}
+.ed-marcas{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-top:10px}
+.ed-marcas span{border:1px solid #e5e7eb;border-radius:8px;padding:10px 4px;text-align:center;font-size:11px;font-weight:700}
+.ed-cars{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.ed-car{border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}.ed-car .ph{height:96px;background:#1c1f23;display:grid;place-items:center;color:#9aa0a6;font-size:11px}
+.ed-car .bd{padding:8px 10px;display:flex;flex-direction:column;gap:2px}.ed-car .pr{font-weight:800;color:var(--tc,#e8891a)}
+.ed-blocos{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ed-blocos>div{background:#f4f5f6;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.ed-btn{align-self:flex-start;background:#16181b;color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600}
+.ed-dep{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}.ed-dep>div{border:1px solid #e5e7eb;border-radius:10px;padding:12px;font-size:12.5px}
+.ed-ft{background:#16181b;color:#d1d5db;padding:18px 22px;font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.ed-side{position:sticky;top:12px;display:flex;flex-direction:column;gap:12px}
+.ed-tools{display:flex;flex-direction:column;gap:6px}
+.ed-tools .btn{justify-content:flex-start}
+.ed-side input[type=color]{height:42px;padding:4px 6px;cursor:pointer}
+.phead .actions select.inp{width:auto}
+@media (max-width:1100px){.ed-wrap{grid-template-columns:1fr}.ed-side{position:static}}
+@media (max-width:700px){.ed-blocos{grid-template-columns:1fr}}
+`;document.head.appendChild(st)})();
+
+/* ---------- utilidades ---------- */
+const v8Mes=off=>{const d=new Date(TODAY.getFullYear(),TODAY.getMonth()-(+off||0),1);return {y:d.getFullYear(),m:d.getMonth()}};
+const v8No=(d,y,m)=>{if(!d)return false;const x=new Date(String(d).slice(0,10)+'T12:00');return x.getFullYear()===y&&x.getMonth()===m};
+const v8R=(n,f=brl)=>UI.dashHide?'R$ ••••':f(n);
+const v8Pct=(a,b)=>b?a/b*100:0;
+function v8Spark(arr,c='var(--green)'){
+ if(arr.length<2)arr=[0].concat(arr.length?arr:[0]);
+ const W=120,H=34,mx=Math.max(1,...arr.map(Math.abs));
+ const pts=arr.map((v,i)=>`${(i/(arr.length-1)*W).toFixed(1)},${(H-3-(Math.max(0,v)/mx)*(H-8)).toFixed(1)}`).join(' ');
+ return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function v8Acum(items,y,m,fn){
+ const n=new Date(y,m+1,0).getDate(),cur=y===TODAY.getFullYear()&&m===TODAY.getMonth(),lim=cur?TODAY.getDate():n;
+ const a=Array(lim).fill(0);items.forEach(x=>{const dd=+String(x.d).slice(8,10)-1;if(dd>=0&&dd<lim)a[dd]+=fn(x)});
+ for(let i=1;i<lim;i++)a[i]+=a[i-1];return a;
+}
+function v8Delta(cur,prev){if(!prev&&!cur)return {t:'0%',c:'flat'};if(!prev)return {t:'novo',c:'up'};const p=(cur-prev)/Math.abs(prev)*100;return {t:(p>0?'+':'')+pct(p,0),c:p>0?'up':p<0?'down':'flat'}}
+function v8Gauge(p){
+ const r=54,C=Math.PI*r,len=Math.max(0,Math.min(100,p))/100*C;
+ return `<svg viewBox="0 0 140 80" width="170" height="96" role="img" aria-label="${pct(p,0)} de aprovação"><path d="M16 72a54 54 0 0 1 108 0" fill="none" stroke="var(--surface-3)" stroke-width="13" stroke-linecap="round"/>${len>0?`<path d="M16 72a54 54 0 0 1 108 0" fill="none" stroke="var(--green)" stroke-width="13" stroke-linecap="round" stroke-dasharray="${len.toFixed(1)} ${(C+20).toFixed(1)}"/>`:''}<text x="70" y="66" text-anchor="middle" font-size="24" font-weight="750" fill="var(--ink)" font-family="var(--font)">${pct(p,0)}</text></svg>`;
+}
+const V8_CORES=['#16a34a','#2563eb','#d97706','#7c3aed','#0891b2','#dc2626','#64748b'];
+const v8Lucro=x=>{const v=S.veh[x.n.saidaId];return v?negCalc(x.n).saida-(+v.compra||0)-gastoReal(v):0};
+const v8Fotos=v=>Array.isArray(v.galeria)?v.galeria.length:(+v.fotos||0);
+
+/* ================= painel: Visão geral ================= */
+PAINEL_TABS.unshift(['geral','Visão geral']);
+UI.painelTab='geral';Object.assign(UI,{dashOff:'0',dashHide:false,dashMov:'entrada',dashBanco:'fin'});
+function painelGeral(){
+ const {y,m}=v8Mes(UI.dashOff),{y:py,m:pm}=v8Mes(+UI.dashOff+1);
+ const vend=vendasMes(y,m),vendP=vendasMes(py,pm);
+ const lucro=a=>a.reduce((s,x)=>s+v8Lucro(x),0);
+ const LD=vals(S.lead),leadsM=LD.filter(l=>v8No(l.data,y,m)),leadsP=LD.filter(l=>v8No(l.data,py,pm));
+ const u=me()||{},hora=new Date().getHours(),ola=hora<12?'Bom dia':hora<18?'Boa tarde':'Boa noite';
+ const mesNome=MESES[m][0].toUpperCase()+MESES[m].slice(1)+' de '+y;
+ const meses=Array.from({length:12},(_,i)=>{const o=v8Mes(i);return [String(i),MESES[o.m][0].toUpperCase()+MESES[o.m].slice(1)+' '+o.y]});
+ const kp=(k,lb,val,prev,dl,arr,href)=>`<div class="card dk" style="--k:${k}"><div class="dk-h"><span class="lb">${lb}</span><span class="trend ${dl.c}">${dl.c==='up'?ic('up','sm'):''}${dl.t}</span></div><b class="dk-v">${val}</b><div class="dk-f"><span class="small muted">${MESES[pm]}: ${prev}</span>${v8Spark(arr,k)}</div>${href?`<a class="small lk" href="${href}">Ver detalhes ${ic('right','sm')}</a>`:''}</div>`;
+ const k1=kp('#16a34a','Vendas',vend.length,vendP.length,v8Delta(vend.length,vendP.length),v8Acum(vend,y,m,()=>1),can('negociacoes')?'#negociacoes':'');
+ const k2=kp('#2563eb','Lucro bruto',v8R(lucro(vend)),v8R(lucro(vendP)),v8Delta(lucro(vend),lucro(vendP)),v8Acum(vend,y,m,v8Lucro),can('relatorios')?'#relatorios':'');
+ const k3=kp('#d97706','Leads novos',leadsM.length,leadsP.length,v8Delta(leadsM.length,leadsP.length),v8Acum(leadsM.map(l=>({d:l.data})),y,m,()=>1),can('atendimentos')?'#atendimentos':'');
+
+ /* estoque e giro */
+ const E=estoque(),n=E.length,atac=E.filter(v=>v.estoque==='atacado').length,cons=E.filter(v=>v.neg==='consignado').length;
+ const leg=it=>`<div class="legend">${it.map(([l,v,c])=>`<span class="it"><span class="sw" style="background:${c}"></span><span><b>${l}</b><br><span class="small muted">${v} · ${n?Math.round(v/n*100):0}%</span></span></span>`).join('')}</div>`;
+ const ETAPAS=[['Avaliação',['avaliacao']],['Negociação',['precificacao','negociacao','proposta']],['Recebimento',['pericia','manual','chave','certificado','seguranca']],['Serviços',['servico']],['Anúncios',['foto','anuncio']]];
+ const pend=ETAPAS.map(([l,ks])=>({l,v:E.filter(v=>pendencias(v).some(p=>ks.includes(p))).length,c:'w',act:`data-act="vfilter" data-k="pend" data-v="${ks[0]}" href="#veiculos"`}));
+ const B4=[['0 a 30 dias',0,30,'g'],['30 a 60 dias',31,60,'i'],['60 a 90 dias',61,90,'w'],['Mais de 90 dias',91,1e9,'b']].map(([l,a,b,c])=>({l,v:E.filter(v=>{const d=daysSince(v.entrada);return d>=a&&d<=b}).length,c}));
+ const medio=n?Math.round(E.reduce((a,v)=>a+daysSince(v.entrada),0)/n):0;
+ const avM=vehList().filter(v=>v.aval&&v.aval.done&&v8No(v.aval.data,y,m)),aprov=avM.filter(v=>v.negEntrada).length;
+ const ent=vehList().filter(v=>v8No(v.entrada,y,m)).sort((a,b)=>b.entrada.localeCompare(a.entrada));
+ const sai=vend.slice().sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+ const movRows=UI.dashMov==='saida'
+  ?sai.map(x=>[S.veh[x.n.saidaId],dtf(x.d),negCalc(x.n).saida]).filter(r=>r[0])
+  :ent.map(v=>[v,dtf(v.entrada),+v.compra||0]);
+ const mov=`<div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Data</th><th>Placa</th><th>Veículo</th><th class="n">% da FIPE</th><th class="n">${UI.dashMov==='saida'?'Venda':'Compra'}</th></tr></thead><tbody>${movRows.slice(0,8).map(([v,d,val])=>`<tr class="click" data-act="go" data-to="v-${v.id}"><td>${d}</td><td>${esc(v.placa||'0 km')}</td><td><b>${esc(nome(v))}</b><span class="sub">${v.anoMod||''}</span></td><td class="n">${v.fipe&&val?pct(val/v.fipe*100,0):'—'}</td><td class="n">${val?v8R(val):(v.neg==='consignado'?'Consignado':'—')}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Nenhuma movimentação no mês.</td></tr>'}</tbody></table></div>`;
+
+ /* demanda e conversão */
+ const agend=leadsM.filter(l=>['agendado','visita','sucesso'].includes(l.status)||l.agenda).length,vis=leadsM.filter(l=>['visita','sucesso'].includes(l.status)).length,suc=leadsM.filter(l=>l.status==='sucesso').length;
+ const F=[['Recebidos',leadsM.length],['Agendamentos',agend],['Visitas',vis],['Sucessos',suc]],fmax=Math.max(1,leadsM.length);
+ const funil=`<div class="funil">${F.map(([l,v],i)=>`<div class="fs"><span>${l}</span><i style="width:${Math.max(2,Math.round(v/fmax*60))}%;--o:${1-i*.18}"></i><b>${v}${i?` <span class="small muted">${pct(v8Pct(v,F[i-1][1]),0)}</span>`:''}</b></div>`).join('')}</div>`;
+ const org={};leadsM.forEach(l=>org[l.origem||'Outros']=(org[l.origem||'Outros']||0)+1);
+ let oL=Object.entries(org).sort((a,b)=>b[1]-a[1]);if(oL.length>6){const rest=oL.slice(5).reduce((a,x)=>a+x[1],0);oL=oL.slice(0,5).concat([['Outras origens',rest]])}
+ const orig=oL.length?`<div class="split">${donut(oL.map(([,v],i)=>({v,c:V8_CORES[i%7]})),leadsM.length,'leads')}<div class="legend">${oL.map(([l,v],i)=>`<span class="it"><span class="sw" style="background:${V8_CORES[i%7]}"></span><span><b>${esc(l)}</b><br><span class="small muted">${v} · ${pct(v8Pct(v,leadsM.length),0)}</span></span></span>`).join('')}</div></div>`:'<div class="empty">Nenhum lead no mês.</div>';
+
+ /* rankings */
+ const rk={};leadsM.forEach(l=>{const k=l.uid||0;rk[k]=rk[k]||{r:0,a:0,v:0,s:0};rk[k].r++;if(['agendado','visita','sucesso'].includes(l.status)||l.agenda)rk[k].a++;if(['visita','sucesso'].includes(l.status))rk[k].v++;if(l.status==='sucesso')rk[k].s++});
+ const vendN={};vend.forEach(x=>vendN[x.n.vendedor]=(vendN[x.n.vendedor]||0)+1);
+ const rkL=Object.entries(rk).map(([k,o])=>Object.assign({nome:uNome(+k)},o)).sort((a,b)=>b.s-a.s||b.r-a.r);
+ const rkV=`<div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>#</th><th>Vendedor</th><th class="n">Leads</th><th class="n">Visitas</th><th class="n">Sucessos</th><th class="n">Conversão</th><th class="n">Vendas</th></tr></thead><tbody>${rkL.map((o,i)=>`<tr><td>${i===0&&o.s?ic('trophy','sm'):i+1}</td><td><b>${esc(o.nome)}</b></td><td class="n">${o.r}</td><td class="n">${o.v}</td><td class="n">${o.s}</td><td class="n">${pct(v8Pct(o.s,o.r),0)}</td><td class="n">${vendN[o.nome]||0}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Sem atendimentos no mês.</td></tr>'}</tbody></table></div>`;
+ const top=vend.map(x=>({x,l:v8Lucro(x)})).filter(t=>S.veh[t.x.n.saidaId]).sort((a,b)=>b.l-a.l).slice(0,10);
+ const tmax=Math.max(1,...top.map(t=>Math.abs(t.l)));
+ const rkL2=top.length?hbars(top.map(t=>{const v=S.veh[t.x.n.saidaId];return {l:nome(v)+' '+(v.placa||''),v:Math.abs(t.l),txt:v8R(t.l),c:t.l<0?'b':'g',href:'#neg-'+t.x.n.id}}),tmax):'<div class="empty">Nenhuma venda no mês.</div>';
+
+ /* financeiro: retorno de financiamento */
+ const RT=retornos().filter(r=>r.ativo);
+ const rM=RT.filter(r=>v8No(r.base,y,m)),rP=RT.filter(r=>v8No(r.base,py,pm));
+ const fin=a=>a.reduce((s,r)=>s+r.financiado,0),ret=a=>a.reduce((s,r)=>s+retTotal(r),0);
+ const medM=v8Pct(ret(rM),fin(rM)),medP=v8Pct(ret(rP),fin(rP));
+ const fk=(lb,val,prev,dl)=>`<div class="card stat"><span class="eyebrow">${lb}</span><b>${val}</b><span class="small muted">${MESES[pm]}: ${prev} <span class="trend ${dl.c}">${dl.t}</span></span></div>`;
+ const bk={};rM.forEach(r=>{const k=r.banco||'—';bk[k]=bk[k]||{n:0,f:0,r:0};bk[k].n++;bk[k].f+=r.financiado;bk[k].r+=retTotal(r)});
+ const bL=Object.entries(bk).map(([k,o])=>Object.assign({k,nome:k==='—'?'Banco não informado':bancoNome(k),p:v8Pct(o.r,o.f)},o));
+ const conf=bL.filter(b=>b.n>=3),best=(conf.length?conf:bL).slice().sort((a,b)=>b.p-a.p)[0];
+ const bt=UI.dashBanco,bS=bL.slice().sort((a,b)=>bt==='pct'?b.p-a.p:bt==='ret'?b.r-a.r:b.f-a.f);
+ const bmax=Math.max(1,...bS.map(b=>bt==='pct'?b.p:bt==='ret'?b.r:b.f));
+ const bancos=bS.length?`<div class="hbars">${bS.map(b=>{const v=bt==='pct'?b.p:bt==='ret'?b.r:b.f;const txt=bt==='pct'?pct(b.p,2):v8R(v);return `<div class="hbar"><span class="t"><span>${esc(b.nome)} <span class="small muted">${b.n} ${b.n>1?'contratos':'contrato'}</span>${b.n<3?'<span class="badge-mini w">Amostra baixa</span>':''}${best&&b.k===best.k&&bL.length>1?'<span class="badge-mini ok">Melhor retorno</span>':''}</span><b>${txt}</b></span><span class="tr"><i class="${best&&b.k===best.k?'g':'i'}" style="width:${Math.max(3,Math.round(v/bmax*100))}%"></i></span></div>`}).join('')}</div><p class="small muted" style="margin-top:10px">${best?`${esc(best.nome)} teve o melhor retorno médio do mês (${pct(best.p,2)} sobre o valor financiado)${best.n<3?', mas com poucos contratos para comparar':''}.`:''}</p>`:'<div class="empty">Nenhum financiamento no mês.</div>';
+ const tabsB=`<div class="tabs" style="margin:0">${[['fin','Financiado R$'],['pct','Retorno %'],['ret','Retorno R$']].map(([k,l])=>`<button type="button" class="${bt===k?'on':''}" data-act="ui" data-k="dashBanco" data-v="${k}">${l}</button>`).join('')}</div>`;
+
+ const head=phead(`${ola}, ${esc(String(u.nome||'').split(' ')[0])}`,`Resumo da ${esc(CFG().loja.fantasia)} em ${mesNome}`,`<div class="dsh-tools"><select class="inp" id="dash-off" data-ui="dashOff" aria-label="Mês">${opts(meses,UI.dashOff)}</select><button class="btn" type="button" data-act="dashHide" aria-pressed="${UI.dashHide}">${ic(UI.dashHide?'eyeOff':'eye','sm')} ${UI.dashHide?'Mostrar valores':'Ocultar valores'}</button>${can('negociacoes')?`<button class="btn pri" type="button" data-act="novaNeg">${ic('swap','sm')} Nova negociação</button>`:''}</div>`)+painelTabs();
+ const rankA=can('atendimentos')?`<section class="card"><header><div class="ht"><h3>Vendedores</h3><p>Funil de cada pessoa no mês</p></div></header>${rkV}</section>`:'';
+ const rankB=can('negociacoes')||can('relatorios')?`<section class="card"><header><div class="ht"><h3>Lucro bruto por veículo</h3><p>Top 10 vendas do mês</p></div></header><div class="bd">${rkL2}</div></section>`:'';
+ return head+`
+ <div class="grid g3">${k1}${k2}${k3}</div>
+ ${can('veiculos')?`<div class="dsh-sec"><h2>Estoque e giro</h2>
+ <div class="grid g3">
+  <section class="card"><header><div class="ht"><h3>Veículos em estoque</h3><p>${n} veículos · ${medio} dias em média</p></div><a class="btn sm" href="#veiculos">Ver estoque</a></header><div class="bd" style="display:flex;flex-direction:column;gap:16px">
+   <div class="split">${donut([{v:n-atac,c:'var(--ink)'},{v:atac,c:'var(--green)'}],n,'veículos')}${leg([['Showroom',n-atac,'var(--ink)'],['Atacado',atac,'var(--green)']])}</div>
+   <div class="split">${donut([{v:n-cons,c:'#2563eb'},{v:cons,c:'#d97706'}],n,'veículos')}${leg([['Próprio',n-cons,'#2563eb'],['Consignado',cons,'#d97706']])}</div>
+  </div></section>
+  <section class="card"><header><div class="ht"><h3>Pendências por etapa</h3><p>Veículos com pendência em cada fase</p></div></header><div class="bd">${hbars(pend,Math.max(1,n))}</div>
+   <header style="border-top:1px solid var(--line)"><div class="ht"><h3>Tempo em estoque</h3><p>Dias desde a entrada</p></div></header><div class="bd">${hbars(B4,Math.max(1,n))}</div></section>
+  <section class="card"><header><div class="ht"><h3>Avaliações</h3><p>${mesNome}</p></div>${can('avaliacoes')?`<a class="btn sm" href="#avaliacoes">Abrir</a>`:''}</header><div class="bd"><div class="gauge">${v8Gauge(v8Pct(aprov,avM.length))}<span class="small muted">de aprovação</span></div>${hbars([{l:'Realizadas',v:avM.length},{l:'Aprovadas (viraram compra)',v:aprov,c:'g'}],Math.max(1,avM.length))}</div></section>
+ </div>
+ <section class="card"><header><div class="ht"><h3>Movimentações de estoque</h3><p>${UI.dashMov==='saida'?sai.length+' saídas':ent.length+' entradas'} em ${mesNome}</p></div><div class="tabs" style="margin:0"><button type="button" class="${UI.dashMov!=='saida'?'on':''}" data-act="ui" data-k="dashMov" data-v="entrada">Entrada</button><button type="button" class="${UI.dashMov==='saida'?'on':''}" data-act="ui" data-k="dashMov" data-v="saida">Saída</button></div></header>${mov}</section>
+ </div>`:''}
+ ${can('atendimentos')?`<div class="dsh-sec"><h2>Demanda e conversão</h2><div class="grid g2">
+  <section class="card"><header><div class="ht"><h3>Funil de vendas</h3><p>Leads recebidos no mês e até onde chegaram</p></div></header><div class="bd">${funil}</div></section>
+  <section class="card"><header><div class="ht"><h3>Leads por origem</h3><p>${leadsM.length} leads em ${mesNome}</p></div></header><div class="bd">${orig}</div></section>
+ </div></div>`:''}
+ ${rankA||rankB?`<div class="dsh-sec"><h2>Ranking</h2><div class="grid ${rankA&&rankB?'g2':''}">${rankA}${rankB}</div></div>`:''}
+ ${can('financeiro')?`<div class="dsh-sec"><h2>Financeiro · retorno de financiamento</h2>
+  <div class="stat-row">${fk('Total financiado',v8R(fin(rM)),v8R(fin(rP)),v8Delta(fin(rM),fin(rP)))}${fk('Retorno total líquido',v8R(ret(rM)),v8R(ret(rP)),v8Delta(ret(rM),ret(rP)))}${fk('Retorno médio',pct(medM,2),pct(medP,2),v8Delta(medM,medP))}</div>
+  <section class="card"><header><div class="ht"><h3>Ranking por banco</h3><p>Contratos com data base em ${mesNome}</p></div>${tabsB}</header><div class="bd">${bancos}</div></section>
+ </div>`:''}`;
+}
+const _viewPainel8=viewPainel;
+viewPainel=function(){return UI.painelTab==='geral'?painelGeral():_viewPainel8()};
+VIEWS.painel=viewPainel;
+
+/* ================= notificações ================= */
+const NOVIDADES=[
+ {id:'nv-2026-11-24a',d:'2026-11-24',t:'Novo painel Visão geral',txt:'Vendas, lucro bruto e leads comparados com o mês anterior, tempo em estoque, pendências por etapa, ranking de vendedores, lucro por veículo e retorno de financiamento por banco. Escolha o mês e oculte valores com um clique.',href:'#painel',tag:'Painel'},
+ {id:'nv-2026-11-24b',d:'2026-11-24',t:'Central de notificações',txt:'O sistema avisa quando um carro está pronto para fotos, quando pode ir para os portais e quando o cabide precisa ser reimpresso porque o preço mudou.',href:'#notificacoes',tag:'Geral'},
+ {id:'nv-2026-11-24c',d:'2026-11-24',t:'Editor visual do site',txt:'Clique em qualquer bloco da página para editar: horário, telefones, menu, banners, marcas, destaques, blocos de venda e financiamento, depoimentos, redes sociais, lojas e rodapé. Também tema, domínio, SEO e scripts.',href:'#site',tag:'Site'},
+ {id:'nv-2026-11-24d',d:'2026-11-24',t:'Contatos do site',txt:'Pedidos de avaliação (Venda seu carro), simulações de financiamento, interesse em veículos e SAC chegam separados por tipo e viram atendimento no CRM.',href:'#contatos',tag:'Site'},
+ {id:'nv-2026-11-24e',d:'2026-11-24',t:'Cursos e treinamentos',txt:'Trilhas curtas para a equipe aprender cada parte do Pátio, com progresso por pessoa.',href:'#cursos',tag:'Ajuda'},
+ {id:'nv-2026-11-24f',d:'2026-11-24',t:'Meus produtos',txt:'Veja o plano da loja, o consumo de usuários, estoque, canais de anúncio e filiais, e os módulos liberados.',href:'#produtos',tag:'Conta'},
+ {id:'nv-2026-11-24g',d:'2026-11-24',t:'Relatório de comissões',txt:'Comissão de venda e de compra por vendedor no período, com base nos percentuais da precificação.',href:'#relatorios',tag:'Relatórios'}
+];
+const v8Uid=()=>String((me()||{}).id||0);
+const v8Lidas=()=>{if(!S.notifLidas||typeof S.notifLidas!=='object')S.notifLidas={};const k=v8Uid();return S.notifLidas[k]=S.notifLidas[k]||{}};
+const v8Lida=id=>!!(S.notifLidas&&S.notifLidas[v8Uid()]&&S.notifLidas[v8Uid()][id]);
+function notificacoes(){
+ const N=[],E=estoque(),PA=portaisAtivos().filter(p=>p[0]!=='site');
+ if(can('veiculos')||can('anuncios'))E.forEach(v=>{
+  const p=pendencias(v),lb=`${nome(v)}${v.placa?' ('+v.placa+')':''}`;
+  const servOk=v.aval&&v.aval.done&&!p.includes('servico');
+  if(servOk&&p.includes('foto'))N.push({id:'fotos-'+v.id,tipo:'fotos',i:'eye',t:`${lb} disponível para fotos no estúdio`,txt:`Serviços concluídos e ${v8Fotos(v)} de ${+CFG().loja.kmMinFotos||8} fotos. Faça as fotos para anunciar.`,href:'#v-'+v.id,d:(v.servicos.map(s=>s.data).filter(Boolean).sort().pop()||v.entrada)});
+  if(!p.includes('foto')&&v.venda>0&&PA.length&&PA.every(([k])=>!['publicado','fila'].includes(anunStatus(v,k))))N.push({id:'integ-'+v.id,tipo:'integracao',i:'mega',t:`${lb} disponível para integração com os portais de anúncios`,txt:'Fotos e preço prontos. Publique nos portais ativos.',href:'#v-'+v.id,d:v.entrada});
+  if(v.cabideImp&&+v.cabideImp.preco!==+preco(v))N.push({id:'cabide-'+v.id+'-'+preco(v),tipo:'cabide',i:'tag',t:`O cabide do ${lb} tem de ser reimpresso`,txt:`Impresso com ${brl(v.cabideImp.preco)}; o preço agora é ${brl(preco(v))}.`,href:'#v-'+v.id,d:TODAY_ISO});
+ });
+ NOVIDADES.forEach(x=>N.push({id:x.id,tipo:'novidade',i:'spark',t:'Novidade: '+x.t,txt:x.txt,href:x.href,d:x.d}));
+ return N.sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+}
+const v8NaoLidas=()=>notificacoes().filter(x=>!v8Lida(x.id));
+Object.assign(UI,{ntF:'',curso:'',ctQ:''});
+function viewNotificacoes(){
+ const all=notificacoes(),f=UI.ntF,L=all.filter(x=>!f||(f==='nao'?!v8Lida(x.id):x.tipo===f)),A=alertas();
+ const cnt=t=>all.filter(x=>x.tipo===t).length;
+ return phead('Notificações',`${v8NaoLidas().length} não lidas`,`<button class="btn" type="button" data-act="ntTodas">${ic('check','sm')} Marcar todas como lidas</button>`)+`
+ ${A.length?`<section class="card"><header><div class="ht"><h3>Alertas de agora</h3><p>Somem sozinhos quando resolvidos</p></div></header><div class="nt-list">${A.map(a=>`<a class="nt" href="${a.href}" ${a.act||''}><span class="ico">${ic(a.i,'sm')}</span><span class="tx"><b>${esc(a.t)}</b></span>${ic('right','sm')}</a>`).join('')}</div></section>`:''}
+ <div class="tabs">${[['','Todas',all.length],['nao','Não lidas',v8NaoLidas().length],['fotos','Fotos',cnt('fotos')],['integracao','Portais',cnt('integracao')],['cabide','Cabide',cnt('cabide')],['novidade','Novidades',cnt('novidade')]].map(([k,l,c])=>`<button type="button" class="${f===k?'on':''}" data-act="ui" data-k="ntF" data-v="${k}">${l} <span class="muted">${c}</span></button>`).join('')}</div>
+ <section class="card"><div class="nt-list">${L.map(x=>{const un=!v8Lida(x.id);return `<div class="nt ${un?'un':''}"><span class="ico">${ic(x.i,'sm')}</span><a class="tx" href="${x.href}" data-act="ntAbrir" data-id="${esc(x.id)}" style="text-decoration:none;color:inherit"><b>${esc(x.t)}</b><span class="small muted">${esc(x.txt)}</span><span class="small muted">${dtf(String(x.d).slice(0,10))}</span></a><span class="ac">${un?`<button class="btn xs" type="button" data-act="ntLer" data-id="${esc(x.id)}">Marcar como lida</button>`:'<span class="small muted">Lida</span>'}</span></div>`}).join('')||'<div class="empty">Nenhuma notificação aqui.</div>'}</div></section>`;
+}
+
+/* ================= novidades ================= */
+function viewNovidades(){
+ return phead('Novidades','O que mudou no Pátio')+`<section class="card"><div class="nt-list">${NOVIDADES.map(x=>{const un=!v8Lida(x.id);return `<div class="nt ${un?'un':''}"><span class="ico">${ic('spark','sm')}</span><span class="tx"><span class="small muted">${dtf(x.d)} · ${esc(x.tag)}</span><b style="font-size:15.5px">${esc(x.t)}</b><span>${esc(x.txt)}</span></span><span class="ac"><a class="btn xs dark" href="${x.href}" data-act="ntAbrir" data-id="${x.id}">Conhecer</a></span></div>`}).join('')}</div></section>`;
+}
+
+/* ================= cursos e treinamentos ================= */
+const TRILHAS=[
+ {k:'primeiros',t:'Primeiros passos',c:'#0f172a',i:'spark',g:'rapida',aulas:[['Dados da loja','Em Configurações › Dados da loja, preencha razão social, CNPJ, telefone e endereço. Eles saem nos contratos, no cabide e no site.','#configuracoes'],['Convide a equipe','Em Configurações › Usuários, crie um acesso para cada pessoa e escolha o perfil. O perfil define o que ela vê no menu.','#configuracoes'],['Conheça o painel','A Visão geral resume o mês: vendas, lucro, leads, estoque e financiamento. Troque o mês no seletor do topo.','#painel']]},
+ {k:'crm',t:'CRM e leads',c:'#1e3a8a',i:'chat',g:'rapida',aulas:[['Receba um lead','Leads do site, portais e redes chegam em Atendimentos. Cada um cai no quadro e no vendedor da vez.','#atendimentos'],['Avance as etapas','Mova o card de Pendente para Em atendimento, Agendado, Visita e finalize como Sucesso ou Insucesso com o motivo.','#atendimentos'],['Acompanhe a conversão','No painel, o funil e o ranking mostram quantos leads viraram visita e venda por vendedor.','#painel']]},
+ {k:'avaliacao',t:'Avaliação',c:'#4c1d95',i:'clip',g:'rapida',aulas:[['Nova avaliação','Clique em Nova avaliação, escolha o cliente e siga as etapas: dados, interior, frente, lados, traseira, test-drive, serviços e resumo.','#avaliacoes'],['Fotos obrigatórias','Cada área pede suas fotos. Elas ficam guardadas no veículo e ajudam na precificação.','#avaliacoes'],['Precifique','No veículo, abra Precificação: o simulador de compra sugere o valor com base na margem, nos gastos e no mercado.','#veiculos']]},
+ {k:'servicos',t:'Serviços',c:'#134e4a',i:'wrench',g:'rapida',aulas:[['Ordens de serviço','Os serviços previstos na avaliação viram ordens de serviço. Use o quadro A fazer, Fazendo e Feito.','#servicos'],['Previsto x realizado','Ao concluir, informe o valor realizado e o fornecedor. O lucro do carro é recalculado.','#servicos']]},
+ {k:'anuncio',t:'Anúncio',c:'#7c2d12',i:'mega',g:'rapida',aulas:[['Fotos do anúncio','Arraste as fotos para ordenar e escolha a capa. O mínimo de fotos fica em Regras do estoque.','#anuncios'],['Publique nos portais','Na aba Integrações do veículo, publique em cada portal ativo e acompanhe os erros.','#anuncios'],['Cabide','Preencha os seis destaques e imprima. Se o preço mudar, o Pátio avisa para reimprimir.','#veiculos']]},
+ {k:'negociacoes',t:'Negociações',c:'#14532d',i:'swap',g:'rapida',aulas:[['Monte a negociação','Escolha o tipo (venda, troca, compra, consignação), os veículos, débitos, desconto e formas de pagamento.','#negociacoes'],['Contrato e assinatura','Gere o contrato e envie para assinatura. A negociação fica Finalizada ao concluir.','#negociacoes']]},
+ {k:'config',t:'Configurações iniciais',c:'#1f2937',i:'cog',g:'jornada',aulas:[['Perfis e permissões','Revise o que cada perfil acessa.','#configuracoes'],['Contas e bancos','Cadastre as contas bancárias e os bancos com o percentual de retorno.','#configuracoes'],['Portais e CRM','Ative os portais e as origens de leads que a loja usa.','#configuracoes']]},
+ {k:'entrada',t:'Fluxo de entrada de veículos',c:'#0c4a6e',i:'car',g:'jornada',aulas:[['Da avaliação à compra','A avaliação aprovada vira negociação de compra ou consignação.','#avaliacoes'],['Recebimento e perícia','Registre perícia, manual, chave cópia, certificado e itens de segurança.','#veiculos'],['Fotos de entrada','Faça a sessão de fotos de chegada para registrar o estado do carro.','#veiculos']]},
+ {k:'saida',t:'Fluxo de saída de veículos',c:'#3f6212',i:'swap',g:'jornada',aulas:[['Venda','Comece a venda pelo veículo ou por Negociações.','#negociacoes'],['Entrega','Agende a entrega e registre o recebimento dos pagamentos.','#negociacoes']]},
+ {k:'site',t:'Site',c:'#831843',i:'globe',g:'jornada',aulas:[['Editor visual','Clique nos blocos para editar o site da loja e depois em Publicar.','#site'],['Contatos do site','Veja os pedidos que chegaram pelo site, separados por formulário.','#contatos']]},
+ {k:'financeiro',t:'Financeiro',c:'#065f46',i:'wallet',g:'jornada',aulas:[['Títulos','Contas a pagar e a receber geradas pelas negociações.','#financeiro'],['Retorno de financiamento','Acompanhe o que cada banco paga à loja.','#financeiro'],['DRE e relatórios','Resultado por conta contábil em Relatórios.','#relatorios']]}
+];
+const v8Prog=()=>{if(!S.cursos||typeof S.cursos!=='object')S.cursos={};const k=v8Uid();return S.cursos[k]=S.cursos[k]||{}};
+const v8Feitas=()=>(S.cursos&&S.cursos[v8Uid()])||{};
+const v8TrPct=t=>Math.round(t.aulas.filter((_,i)=>v8Feitas()[t.k+'-'+i]).length/t.aulas.length*100);
+function viewCursos(){
+ const t=TRILHAS.find(x=>x.k===UI.curso);
+ if(t){const p=v8Feitas();
+  return phead(esc(t.t),`${t.aulas.length} aulas · ${v8TrPct(t)}% concluído`,`<button class="btn" type="button" data-act="ui" data-k="curso" data-v="">${ic('left','sm')} Todas as trilhas</button>`,'Cursos e treinamentos')+`<section class="card">${t.aulas.map(([at,tx,href],i)=>{const ok=p[t.k+'-'+i];return `<div class="aula ${ok?'ok':''}"><span class="n">${ok?ic('check','sm'):i+1}</span><span style="flex:1;display:flex;flex-direction:column;gap:4px"><b>${esc(at)}</b><span class="muted">${esc(tx)}</span><span class="actions" style="margin-top:6px;justify-content:flex-start"><a class="btn xs" href="${href}">Abrir no sistema</a><button class="btn xs ${ok?'ghost':'pri'}" type="button" data-act="aulaOk" data-id="${t.k}-${i}">${ok?'Desmarcar':'Marcar como concluída'}</button></span></span></div>`}).join('')}</section>`}
+ const card=x=>{const p=v8TrPct(x);return `<button type="button" class="curso" style="--c:${x.c}" data-act="ui" data-k="curso" data-v="${x.k}"><span class="ci">${ic(x.i,'lg')}</span><span class="small" style="text-transform:uppercase;letter-spacing:.08em;font-weight:700">Pátio academy</span><h3>${esc(x.t)}</h3><span class="pb"><i style="width:${p}%"></i></span><span class="small">${p}% · ${x.aulas.length} aulas</span></button>`};
+ const tot=TRILHAS.reduce((a,x)=>a+x.aulas.length,0),feitas=TRILHAS.reduce((a,x)=>a+x.aulas.filter((_,i)=>v8Feitas()[x.k+'-'+i]).length,0);
+ return phead('Cursos e treinamentos',`${feitas} de ${tot} aulas concluídas por você`)+`
+ <div class="dsh-sec" style="margin-top:0"><h2>Ações rápidas <span class="badge-mini">${TRILHAS.filter(x=>x.g==='rapida').length}</span></h2><div class="cursos">${TRILHAS.filter(x=>x.g==='rapida').map(card).join('')}</div></div>
+ <div class="dsh-sec"><h2>Jornada completa <span class="badge-mini">${TRILHAS.filter(x=>x.g==='jornada').length}</span></h2><div class="cursos">${TRILHAS.filter(x=>x.g==='jornada').map(card).join('')}</div></div>`;
+}
+
+/* ================= meus produtos ================= */
+const PLANO={nome:'Piloto',desc:'Todos os recursos liberados durante o período de teste',cotas:{usuarios:20,estoque:200,integradores:8,filiais:1,fotos:3000}};
+function viewProdutos(){
+ const B=window.PATIO_BOOT,fim=B&&B.company&&B.company.trial_ends_at?String(B.company.trial_ends_at).slice(0,10):'';
+ const C=PLANO.cotas;
+ const uso=[['Usuários',users().filter(u=>u.status!=='suspenso').length,C.usuarios],['Estoque de veículos',estoque().length,C.estoque],['Integradores de anúncios',CFG().portais.filter(p=>p.ativo).length,C.integradores],['Filiais',1,C.filiais],['Fotos guardadas',vehList().reduce((a,v)=>a+v8Fotos(v),0),C.fotos]];
+ const cota=([l,u,max])=>{const p=Math.min(100,Math.round(u/max*100));const cls=p>=100?'b':p>=80?'w':'';return `<div class="cota ${cls}"><span class="t"><span>${l}</span><span>${numf(u)} / ${numf(max)}</span></span><span class="tr"><i style="width:${p}%"></i></span><span class="small ${cls?'':'muted'}" ${cls?`style="color:var(--${cls==='b'?'bad':'warn'})"`:''}>${p>=100?'Cota atingida':p>=80?p+'% da cota, perto do limite':p+'% usado'}</span>${p>=80?`<button class="btn xs" type="button" data-act="maisCota" data-v="${esc(l)}">${ic('plus','sm')} Pedir mais</button>`:''}</div>`};
+ const MOD=[['Gestão de estoque e esteira','Avaliação, precificação, serviços, recebimento','ok'],['Anúncios e integrações','Portais, cabide, site e feed XML','ok'],['CRM e atendimentos','Quadros, fila, origens e funil','ok'],['Negociações e contratos','Venda, troca, compra, consignação e assinatura','ok'],['Financeiro','Títulos, extrato, retorno de financiamento, DRE','ok'],['Chaves','Quadro de chaves, retiradas e test drive','ok'],['Site da loja','Editor visual e vitrine pública','ok'],['Agente de IA','Atendimento automático de leads','breve'],['WhatsApp oficial','Conversas do WhatsApp dentro do CRM','breve'],['Financiamento integrado','Simulação com os bancos dentro da negociação','breve']];
+ return phead('Meus produtos','Plano, consumo e módulos da sua loja')+`
+ <div class="grid g2">
+  <section class="card pad" style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Plano atual</span><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b style="font-size:24px">${PLANO.nome}</b>${chip('Ativo','ok dot')}</div><span class="muted">${PLANO.desc}.</span><span class="small muted">${fim?'Período de teste até '+dtf(fim)+'. ':''}Sem cobrança durante o piloto.</span></section>
+  <section class="card pad" style="display:flex;flex-direction:column;gap:10px"><span class="eyebrow">Faturas</span><b style="font-size:18px">Nenhuma fatura</b><span class="small muted">Quando o plano pago começar, os boletos e o PIX dos últimos 12 meses aparecem aqui.</span></section>
+ </div>
+ <div class="dsh-sec"><h2>Cotas e consumo</h2><div class="cotas">${uso.map(cota).join('')}</div></div>
+ <div class="dsh-sec"><h2>Módulos e produtos</h2><section class="card"><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Módulo</th><th>O que inclui</th><th>Situação</th></tr></thead><tbody>${MOD.map(([nm,d,s])=>`<tr><td><b>${nm}</b></td><td class="muted">${d}</td><td>${s==='ok'?chip('Liberado','ok dot'):chip('Em breve','line')}</td></tr>`).join('')}</tbody></table></div></section></div>`;
+}
+
+/* ================= site: editor visual ================= */
+function siteEd(){
+ if(!S.site)S.site={banners:[],depo:[],dest:[]};
+ const L=CFG().loja||{};
+ const d={horario:'Seg a sex - 9h às 18h | Sáb - 9h às 12h',logo:L.fantasia||'',telefones:L.tel?[L.tel]:[],whatsapp:L.tel||'',menu:['Estoque','Venda seu carro','Financie','Sobre'],marcas:['VW','FIAT','GM','FORD','HONDA','TOYOTA','HYUNDAI','JEEP'],
+  venda:{on:true,titulo:'Venda seu carro',texto:'Solicite a avaliação do seu carro online, no conforto da sua casa.',botao:'Avalie agora'},
+  financie:{on:true,titulo:'Financie seu sonho',texto:'Trabalhamos com as principais financeiras, isso garante melhores taxas para você!',botao:'Faça uma simulação'},
+  redes:{instagram:'',facebook:'',youtube:'',tiktok:''},mapa:true,unidades:[{nome:L.fantasia||'',endereco:[L.endereco,L.cidade].filter(Boolean).join(' — '),tel:L.tel||'',horario:'Seg a sex - 9h às 18h | Sáb - 9h às 12h'}],
+  selos:[],razao:L.nome||'',cnpj:L.cnpj||'',sobre:'',tema:{cor:'#e8891a',fundo:'escuro'},dominio:'',seo:{titulo:L.fantasia||'',descricao:''},scripts:{head:''},publicado:''};
+ const e=S.site.ed=Object.assign(d,S.site.ed||{});
+ ['venda','financie','redes','tema','seo','scripts'].forEach(k=>e[k]=Object.assign({},d[k],e[k]||{}));
+ ['telefones','menu','marcas','unidades','selos'].forEach(k=>{if(!Array.isArray(e[k]))e[k]=[]});
+ return e;
+}
+Object.assign(UI,{edBloco:'',edPag:'home',ctTab:''});
+const ED_BLOCOS={horario:'Horário de atendimento',cabecalho:'Logo, menu e telefones',banners:'Banners',busca:'Busca e marcas',destaques:'Destaques',blocos:'Blocos Venda seu carro e Financie',depo:'Depoimentos',redes:'Redes sociais',mapa:'Mapa',unidades:'Lojas e unidades',selos:'Selos do rodapé',razao:'Razão social e CNPJ',tema:'Tema e cores',dominio:'Domínio',seo:'SEO',scripts:'Scripts e pixels',sobre:'Página Sobre'};
+function edForm(b){
+ const e=siteEd(),P='site.ed.';
+ const ta=(path,val,rows=3)=>`<textarea class="inp" id="${fid(path)}" data-set="${path}" rows="${rows}">${esc(val||'')}</textarea>`;
+ const lista=(k,ph)=>`<div style="display:flex;flex-direction:column;gap:6px">${(e[k]||[]).map((x,i)=>`<div class="pick" style="align-items:center;flex-wrap:nowrap">${inp(P+k+'.'+i,x,{ph})}<button class="btn ghost xs danger" type="button" data-act="edDel" data-k="${k}" data-i="${i}" aria-label="Remover">${ic('x','sm')}</button></div>`).join('')}<button class="btn xs" type="button" data-act="edAdd" data-k="${k}" style="align-self:flex-start">${ic('plus','sm')} Adicionar</button></div>`;
+ const F={
+  horario:()=>`<label class="f">Texto da barra${inp(P+'horario',e.horario)}</label>`,
+  cabecalho:()=>`<label class="f">Logo (texto)${inp(P+'logo',e.logo)}<small>Nome exibido no topo do site</small></label><label class="f">WhatsApp${inp(P+'whatsapp',e.whatsapp,{ph:'(44) 99999-0000'})}</label><div class="f"><span>Telefones</span>${lista('telefones','(44) 3333-0000')}</div><div class="f"><span>Itens do menu</span>${lista('menu','Estoque')}</div>`,
+  banners:()=>`${S.site.banners.map((x,i)=>`<div class="card pad" style="display:flex;flex-direction:column;gap:8px"><label class="f">Título${inp('site.banners.'+i+'.titulo',x.titulo)}</label><label class="f">Subtítulo${inp('site.banners.'+i+'.sub',x.sub)}</label><div class="pick">${sw('site.banners.'+i+'.ativo',x.ativo,'Ativo','bn-'+x.id)}<button class="btn ghost xs danger" type="button" data-act="siteDel" data-list="banners" data-i="${i}">Remover</button></div></div>`).join('')}<button class="btn sm" type="button" data-act="siteAdd" data-list="banners">${ic('plus','sm')} Banner</button>`,
+  busca:()=>`<div class="f"><span>Marcas em destaque</span>${lista('marcas','Marca')}</div>`,
+  destaques:()=>`<p class="small muted">Até 6 veículos com preço.</p><div class="checks" style="grid-template-columns:1fr">${estoque().filter(v=>v.venda>0).map(v=>`<label class="check"><input type="checkbox" id="dest-${v.id}" data-act-change="dest" data-id="${v.id}" ${S.site.dest.includes(v.id)?'checked':''}> ${esc(nome(v))} <span class="muted small">${v.anoMod}</span></label>`).join('')}</div>`,
+  blocos:()=>['venda','financie'].map(k=>`<div class="card pad" style="display:flex;flex-direction:column;gap:8px">${sw(P+k+'.on',e[k].on,'Mostrar bloco')}<label class="f">Título${inp(P+k+'.titulo',e[k].titulo)}</label><label class="f">Texto${ta(P+k+'.texto',e[k].texto,2)}</label><label class="f">Botão${inp(P+k+'.botao',e[k].botao)}</label></div>`).join(''),
+  depo:()=>`${S.site.depo.map((x,i)=>`<div class="card pad" style="display:flex;flex-direction:column;gap:8px"><label class="f">Nome${inp('site.depo.'+i+'.nome',x.nome)}</label><label class="f">Depoimento${ta('site.depo.'+i+'.texto',x.texto,2)}</label><button class="btn ghost xs danger" type="button" data-act="siteDel" data-list="depo" data-i="${i}" style="align-self:flex-start">Remover</button></div>`).join('')}<button class="btn sm" type="button" data-act="siteAdd" data-list="depo">${ic('plus','sm')} Depoimento</button>`,
+  redes:()=>['instagram','facebook','youtube','tiktok'].map(k=>`<label class="f">${k[0].toUpperCase()+k.slice(1)}${inp(P+'redes.'+k,e.redes[k],{ph:'https://'})}</label>`).join(''),
+  mapa:()=>`${sw(P+'mapa',e.mapa,'Mostrar mapa da loja')}<p class="small muted">O mapa usa o endereço da primeira unidade.</p>`,
+  unidades:()=>`${e.unidades.map((un,i)=>`<div class="card pad" style="display:flex;flex-direction:column;gap:8px"><label class="f">Nome${inp(P+'unidades.'+i+'.nome',un.nome)}</label><label class="f">Endereço${inp(P+'unidades.'+i+'.endereco',un.endereco)}</label><label class="f">Telefone${inp(P+'unidades.'+i+'.tel',un.tel)}</label><label class="f">Horário${inp(P+'unidades.'+i+'.horario',un.horario)}</label>${e.unidades.length>1?`<button class="btn ghost xs danger" type="button" data-act="edDel" data-k="unidades" data-i="${i}" style="align-self:flex-start">Remover</button>`:''}</div>`).join('')}<button class="btn sm" type="button" data-act="edAddUn">${ic('plus','sm')} Unidade</button>`,
+  selos:()=>`<p class="small muted">Associações, GPTW e certificações.</p>${lista('selos','Ex.: Associado Fenauto')}`,
+  razao:()=>`<label class="f">Razão social${inp(P+'razao',e.razao)}</label><label class="f">CNPJ${inp(P+'cnpj',e.cnpj)}</label>`,
+  tema:()=>`<label class="f">Cor principal${inp(P+'tema.cor',e.tema.cor,{type:'color'})}</label><label class="f">Cabeçalho e rodapé${sel(P+'tema.fundo',[['escuro','Escuro'],['claro','Claro']],e.tema.fundo)}</label>`,
+  dominio:()=>{const B=window.PATIO_BOOT,url=B&&B.company?location.origin+'/v/'+B.company.slug:'';return `<label class="f">Domínio próprio${inp(P+'dominio',e.dominio,{ph:'www.minhaloja.com.br'})}<small>Aponte um CNAME do seu domínio para o endereço do Pátio e avise o suporte para ativar o certificado.</small></label>${url?`<div class="f"><span>Endereço atual</span><a class="lk" href="${url}" target="_blank" rel="noopener">${esc(url)}</a></div>`:''}`},
+  seo:()=>`<label class="f">Título da página${inp(P+'seo.titulo',e.seo.titulo)}<small>${(e.seo.titulo||'').length}/60 caracteres</small></label><label class="f">Descrição${ta(P+'seo.descricao',e.seo.descricao,3)}<small>${(e.seo.descricao||'').length}/160 caracteres. Aparece no Google.</small></label>`,
+  scripts:()=>`<label class="f">Código no cabeçalho${ta(P+'scripts.head',e.scripts.head,6)}<small>Pixel do Meta, Google Analytics ou tag manager. Fica guardado e passa a rodar quando o site estiver no domínio próprio da loja; no endereço do Pátio ele não roda, por segurança.</small></label>`,
+  sobre:()=>`<label class="f">Texto da página Sobre${ta(P+'sobre',e.sobre,6)}</label>`
+ };
+ return (F[b]||F.horario)();
+}
+function edBlk(k,html,label){return `<div class="ed-blk ${UI.edBloco===k?'on':''}" data-act="edSel" data-v="${k}"><span class="ed-tag">${ic('edit','sm')} ${esc(label||ED_BLOCOS[k])}</span>${html}</div>`}
+function viewSite(){
+ const e=siteEd(),st=S.site,tc=e.tema.cor||'#e8891a',claro=e.tema.fundo==='claro';
+ const hdBg=claro?'background:#fff;color:#111;border-bottom:1px solid #e5e7eb':'';
+ const dest=st.dest.map(id=>S.veh[id]).filter(v=>v&&v.status==='estoque');
+ const ban=st.banners.filter(b=>b.ativo);
+ const pag=UI.edPag;
+ const carros=L=>`<div class="ed-cars">${L.map(v=>`<div class="ed-car"><div class="ph">${v8Fotos(v)?v8Fotos(v)+' fotos':'Imagem em breve'}</div><div class="bd"><b>${esc(nome(v))}</b><span class="small" style="color:#6b7280">${esc(v.versao||'')}</span><span class="small" style="color:#6b7280">${v.anoFab}/${v.anoMod} · ${numf(v.km)} km</span><span class="pr">${brl(preco(v))}</span></div></div>`).join('')||'<span class="small" style="color:#6b7280">Escolha veículos em destaque.</span>'}</div>`;
+ let corpo='';
+ if(pag==='home')corpo=
+  edBlk('banners',`<div class="ed-ban">${ban.length?`<h3>${esc(ban[0].titulo)}</h3><span style="opacity:.8">${esc(ban[0].sub)}</span>${ban.length>1?`<span class="small" style="opacity:.6">+${ban.length-1} no carrossel</span>`:''}`:'<span style="opacity:.7">Carrossel de banners (nenhum ativo)</span>'}</div>`)+
+  edBlk('busca',`<div class="ed-sec"><h4>Qual veículo você está buscando?</h4><div style="display:flex;gap:8px"><span style="flex:1;border:1px solid #d1d5db;border-radius:8px;padding:8px 10px;color:#9ca3af">Marca ou modelo</span><span class="ed-btn">Ver todo estoque</span></div><div class="ed-marcas">${e.marcas.filter(Boolean).map(mc=>`<span>${esc(mc)}</span>`).join('')}</div></div>`)+
+  edBlk('destaques',`<div class="ed-sec"><h4>Últimas novidades</h4>${carros(dest)}</div>`)+
+  edBlk('blocos',`<div class="ed-sec"><div class="ed-blocos">${['venda','financie'].filter(k=>e[k].on).map(k=>`<div><b style="font-size:16px">${esc(e[k].titulo)}</b><span style="color:#4b5563">${esc(e[k].texto)}</span><span class="ed-btn" style="background:${esc(tc)}">${esc(e[k].botao)}</span></div>`).join('')||'<span class="small">Blocos ocultos</span>'}</div></div>`)+
+  edBlk('depo',`<div class="ed-sec"><h4>O que dizem nossos clientes</h4><div class="ed-dep">${st.depo.map(x=>`<div>“${esc(x.texto)}”<br><b>${esc(x.nome)}</b></div>`).join('')||'<span class="small" style="color:#6b7280">Nenhum depoimento.</span>'}</div></div>`)+
+  edBlk('redes',`<div class="ed-sec" style="text-align:center"><h4>Nossas redes sociais</h4><span style="color:#6b7280">${Object.entries(e.redes).filter(([,x])=>x).map(([k])=>k).join(' · ')||'Nenhuma rede cadastrada'}</span></div>`)+
+  edBlk('mapa',e.mapa?`<div style="height:110px;background:repeating-linear-gradient(45deg,#eef0f2 0 10px,#e5e7eb 10px 20px);display:grid;place-items:center;color:#6b7280;font-size:12.5px">Mapa · ${esc((e.unidades[0]||{}).endereco||'endereço da loja')}</div>`:`<div class="ed-sec small" style="color:#9ca3af">Mapa oculto</div>`);
+ else if(pag==='estoque')corpo=edBlk('busca',`<div class="ed-sec"><h4>Estoque</h4><p style="color:#6b7280">${estoque().filter(v=>v.venda>0&&(!v.pubs||v.pubs.site!==false)).length} veículos no site</p>${carros(estoque().filter(v=>v.venda>0).slice(0,6))}</div>`);
+ else if(pag==='venda')corpo=edBlk('blocos',`<div class="ed-sec"><h4>${esc(e.venda.titulo)}</h4><p style="color:#4b5563">${esc(e.venda.texto)}</p><p class="small" style="color:#6b7280">Formulário: nome, telefone, e-mail, marca, modelo, ano, KM e observações. O pedido chega em Contatos › Propostas de compra.</p></div>`);
+ else if(pag==='financie')corpo=edBlk('blocos',`<div class="ed-sec"><h4>${esc(e.financie.titulo)}</h4><p style="color:#4b5563">${esc(e.financie.texto)}</p><p class="small" style="color:#6b7280">Formulário: nome, telefone, valor de entrada, parcelas e veículo de interesse. O pedido chega em Contatos › Financiamentos.</p></div>`);
+ else corpo=edBlk('sobre',`<div class="ed-sec"><h4>Sobre a ${esc(e.logo)}</h4><p style="color:#4b5563;white-space:pre-line">${esc(e.sobre||'Conte a história da loja, diferenciais e garantias.')}</p></div>`);
+ const canvas=`<div class="ed-canvas" style="--tc:${esc(tc)}">
+  ${edBlk('horario',`<div class="ed-bar">Horário de atendimento: ${esc(e.horario)}</div>`)}
+  ${edBlk('cabecalho',`<div class="ed-hd" style="${hdBg}"><span class="lg">${esc(e.logo||'Sua loja')}</span><nav>${e.menu.filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</nav><span style="font-weight:700">${esc(e.telefones[0]||'')}</span></div>`)}
+  ${corpo}
+  ${edBlk('unidades',`<div class="ed-sec"><h4>Lojas / Unidades</h4>${e.unidades.map(un=>`<div style="display:flex;flex-direction:column;gap:2px;margin-bottom:8px"><b>${esc(un.nome)}</b><span style="color:#4b5563">${esc(un.endereco)}</span><span style="color:#4b5563">${esc(un.tel)}${un.horario?' · '+esc(un.horario):''}</span></div>`).join('')}</div>`)}
+  <div class="ed-ft" style="${claro?'background:#f4f5f6;color:#374151':''}">${edBlk('selos',`<div>${e.selos.filter(Boolean).length?e.selos.filter(Boolean).map(esc).join(' · '):'<span style="opacity:.6">Nenhum selo — associações, GPTW e certificações aparecem aqui.</span>'}</div>`)}${edBlk('razao',`<div>${esc(e.razao||'Razão social')} · CNPJ ${esc(e.cnpj||'—')}</div>`)}<span style="opacity:.6">© ${TODAY.getFullYear()} ${esc(e.logo)}. Todos os direitos reservados.</span></div>
+ </div>`;
+ const b=UI.edBloco;
+ const side=b?`<section class="card"><header><div class="ht"><h3>${esc(ED_BLOCOS[b]||b)}</h3><p>As mudanças salvam sozinhas</p></div><button class="icon-btn" type="button" data-act="edFechar" aria-label="Fechar">${ic('x','sm')}</button></header><div class="bd form" style="grid-template-columns:1fr">${edForm(b)}</div></section>`
+  :`<section class="card pad" style="display:flex;flex-direction:column;gap:8px"><b>Como editar</b><span class="small muted">Passe o mouse sobre a página e clique no bloco que quer mudar. O formulário abre aqui.</span></section>`;
+ const tools=`<section class="card pad ed-tools"><span class="eyebrow">Configurações do site</span>${[['tema','Tema e cores','sun'],['dominio','Domínio','globe'],['seo','SEO','search'],['scripts','Scripts e pixels','file'],['sobre','Página Sobre','list']].map(([k,l,i])=>`<button class="btn sm ${b===k?'pri':''}" type="button" data-act="edSel" data-v="${k}">${ic(i,'sm')} ${l}</button>`).join('')}</section>`;
+ const B=window.PATIO_BOOT,url=B&&B.company?'/v/'+B.company.slug:'';
+ return phead('Editor de site',`Editor visual da ${esc(e.logo||CFG().loja.fantasia)} · clique em um bloco para editar`,`<select class="inp" id="ed-pag" data-ui="edPag" aria-label="Página">${opts([['home','Home'],['estoque','Estoque'],['venda','Venda seu carro'],['financie','Financie'],['sobre','Sobre']],pag)}</select>${url?`<a class="btn" href="${url}" target="_blank" rel="noopener">${ic('globe','sm')} Ver site</a>`:''}<button class="btn pri" type="button" data-act="edPublicar">${ic('check','sm')} Publicar</button>`)+
+  `${e.publicado?`<p class="small muted" style="margin:-6px 0 10px">Última publicação: ${esc(e.publicado)}</p>`:''}<div class="ed-wrap"><div>${canvas}</div><div class="ed-side">${side}${tools}</div></div>`;
+}
+VIEWS.site=viewSite;
+
+/* ================= contatos do site ================= */
+const CT_TIPOS=[['','Todos'],['avaliacao','Avaliações e leads'],['compra','Propostas de compra (site)'],['financiamento','Financiamentos (site)'],['interesse','Interesse em veículo (site)'],['sac','SAC (site)'],['facebook','Facebook Lead Ads'],['whatsapp','WhatsApp']];
+function ctTipo(l){if(l.form)return l.form;const o=String(l.origem||'').toLowerCase();if(o.includes('facebook'))return 'facebook';if(o.includes('whatsapp'))return 'whatsapp';if(o==='site')return 'interesse';return 'avaliacao'}
+function viewContatos(){
+ const t=UI.ctTab,q=(UI.ctQ||'').trim().toLowerCase(),all=vals(S.lead).sort((a,b)=>String(b.data).localeCompare(String(a.data)));
+ const L=all.filter(l=>(!t||ctTipo(l)===t)&&(!q||`${l.nome} ${l.tel} ${l.email||''}`.toLowerCase().includes(q)));
+ return phead('Contatos','Todos os contatos que chegaram, separados por canal e formulário do site')+`
+ <div class="tabs">${CT_TIPOS.map(([k,l])=>`<button type="button" class="${t===k?'on':''}" data-act="ui" data-k="ctTab" data-v="${k}">${l} <span class="muted">${k?all.filter(x=>ctTipo(x)===k).length:all.length}</span></button>`).join('')}</div>
+ <div class="toolbar"><span class="search">${ic('search','sm')}<input class="inp" id="ct-q" type="search" placeholder="Informe nome, e-mail ou celular" value="${esc(UI.ctQ||'')}" data-ui="ctQ" data-live="1"></span></div>
+ <section class="card"><div class="tbl-wrap cardtbl"><table class="tbl"><thead><tr><th>Nome</th><th>Celular</th><th>E-mail</th><th>Canal</th><th>Detalhes</th><th>Situação</th><th>Data</th></tr></thead><tbody>${L.slice(0,300).map(l=>`<tr class="click" data-act="go" data-to="atendimentos"><td><b>${esc(l.nome)}</b></td><td>${esc(l.tel||'—')}</td><td>${esc(l.email||'Não informado')}</td><td>${esc((CT_TIPOS.find(x=>x[0]===ctTipo(l))||[])[1]||l.origem)}</td><td class="small muted" style="max-width:320px">${esc(l.desc||'')}</td><td>${esc((LEAD_ST.find(x=>x[0]===l.status)||['',''])[1])}</td><td class="num">${dtf(String(l.data).slice(0,10))}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Nenhum contato aqui.</td></tr>'}</tbody></table></div></section>`;
+}
+
+/* ================= relatório de comissões ================= */
+RELS.push(['comissoes','negociacao','Comissões','Comissão de venda e de compra por vendedor no período']);
+const _relData8=relData;
+relData=function(k){
+ if(k!=='comissoes')return _relData8(k);
+ const de=UI.relDe,ate=UI.relAte,L=CFG().loja,pv=+L.comissaoVendaPct||0,pc=+L.comissaoCompraPct||0,m={};
+ vals(S.neg).filter(n=>n.status==='finalizada').forEach(n=>{const d=(n.hist.find(h=>h.a==='Finalizada')||{}).d||n.criado;if(d<de||d>ate)return;const c=negCalc(n),k2=n.vendedor||'—';m[k2]=m[k2]||{nv:0,v:0,nc:0,c:0};if(n.saidaId){m[k2].nv++;m[k2].v+=c.saida}(n.entradas||[]).forEach(en=>{m[k2].nc++;m[k2].c+=+en.valor||0})});
+ return {h:['Vendedor','Vendas','Valor vendido','Comissão de venda ('+pct(pv)+')','Compras','Valor comprado','Comissão de compra ('+pct(pc)+')','Total'],r:Object.entries(m).sort((a,b)=>b[1].v-a[1].v).map(([k2,o])=>[k2,o.nv,brl(o.v),brl2(o.v*pv/100),o.nc,brl(o.c),brl2(o.c*pc/100),brl2(o.v*pv/100+o.c*pc/100)])};
+};
+const _viewRel8=viewRelatorios;
+viewRelatorios=function(){let h=_viewRel8();if(UI.rel==='comissoes')h=h.replace(`<button class="btn sm" type="button" data-act="csv">`,`<label class="f">De<input class="inp" type="date" id="rel-de" data-ui="relDe" value="${UI.relDe}"></label><label class="f">Até<input class="inp" type="date" id="rel-ate" data-ui="relAte" value="${UI.relAte}"></label><button class="btn sm" type="button" data-act="csv">`);return h};
+VIEWS.relatorios=viewRelatorios;
+
+/* ================= cabide: impressão registrada ================= */
+const _viewVeiculo8=viewVeiculo;
+viewVeiculo=function(id){
+ let h=_viewVeiculo8(id);const v=S.veh[id];
+ if(v&&h.includes('data-act="cabideAuto"')){
+  const pend=v.cabideImp&&+v.cabideImp.preco!==+preco(v);
+  h=h.replace(/(<button class="btn sm" type="button" data-act="cabideAuto"[^>]*>[^<]*<\/button>)/,`<span class="actions">$1<button class="btn sm ${pend?'pri':''}" type="button" data-act="cabideImp" data-id="${v.id}">${ic('download','sm')} ${pend?'Reimprimir cabide':'Imprimir cabide'}</button></span>`);
+  if(v.cabideImp)h=h.replace('<p>Seis destaques impressos no cabide pendurado no carro</p>',`<p>Impresso em ${dtf(String(v.cabideImp.em).slice(0,10))} com ${brl(v.cabideImp.preco)}${pend?' · <b style="color:var(--warn)">o preço mudou, reimprima</b>':''}</p>`);
+ }
+ return h;
+};
+
+/* ================= menu, sino e permissões ================= */
+const _can8=can;
+can=function(mod){if(['notificacoes','novidades','cursos'].includes(mod))return true;if(mod==='produtos')return _can8('configuracoes');if(mod==='contatos')return _can8('atendimentos')||_can8('site');return _can8(mod)};
+Object.assign(VIEWS,{notificacoes:viewNotificacoes,novidades:viewNovidades,cursos:viewCursos,produtos:viewProdutos,contatos:viewContatos});
+const _navHTML8=navHTML;
+navHTML=function(){
+ const sec=modDe(curHash());
+ const a=(k,i,l,b)=>can(k)?`<a href="#${k}" class="${sec===k?'on':''}" ${sec===k?'aria-current="page"':''}>${ic(i)}<span>${l}</span>${b?`<em>${b}</em>`:''}</a>`:'';
+ let h=_navHTML8();
+ const ct=vals(S.lead).filter(l=>l.form&&l.status==='pendente').length;
+ h=h.replace('<span>Site</span>','<span>Editor de site</span>');
+ if(can('contatos'))h=/<a href="#site"/.test(h)?h.replace(/(<a href="#site"[^>]*>[\s\S]*?<\/a>)/,`$1${a('contatos','inbox','Contatos',ct)}`):h.replace(/(<a href="#clientes"[^>]*>[\s\S]*?<\/a>)/,`$1${a('contatos','inbox','Contatos',ct)}`);
+ const nl=v8NaoLidas().length,nv=NOVIDADES.filter(x=>!v8Lida(x.id)).length;
+ return h+`<div class="nav-g"><span>Ajuda e conta</span>${a('notificacoes','bell','Notificações',nl)}${a('novidades','spark','Novidades',nv)}${a('cursos','grad','Cursos e treinamentos')}${a('produtos','pkg','Meus produtos')}</div>`;
+};
+const _top8=topbarHTML;
+topbarHTML=function(){
+ let h=_top8();const U=v8NaoLidas();
+ if(U.length&&!alertas().length)h=h.replace(ic('bell')+'</button>',ic('bell')+'<span class="dot"></span></button>');
+ if(UI.pop==='notif'){
+  const pop=`<div class="grp">Notificações${U.length?` · ${U.length} não lidas`:''}</div>${U.slice(0,5).map(x=>`<a class="it un" href="${x.href}" data-act="ntAbrir" data-id="${esc(x.id)}">${ic(x.i,'sm')}<span><b>${esc(x.t)}</b></span></a>`).join('')||'<div class="empty small">Tudo lido.</div>'}<a class="it" href="#notificacoes">${ic('right','sm')}<span>Ver todas as notificações</span></a>`;
+  h=h.replace('<div class="grp">Alertas</div>',pop+'<div class="grp">Alertas</div>');
+ }
+ return h;
+};
+
+/* ================= ações ================= */
+Object.assign(ACT,{
+ dashHide(){UI.dashHide=!UI.dashHide;render()},
+ ntLer(d){v8Lidas()[d.id]=1;save();render()},
+ ntAbrir(d){v8Lidas()[d.id]=1;UI.pop='';save();setTimeout(render,0)},
+ ntTodas(){const l=v8Lidas();notificacoes().forEach(x=>l[x.id]=1);save();render();toast('Notificações marcadas como lidas')},
+ aulaOk(d){const p=v8Prog();if(p[d.id])delete p[d.id];else p[d.id]=1;save();render()},
+ maisCota(d){toast(`Pedido registrado: mais ${String(d.v).toLowerCase()}. O suporte do Pátio vai falar com você.`)},
+ edSel(d){UI.edBloco=d.v;render()},
+ edFechar(){UI.edBloco='';render()},
+ edAdd(d){const e=siteEd();e[d.k].push('');save();render()},
+ edDel(d){const e=siteEd();e[d.k].splice(+d.i,1);save();render()},
+ edAddUn(){const e=siteEd();e.unidades.push({nome:'',endereco:'',tel:'',horario:''});save();render()},
+ edPublicar(){const e=siteEd();e.publicado=new Date().toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})+' por '+((me()||{}).nome||'');save();render();toast('Site publicado. As mudanças já aparecem na vitrine.')},
+ cabideImp(d){
+  const v=S.veh[+d.id];if(!v)return;const c=(v.cabide||[]).filter(Boolean);
+  v.cabideImp={preco:preco(v),em:nowISO(),por:(me()||{}).nome||''};touch(v,'anuncios','Imprimiu o cabide com '+brl(preco(v)));save();render();
+  let w=null;try{w=window.open('','_blank','width=420,height=640')}catch(e){}
+  if(!w){toast('Impressão registrada. Libere pop-ups para imprimir o cabide.');return}
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Cabide ${esc(nome(v))}</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:28px;color:#111}h1{font-size:28px;margin:6px 0 2px}ul{padding-left:18px;font-size:16px;line-height:1.6}.pr{font-size:34px;font-weight:800;margin:14px 0}.s{color:#555}</style></head><body><div class="s">${esc(CFG().loja.fantasia)}</div><h1>${esc(v.marca)} ${esc(v.modelo)}</h1><div>${esc(v.versao||'')}</div><div class="s">${v.anoFab}/${v.anoMod} · ${v.zeroKm?'0 km':numf(v.km)+' km'} · ${esc(v.cor||'')}</div><ul>${c.map(x=>`<li>${esc(x)}</li>`).join('')}</ul><div class="pr">${brl(preco(v))}</div><div class="s">${esc(v.garantia||'')} · ${esc(CFG().loja.tel||'')}</div><script>setTimeout(function(){try{print()}catch(e){}},300)<\/script></body></html>`);w.document.close();
+ }
+});
+
 /* ================= v7: modo servidor (os dados da loja ficam no servidor do Pátio) =================
    Só age quando a página é aberta pelo servidor (window.PATIO_BOOT existe). Fora dele, o protótipo
    continua salvando no navegador como antes.
@@ -7852,8 +8311,10 @@ if(window.PATIO_BOOT){(function(){
     if(!r.ok){render();return}
     const q=quadroPara('Site');let uid=proximoDaFila(q,true);if(!uid)uid=me().id;
     const lid=nextId();
-    S.lead[lid]={id:lid,nome:it.nome,tel:it.tel||it.email||'',status:'pendente',uid,origem:'Site',quadro:q?q.id:null,vid:it.vid?+it.vid:null,desc:[it.msg,it.email&&it.tel?'E-mail: '+it.email:''].filter(Boolean).join(' · '),data:TODAY_ISO,agenda:'',motivo:'',tags:[]};
-    save();render();toast('Novo atendimento pela vitrine: '+it.nome);
+    const FORM={compra:'Venda seu carro',financiamento:'Simulação de financiamento',sac:'SAC',interesse:'Interesse no veículo'};
+    const form=FORM[it.form]?it.form:'interesse';
+    S.lead[lid]={id:lid,nome:it.nome,tel:it.tel||it.email||'',email:it.email||'',form,status:'pendente',uid,origem:'Site',quadro:q?q.id:null,vid:it.vid?+it.vid:null,desc:[FORM[form],it.msg,it.email&&it.tel?'E-mail: '+it.email:''].filter(Boolean).join(' · '),data:TODAY_ISO,agenda:'',motivo:'',tags:[]};
+    save();render();toast(FORM[form]+' pelo site: '+it.nome);
    }).catch(()=>{});
   });
  }

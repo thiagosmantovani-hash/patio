@@ -61,7 +61,63 @@ export function publicRoutes(db: DB) {
 
   r.get('/store', (_req, res) => {
     const L = cfg().loja ?? {};
-    res.json({ store_name: L.fantasia || L.nome || '', phone: L.tel || '', whatsapp: L.whatsapp || L.tel || '', email: L.email || '', address: L.endereco || '', city: L.cidade || '', about: L.sobre || '' });
+    const ed = storeGet<Record<string, any>>(db, 's:site:ed') ?? {};
+    const banners = (storeGet<any[]>(db, 's:site:banners') ?? []).filter((b) => b && b.ativo).map((b) => ({ title: String(b.titulo ?? ''), subtitle: String(b.sub ?? '') }));
+    const testimonials = (storeGet<any[]>(db, 's:site:depo') ?? []).filter((d) => d && d.texto).map((d) => ({ name: String(d.nome ?? ''), text: String(d.texto ?? '') }));
+    const txt = (v: unknown, max = 300) => (typeof v === 'string' ? v.slice(0, max) : '');
+    const list = (v: unknown) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string' && x.trim()).map((x) => x.slice(0, 80)) : []);
+    const block = (b: any) => ({ on: b?.on !== false, title: txt(b?.titulo, 120), text: txt(b?.texto, 400), button: txt(b?.botao, 60) });
+    const color = /^#[0-9a-fA-F]{6}$/.test(ed.tema?.cor ?? '') ? ed.tema.cor : '#e8891a';
+    // O site só muda para o público depois de "Publicar"; antes disso valem os dados da loja.
+    const pub = Boolean(ed.publicado);
+    res.json({
+      store_name: (pub && txt(ed.logo, 80)) || L.fantasia || L.nome || '',
+      phone: (pub && list(ed.telefones)[0]) || L.tel || '',
+      whatsapp: (pub && txt(ed.whatsapp, 40)) || L.whatsapp || L.tel || '',
+      email: L.email || '',
+      address: L.endereco || '',
+      city: L.cidade || '',
+      about: (pub && txt(ed.sobre, 4000)) || L.sobre || '',
+      site: pub
+        ? {
+            hours: txt(ed.horario, 160),
+            menu: list(ed.menu),
+            brands: list(ed.marcas),
+            sell: block(ed.venda),
+            finance: block(ed.financie),
+            socials: Object.fromEntries(['instagram', 'facebook', 'youtube', 'tiktok'].map((k) => [k, /^https:\/\//.test(ed.redes?.[k] ?? '') ? txt(ed.redes[k], 200) : ''])),
+            map: ed.mapa !== false,
+            units: (Array.isArray(ed.unidades) ? ed.unidades : []).slice(0, 10).map((u: any) => ({ name: txt(u?.nome, 120), address: txt(u?.endereco, 200), phone: txt(u?.tel, 40), hours: txt(u?.horario, 160) })),
+            seals: list(ed.selos),
+            legal_name: txt(ed.razao, 160),
+            cnpj: txt(ed.cnpj, 30),
+            color,
+            dark: ed.tema?.fundo !== 'claro',
+            seo: { title: txt(ed.seo?.titulo, 70), description: txt(ed.seo?.descricao, 200) },
+            banners,
+            testimonials,
+          }
+        : null,
+    });
+  });
+
+  /** Formulários do site: Venda seu carro (compra), Financie (financiamento) e SAC. Viram atendimento no CRM. */
+  r.post('/contact', (req, res) => {
+    const kind = str(req.body, 'kind', { required: true, label: 'tipo' })!;
+    if (!['compra', 'financiamento', 'sac'].includes(kind)) throw new HttpError(400, 'Tipo de contato inválido.');
+    const name = str(req.body, 'name', { required: true, label: 'nome' })!;
+    const phone = str(req.body, 'phone');
+    const email = str(req.body, 'email');
+    if (!phone && !email) throw new HttpError(400, 'Informe telefone ou e-mail para contato.');
+    const fields: [string, string][] = [
+      ['brand', 'Marca'], ['model', 'Modelo'], ['year', 'Ano'], ['km', 'KM'], ['down_payment', 'Entrada'], ['installments', 'Parcelas'], ['vehicle', 'Veículo de interesse'],
+    ];
+    const extras = fields.map(([k, l]) => [l, str(req.body, k)] as const).filter(([, v]) => v).map(([l, v]) => `${l}: ${v}`);
+    const message = str(req.body, 'message');
+    const all = [name, phone, email, message, ...extras].join('');
+    if (name.length > 120 || (phone?.length ?? 0) > 40 || (email?.length ?? 0) > 120 || (message?.length ?? 0) > 2000 || all.length > 3000) throw new HttpError(400, 'Dados muito longos.');
+    storeInbox(db, { nome: name, tel: phone, email, msg: [message, ...extras].filter(Boolean).join(' · '), form: kind });
+    res.status(201).json({ ok: true });
   });
 
   r.get('/vehicles', (req, res) => {
@@ -89,7 +145,7 @@ export function publicRoutes(db: DB) {
     if (!phone && !email) throw new HttpError(400, 'Informe telefone ou e-mail para contato.');
     const message = str(req.body, 'message');
     if (name.length > 120 || (message?.length ?? 0) > 2000 || (phone?.length ?? 0) > 40 || (email?.length ?? 0) > 120) throw new HttpError(400, 'Dados muito longos.');
-    storeInbox(db, { nome: name, tel: phone, email, msg: message, vid: v.id });
+    storeInbox(db, { nome: name, tel: phone, email, msg: message, vid: v.id, form: 'interesse' });
     res.status(201).json({ ok: true });
   });
 
