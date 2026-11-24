@@ -395,3 +395,12 @@ table.table { width: 100%; border-collapse: collapse; }
 .vt-foot.light { background: var(--surface-2, #f4f5f6); color: var(--text); }
 .vt-foot.light a, .vt-foot.light h3 { color: var(--text); }
 .vt-units { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+
+/* Cabeçalhos em faixa preta, como no sistema da loja */
+.card-head { background: #121417; color: #fff; border-bottom-color: #121417; border-radius: 12px 12px 0 0; }
+.card-head h2, .card-head h3, .card-head strong { color: #fff; }
+.card-head .muted, .card-head .small { color: rgba(255, 255, 255, .64); }
+.table th { background: #2c3137; color: #fff; border-bottom-color: #2c3137; }
+.modal header { background: #121417; color: #fff; border-bottom-color: #121417; border-radius: 12px 12px 0 0; }
+.modal header h2, .modal header h3 { color: #fff; }
+.modal header button { color: #fff; }
