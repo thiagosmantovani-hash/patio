@@ -91,5 +91,21 @@ export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
     res.json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(id));
   });
 
+  /** Exclui o acesso de vez. O que a pessoa registrou continua no sistema (com o nome gravado nos registros). */
+  r.delete('/:id', (req, res) => {
+    const id = idParam(req);
+    if (id === req.user!.id) throw new HttpError(400, 'Você não pode excluir o seu próprio acesso.');
+    const existing = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(id) as { id: number; email: string; role: string } | undefined;
+    if (!existing) throw notFound('Usuário');
+    if (existing.role === 'admin') {
+      const others = db.prepare("SELECT COUNT(*) AS n FROM users WHERE role = 'admin' AND active = 1 AND id != ?").get(id) as { n: number };
+      if (!others.n) throw new HttpError(400, 'A loja precisa de pelo menos um administrador ativo.');
+    }
+    db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
+    db.prepare('DELETE FROM users WHERE id = ?').run(id);
+    accounts.release(existing.email);
+    res.json({ ok: true });
+  });
+
   return r;
 }

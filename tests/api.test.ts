@@ -169,6 +169,18 @@ test('cadastro de empresa: dados isolados, e-mail único, vitrine própria e pai
   const caio = await login('caio@b.com', 'abcdef');
   assert.equal((await call('GET', '/api/auth/me', undefined, caio)).body.company.slug, b.body.company.slug);
 
+  // exclusão de usuário: some o login e a sessão; o e-mail fica livre; ninguém exclui a si mesmo
+  const listaB = (await call('GET', '/api/users', undefined, b.cookie)).body as { id: number; email: string }[];
+  const caioId = listaB.find((u) => u.email === 'caio@b.com')!.id;
+  const meB = listaB.find((u) => u.email !== 'caio@b.com')!.id;
+  assert.equal((await call('DELETE', `/api/users/${meB}`, undefined, b.cookie)).status, 400);
+  assert.equal((await call('DELETE', `/api/users/${caioId}`, undefined, caio)).status, 403, 'vendedor não exclui');
+  assert.equal((await call('DELETE', `/api/users/${caioId}`, undefined, b.cookie)).status, 200);
+  assert.equal((await call('GET', '/api/auth/me', undefined, caio)).status, 401, 'sessão do excluído cai');
+  assert.equal((await call('POST', '/api/auth/login', { email: 'caio@b.com', password: 'abcdef' })).status, 401);
+  assert.equal(tenants.companyForEmail('caio@b.com'), null, 'e-mail liberado');
+  assert.equal((await call('DELETE', `/api/users/${caioId}`, undefined, b.cookie)).status, 404);
+
   // sessão adulterada (token da B com o número da empresa A) não entra
   const forged = b.cookie.replace(/=(\d+)\./, `=${tenants.companyForEmail('admin@t.com')}.`);
   assert.equal((await call('GET', '/api/vehicles', undefined, forged)).status, 401);
