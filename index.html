@@ -5625,7 +5625,7 @@ function modalUser(id){
   <span class="eyebrow">Quadros do CRM</span>
   <div class="checks">${Q.map(q=>mck('quadros',q.id,q.nome,inQ(q))).join('')}</div>
   ${id?`<div class="note ${u.status==='ativo'?'':'warn'}">Status: <b>${U_STATUS[u.status][0]}</b>${u.ultimo?` · último acesso em ${dtf(u.ultimo)}`:''}</div>`:''}
- </form>`,footSave('fm-user',id?'Atualizar usuário':'Enviar convite',id&&+id!==CFG().atual?`<span style="margin-right:auto;display:flex;gap:8px;flex-wrap:wrap">${u.status==='ativo'?`<button class="btn danger" type="button" data-act="userSt" data-id="${id}" data-s="suspenso">Suspender</button>`:u.status==='suspenso'?`<button class="btn" type="button" data-act="userSt" data-id="${id}" data-s="ativo">Reativar</button>`:`<button class="btn" type="button" data-act="userSt" data-id="${id}" data-s="ativo">Ativar agora</button><button class="btn" type="button" data-act="convite">Reenviar convite</button>`}</span>`:''),true);
+ </form>`,footSave('fm-user',id?'Atualizar usuário':'Enviar convite',id&&+id!==CFG().atual?`<span style="margin-right:auto;display:flex;gap:8px;flex-wrap:wrap">${u.status==='ativo'?`<button class="btn danger" type="button" data-act="userSt" data-id="${id}" data-s="suspenso">Suspender</button>`:u.status==='suspenso'?`<button class="btn" type="button" data-act="userSt" data-id="${id}" data-s="ativo">Reativar</button>`:`<button class="btn" type="button" data-act="userSt" data-id="${id}" data-s="ativo">Ativar agora</button><button class="btn" type="button" data-act="convite">Reenviar convite</button>`}<button class="btn ghost danger" type="button" data-act="userDel" data-id="${id}">Excluir</button></span>`:''),true);
 }
 function modalForn(id){
  const f=id?S.forn[id]:{nome:'',tipo:FORN_TIPOS[0],tel:'',doc:'',ativo:true};
@@ -8149,6 +8149,59 @@ Object.assign(ACT,{
  }
 });
 
+
+/* ================= v8.1: cabeçalhos pretos e exclusão de usuários ================= */
+(function(){const st=document.createElement('style');st.textContent=`
+:root{--hd:#121417;--hd-mut:rgba(255,255,255,.64)}
+:root[data-theme="dark"]{--hd:#000}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hd:#000}}
+.card > header,.sc > header{background:var(--hd);color:#fff;border-bottom-color:var(--hd)}
+.card.pad > header{margin:-18px -20px 14px;padding:15px 20px 14px;border-radius:calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0}
+.card > header h3,.sc > header h3,.card > header b,.card > header strong{color:#fff}
+.card > header p,.card > header .muted,.card > header .small,.card > header .sub,.sc > header .muted{color:var(--hd-mut)}
+.card > header label.f,.card > header label.f > span{color:#fff}
+.card > header .lg-inline{color:var(--hd-mut)}.card > header .lg-inline b{color:#fff}.card > header .lg-inline i{border-top-color:#fff}
+.card > header a.lk,.card > header a:not(.btn):not(.icon-btn){color:#fff}
+.card > header .btn.ghost{color:#fff}.card > header .btn.ghost:hover{background:rgba(255,255,255,.12)}
+.card > header .btn.dark{background:#fff;border-color:#fff;color:#111}
+.card > header .tabs{border-bottom:0;margin:0}
+.card > header .tabs button,.card > header .tabs a{color:rgba(255,255,255,.62)}
+.card > header .tabs button.on,.card > header .tabs a.on{color:#fff;border-bottom-color:var(--green)}
+.card > header .icon-btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);color:#fff}
+.card > header .chip:not(.ok):not(.warn):not(.bad):not(.info):not(.dark){background:rgba(255,255,255,.14);color:#fff}
+.card > header .chip.line{border-color:rgba(255,255,255,.3)}
+.col > header{background:var(--hd);color:#fff;border-radius:10px;padding:10px 12px}
+.col > header .muted{color:var(--hd-mut)}
+.col > header i{width:10px;height:10px;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+.chip.dot:not(.ok):not(.warn):not(.bad):not(.info):not(.dark)::before{background:#f59e0b}
+`;document.head.appendChild(st)})();
+
+/* quem foi excluído some das listas, mas o nome continua nos registros antigos */
+function v81Fantasmas(){
+ const C=CFG();if(!C)return;const X=C.usuariosExcluidos||{},U=C.usuarios||{};
+ for(const id in X)if(!Object.prototype.hasOwnProperty.call(U,id))Object.defineProperty(U,id,{value:Object.assign({status:'excluido'},X[id]),enumerable:false,configurable:true,writable:true});
+}
+function v81Excluir(id){
+ const C=CFG(),u=C.usuarios[id];if(!u)return false;
+ C.usuariosExcluidos=C.usuariosExcluidos||{};C.usuariosExcluidos[id]={id:u.id,nome:u.nome+' (excluído)',email:u.email,perfil:u.perfil};
+ delete C.usuarios[id];
+ const eu=me();
+ vals(S.lead).forEach(l=>{if(+l.uid===+id&&!['sucesso','insucesso'].includes(l.status))l.uid=eu?eu.id:l.uid});
+ (C.quadros||[]).forEach(q=>{q.equipe=(q.equipe||[]).filter(e=>+e.uid!==+id)});
+ v81Fantasmas();return true;
+}
+const _render81=render;render=function(){v81Fantasmas();_render81()};
+Object.assign(ACT,{
+ userDel(d){
+  const u=CFG().usuarios[d.id];if(!u)return;
+  if(+d.id===+(me()||{}).id){toast('Você não pode excluir o seu próprio acesso');return}
+  if(u.perfil==='revenda'&&!users().some(x=>x.id!==u.id&&x.perfil==='revenda'&&x.status==='ativo')){toast('A loja precisa de pelo menos um usuário Revenda ativo');return}
+  const ab=vals(S.lead).filter(l=>+l.uid===+d.id&&!['sucesso','insucesso'].includes(l.status)).length;
+  openModal('Excluir usuário',`<div style="display:flex;flex-direction:column;gap:10px"><p>Excluir <b>${esc(u.nome)}</b> (${esc(u.email)}) de vez? A pessoa perde o acesso na hora e não aparece mais nas listas.</p><p class="small muted">O histórico continua: negociações, avaliações e registros feitos por ela mantêm o nome.${ab?` Os ${ab} atendimentos em aberto dela passam para você.`:''} Se a pessoa só vai ficar um tempo fora, prefira <b>Suspender</b>.</p></div>`,`<button class="btn" type="button" data-act="closeModal">Cancelar</button><button class="btn" style="background:var(--bad);border-color:var(--bad);color:#fff" type="button" data-act="userDelOk" data-id="${d.id}">Excluir usuário</button>`);
+ },
+ userDelOk(d){const nm=(CFG().usuarios[d.id]||{}).nome;if(v81Excluir(d.id)){save();closeModal();render();toast(nm+' foi excluído')}}
+});
+
 /* ================= v7: modo servidor (os dados da loja ficam no servidor do Pátio) =================
    Só age quando a página é aberta pelo servidor (window.PATIO_BOOT existe). Fora dele, o protótipo
    continua salvando no navegador como antes.
@@ -8339,6 +8392,11 @@ if(window.PATIO_BOOT){(function(){
    const u=CFG().usuarios[d.id],r=u&&realPorEmail(u.email);
    if(r){try{realUpsert(await srvApi('PUT','/api/users/'+r.id,{name:r.name,email:r.email,role:r.role,commission_rate:r.commission_rate||0,active:d.s==='ativo'}))}catch(e){toast(e.message);return}}
    u.status=d.s;if(d.s==='ativo'&&!u.ultimo)u.ultimo='';save();closeModal();toast('Usuário '+U_STATUS[d.s][0].toLowerCase());render();
+  },
+  async userDelOk(d){
+   const u=CFG().usuarios[d.id],r=u&&realPorEmail(u.email);
+   if(r){try{await srvApi('DELETE','/api/users/'+r.id)}catch(e){toast(e.message);return}B.users=(B.users||[]).filter(x=>x.id!==r.id)}
+   const nm=u?u.nome:'';if(v81Excluir(d.id)){save();closeModal();render();toast(nm+' foi excluído')}
   },
   async convite(){
    const id=document.getElementById('fm-user')?.dataset.id,u=id&&CFG().usuarios[id],r=u&&realPorEmail(u.email);
