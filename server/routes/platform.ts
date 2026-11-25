@@ -1,4 +1,9 @@
 import { Router } from 'express';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { rmSync } from 'node:fs';
+import { randomBytes } from 'node:crypto';
+import { snapshotCompany } from '../backup.ts';
 import { sessionCompany, sessionUser } from '../auth.ts';
 import { HttpError, idParam, oneOf } from '../http.ts';
 import type { Tenants } from '../tenants.ts';
@@ -38,6 +43,18 @@ export function platformRoutes(tenants: Tenants, opts: AuthOptions) {
         };
       }),
     );
+  });
+
+  /** Baixa uma cópia do banco da empresa (guarde fora do servidor: é o backup externo). */
+  r.get('/companies/:id/backup', (req, res, next) => {
+    const id = idParam(req);
+    const file = join(tmpdir(), `patio-${id}-${randomBytes(6).toString('hex')}.db`);
+    if (!snapshotCompany(tenants, id, file)) throw new HttpError(404, 'Empresa não encontrada.');
+    const slug = tenants.get(id)!.company.slug;
+    res.download(file, `patio-${slug}-${new Date().toISOString().slice(0, 10)}.db`, (err) => {
+      rmSync(file, { force: true });
+      if (err && !res.headersSent) next(err);
+    });
   });
 
   r.put('/companies/:id/status', (req, res) => {

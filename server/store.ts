@@ -74,6 +74,45 @@ export function allocIds(db: DB, n = 200): { from: number; to: number } {
   });
 }
 
+/**
+ * Junta duas gravações do mesmo registro feitas ao mesmo tempo por pessoas diferentes.
+ * `base` é a versão que o navegador tinha antes de editar; o que ele mudou em relação à base vale,
+ * o resto fica como está no servidor. Objetos: campo a campo. Listas de itens com id: item a item.
+ */
+export function merge3(base: string | null, cur: string | null, inc: string): string {
+  if (cur == null || base == null || cur === base || cur === inc) return inc;
+  let B: any, C: any, I: any;
+  try {
+    B = JSON.parse(base);
+    C = JSON.parse(cur);
+    I = JSON.parse(inc);
+  } catch {
+    return inc;
+  }
+  const js = (x: unknown) => JSON.stringify(x);
+  const withIds = (a: unknown) => Array.isArray(a) && a.every((x) => x && typeof x === 'object' && (x as any).id != null);
+  if (withIds(B) && withIds(C) && withIds(I)) {
+    const pb = new Map<unknown, string>((B as any[]).map((x) => [x.id, js(x)]));
+    const ids = new Set((I as any[]).map((x) => x.id));
+    let out = (C as any[]).filter((x) => ids.has(x.id) || !pb.has(x.id) || pb.get(x.id) !== js(x));
+    for (const li of I as any[]) {
+      const i = out.findIndex((x) => x.id === li.id);
+      if (i >= 0) {
+        if (js(li) !== pb.get(li.id)) out[i] = li;
+      } else if (!pb.has(li.id)) out = [...out, li];
+    }
+    return js(out);
+  }
+  const isObj = (x: unknown) => x && typeof x === 'object' && !Array.isArray(x);
+  if (isObj(B) && isObj(C) && isObj(I)) {
+    const out: Record<string, unknown> = { ...C };
+    for (const k of Object.keys(I)) if (js(I[k]) !== js(B[k])) out[k] = I[k];
+    for (const k of Object.keys(B)) if (!(k in I) && js(C[k]) === js(B[k])) delete out[k];
+    return js(out);
+  }
+  return inc;
+}
+
 /** Mantém usuários (perfil, e-mail, situação) e perfis de acesso como estão gravados; o resto da configuração segue. */
 export function guardCfg(stored: any, incoming: string): string {
   if (!stored || typeof stored !== 'object') return incoming;
@@ -114,6 +153,7 @@ export function storeRoutes(db: DB, uploadDir: string) {
     if (put.length + del.length > 5000) throw new HttpError(400, 'Alterações demais em uma única gravação.');
     for (const p of put) {
       if (!Array.isArray(p) || typeof p[0] !== 'string' || typeof p[1] !== 'string' || !KEY_RE.test(p[0])) throw new HttpError(400, 'Registro inválido.');
+      if (p.length > 2 && p[2] !== null && typeof p[2] !== 'string') throw new HttpError(400, 'Registro inválido.');
       try {
         JSON.parse(p[1]);
       } catch {
@@ -127,11 +167,24 @@ export function storeRoutes(db: DB, uploadDir: string) {
       if ((del as string[]).includes('v:cfg')) throw new HttpError(403, 'Sem permissão para esta ação.');
       for (const p of put as [string, string][]) if (p[0] === 'v:cfg') p[1] = guardCfg(storeGet(db, 'v:cfg'), p[1]);
     }
+    // Gravação simultânea do mesmo registro: junta as duas e devolve o resultado para o navegador.
+    const merged: [string, string][] = [];
+    const curStmt = db.prepare('SELECT data FROM store_items WHERE k = ?');
     tx(db, () => {
-      for (const [k, data] of put as [string, string][]) storePut(db, k, data, uid);
+      for (const p of put as [string, string, (string | null)?][]) {
+        const [k, data] = p;
+        let out = data;
+        if (p.length > 2) {
+          const cur = (curStmt.get(k) as { data: string | null } | undefined)?.data ?? null;
+          out = merge3(p[2] ?? null, cur, data);
+          if (k === 'v:cfg' && req.user?.role !== 'admin') out = guardCfg(storeGet(db, 'v:cfg'), out);
+          if (out !== data) merged.push([k, out]);
+        }
+        storePut(db, k, out, uid);
+      }
       for (const k of del as string[]) storePut(db, k, null, uid);
     });
-    res.json({ rev: storeRev(db) });
+    res.json({ rev: storeRev(db), merged });
   });
 
   r.post('/ids', (req, res) => {

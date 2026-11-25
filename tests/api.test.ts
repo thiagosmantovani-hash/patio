@@ -416,3 +416,32 @@ test('FIPE pelo servidor: lista, valor convertido, cache e erro amigável', asyn
     rmSync(dir3, { recursive: true, force: true });
   }
 });
+
+test('gravações simultâneas do mesmo registro são juntadas e backup copia fotos', async () => {
+  const { merge3 } = await import('../server/store.ts');
+  const base = JSON.stringify({ id: 1, venda: 100, cor: 'Branco', km: 10 });
+  const cur = JSON.stringify({ id: 1, venda: 150, cor: 'Branco', km: 10 }); // outra pessoa mudou o preço
+  const inc = JSON.stringify({ id: 1, venda: 100, cor: 'Azul', km: 10 }); // esta pessoa mudou a cor
+  assert.deepEqual(JSON.parse(merge3(base, cur, inc)), { id: 1, venda: 150, cor: 'Azul', km: 10 });
+  const lb = JSON.stringify([{ id: 1, v: 1 }, { id: 2, v: 2 }]);
+  const lc = JSON.stringify([{ id: 1, v: 1 }, { id: 2, v: 20 }, { id: 3, v: 3 }]);
+  const li = JSON.stringify([{ id: 2, v: 2 }, { id: 4, v: 4 }]); // removeu o 1 e criou o 4
+  assert.deepEqual(JSON.parse(merge3(lb, lc, li)), [{ id: 2, v: 20 }, { id: 3, v: 3 }, { id: 4, v: 4 }]);
+
+  const admin = await login('admin@t.com', 'segredo1');
+  const k = 'm:veh:777';
+  await call('POST', '/api/store/save', { put: [[k, base]] }, admin);
+  await call('POST', '/api/store/save', { put: [[k, cur, base]] }, admin);
+  const r = await call('POST', '/api/store/save', { put: [[k, inc, base]] }, admin);
+  assert.deepEqual(r.body.merged.map((x: any) => [x[0], JSON.parse(x[1]).venda, JSON.parse(x[1]).cor]), [[k, 150, 'Azul']]);
+
+  const { backupAll } = await import('../server/backup.ts');
+  const up = join(dir, 'up-test');
+  const { mkdirSync, writeFileSync, readdirSync } = await import('node:fs');
+  mkdirSync(up, { recursive: true });
+  writeFileSync(join(up, '1-abc.jpg'), 'x');
+  const b = backupAll(tenants, join(dir, 'bk'), 3, up);
+  assert.equal(b.photos, 1);
+  assert.ok(readdirSync(join(dir, 'bk', 'fotos')).includes('1-abc.jpg'));
+  assert.equal(backupAll(tenants, join(dir, 'bk'), 3, up).photos, 0, 'foto já copiada não é copiada de novo');
+});

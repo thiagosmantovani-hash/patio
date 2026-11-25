@@ -50,7 +50,7 @@ export function Platform() {
                     <td>{c.last_seen_at ? dateTime(c.last_seen_at) : <span className="muted">nunca</span>}{c.last_change && <div className="small muted">últ. alteração {dateTime(c.last_change.replace(' ', 'T') + 'Z')}</div>}</td>
                     <td className="num">{c.users}</td><td className="num">{c.vehicles}</td><td className="num">{c.customers}</td><td className="num">{c.leads}</td><td className="num">{c.sales}</td>
                     <td>{c.status === 'ativa' ? <Badge tone="ok">Ativa</Badge> : <Badge tone="bad">Suspensa</Badge>}</td>
-                    <td><button className="btn sm" onClick={() => toggle(c)}>{c.status === 'ativa' ? 'Suspender' : 'Reativar'}</button></td>
+                    <td><span className="row"><a className="btn sm" href={`/api/platform/companies/${c.id}/backup`} download>Baixar backup</a><button className="btn sm" onClick={() => toggle(c)}>{c.status === 'ativa' ? 'Suspender' : 'Reativar'}</button></span></td>
                   </tr>
                 ))}
               </tbody>

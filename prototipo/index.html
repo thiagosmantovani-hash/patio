@@ -8944,12 +8944,17 @@ if(window.PATIO_BOOT){(function(){
  syncUsuarios();
 
  /* salvar: só o que mudou, alguns instantes depois da última alteração */
- function diff(){const cur=srvSplit(S),put=[],del=[];for(const k in cur)if(cur[k]!==SRV.snap[k])put.push([k,cur[k]]);for(const k in SRV.snap)if(!(k in cur))del.push(k);return {put,del}}
+ function diff(){const cur=srvSplit(S),put=[],del=[];for(const k in cur)if(cur[k]!==SRV.snap[k])put.push([k,cur[k],SRV.snap[k]??null]);for(const k in SRV.snap)if(!(k in cur))del.push(k);return {put,del}}
  function flush(keepalive){
   if(SRV.saving){SRV.again=true;return}
   const {put,del}=diff();if(!put.length&&!del.length){status();return}
   SRV.saving=true;status();
-  srvApi('POST','/api/store/save',{put,del},keepalive).then(()=>{put.forEach(([k,s])=>{SRV.snap[k]=s});del.forEach(k=>{delete SRV.snap[k]});if(SRV.erro){SRV.erro=false;toast('Conexão restabelecida. Tudo salvo.')}})
+  srvApi('POST','/api/store/save',{put,del},keepalive).then(r=>{
+   /* o servidor juntou com alterações de outra pessoa: aplica o resultado sem perder o que foi editado enquanto salvava */
+   const mg=new Map((r&&r.merged)||[]);let mudou=false;const agora=mg.size?srvSplit(S):null;
+   put.forEach(([k,s])=>{const m=mg.get(k);if(m==null){SRV.snap[k]=s;return}
+    if(agora[k]===s){srvPut(S,k,m);SRV.snap[k]=m}else{SRV.snap[k]=s;const x=merge(k,agora[k],m);srvPut(S,k,x);SRV.snap[k]=m;SRV.again=true}mudou=true});
+   if(mudou){srvDefaults(S);render()}del.forEach(k=>{delete SRV.snap[k]});if(SRV.erro){SRV.erro=false;toast('Conexão restabelecida. Tudo salvo.')}})
    .catch(e=>{if(!SRV.erro){SRV.erro=true;toast('Não foi possível salvar agora ('+e.message+'). Vamos tentar de novo em instantes; não feche a página.')}setTimeout(()=>schedule(10),6000)})
    .finally(()=>{SRV.saving=false;status();if(SRV.again){SRV.again=false;schedule(50)}});
  }

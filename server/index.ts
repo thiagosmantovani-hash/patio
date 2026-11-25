@@ -47,7 +47,7 @@ const app = createApp(tenants, {
   appUrl,
 });
 
-if (process.env.BACKUPS !== '0') scheduleBackups(tenants, join(dataDir, 'backups'), Number(process.env.BACKUP_DAYS ?? 14));
+if (process.env.BACKUPS !== '0') scheduleBackups(tenants, join(dataDir, 'backups'), Number(process.env.BACKUP_DAYS ?? 14), join(dataDir, 'uploads'));
 
 const server = app.listen(port, () => {
   console.log(`Pátio rodando em http://localhost:${port} · ${tenants.all().length} empresa(s) cadastrada(s)`);
