@@ -1,0 +1,226 @@
+// Armazenamento do sistema completo (a interface do protótipo) no banco de cada empresa.
+// Cada registro é um item com chave ("m:veh:352", "s:fin:titulos", "v:cfg") e o JSON do registro.
+// Toda gravação ganha um número de revisão crescente: assim cada navegador busca só o que mudou
+// desde a última vez. Itens apagados ficam com data NULL para que os outros navegadores saibam.
+import { Router } from 'express';
+import { randomBytes } from 'node:crypto';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import type { DB } from './db.ts';
+import { tx } from './db.ts';
+import { HttpError } from './http.ts';
+
+export const STORE_SCHEMA = `
+CREATE TABLE IF NOT EXISTS store_items (
+  k TEXT PRIMARY KEY,
+  data TEXT,
+  rev INTEGER NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_by INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_store_rev ON store_items(rev);
+CREATE TABLE IF NOT EXISTS store_meta (k TEXT PRIMARY KEY, v INTEGER NOT NULL);
+`;
+
+const KEY_RE = /^(m|s|v):[A-Za-z0-9_]{1,40}(:[A-Za-z0-9_.\-]{1,80})?$/;
+/** Números de registro começam em 10001, acima dos usados pelos catálogos padrão. */
+const SEQ_START = 10_000;
+
+function meta(db: DB, k: string, start = 0): number {
+  const row = db.prepare('SELECT v FROM store_meta WHERE k = ?').get(k) as { v: number } | undefined;
+  return row?.v ?? start;
+}
+function setMeta(db: DB, k: string, v: number) {
+  db.prepare('INSERT INTO store_meta (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v').run(k, v);
+}
+function nextRev(db: DB) {
+  const v = meta(db, 'rev') + 1;
+  setMeta(db, 'rev', v);
+  return v;
+}
+
+export function storeRev(db: DB) {
+  return meta(db, 'rev');
+}
+
+/** Itens vivos da loja, como [chave, json]. */
+export function storeItems(db: DB): [string, string][] {
+  return (db.prepare('SELECT k, data FROM store_items WHERE data IS NOT NULL ORDER BY k').all() as { k: string; data: string }[]).map((r) => [r.k, r.data]);
+}
+
+export function storeGet<T = any>(db: DB, k: string): T | null {
+  const row = db.prepare('SELECT data FROM store_items WHERE k = ? AND data IS NOT NULL').get(k) as { data: string } | undefined;
+  return row ? (JSON.parse(row.data) as T) : null;
+}
+
+/** Registros de uma coleção (ex.: "veh"), já convertidos. */
+export function storeCollection<T = any>(db: DB, coll: string): T[] {
+  return (db.prepare("SELECT data FROM store_items WHERE k LIKE ? AND data IS NOT NULL").all(`m:${coll}:%`) as { data: string }[]).map((r) => JSON.parse(r.data) as T);
+}
+
+export function storePut(db: DB, k: string, data: string | null, userId: number | null = null) {
+  db.prepare(
+    `INSERT INTO store_items (k, data, rev, updated_at, updated_by) VALUES (?, ?, ?, datetime('now'), ?)
+     ON CONFLICT(k) DO UPDATE SET data = excluded.data, rev = excluded.rev, updated_at = excluded.updated_at, updated_by = excluded.updated_by`,
+  ).run(k, data, nextRev(db), userId);
+}
+
+export function allocIds(db: DB, n = 200): { from: number; to: number } {
+  return tx(db, () => {
+    const from = meta(db, 'seq', SEQ_START) + 1;
+    const to = from + Math.max(1, Math.min(n, 1000)) - 1;
+    setMeta(db, 'seq', to);
+    return { from, to };
+  });
+}
+
+/**
+ * Junta duas gravações do mesmo registro feitas ao mesmo tempo por pessoas diferentes.
+ * `base` é a versão que o navegador tinha antes de editar; o que ele mudou em relação à base vale,
+ * o resto fica como está no servidor. Objetos: campo a campo. Listas de itens com id: item a item.
+ */
+export function merge3(base: string | null, cur: string | null, inc: string): string {
+  if (cur == null || base == null || cur === base || cur === inc) return inc;
+  let B: any, C: any, I: any;
+  try {
+    B = JSON.parse(base);
+    C = JSON.parse(cur);
+    I = JSON.parse(inc);
+  } catch {
+    return inc;
+  }
+  const js = (x: unknown) => JSON.stringify(x);
+  const withIds = (a: unknown) => Array.isArray(a) && a.every((x) => x && typeof x === 'object' && (x as any).id != null);
+  if (withIds(B) && withIds(C) && withIds(I)) {
+    const pb = new Map<unknown, string>((B as any[]).map((x) => [x.id, js(x)]));
+    const ids = new Set((I as any[]).map((x) => x.id));
+    let out = (C as any[]).filter((x) => ids.has(x.id) || !pb.has(x.id) || pb.get(x.id) !== js(x));
+    for (const li of I as any[]) {
+      const i = out.findIndex((x) => x.id === li.id);
+      if (i >= 0) {
+        if (js(li) !== pb.get(li.id)) out[i] = li;
+      } else if (!pb.has(li.id)) out = [...out, li];
+    }
+    return js(out);
+  }
+  const isObj = (x: unknown) => x && typeof x === 'object' && !Array.isArray(x);
+  if (isObj(B) && isObj(C) && isObj(I)) {
+    const out: Record<string, unknown> = { ...C };
+    for (const k of Object.keys(I)) if (js(I[k]) !== js(B[k])) out[k] = I[k];
+    for (const k of Object.keys(B)) if (!(k in I) && js(C[k]) === js(B[k])) delete out[k];
+    return js(out);
+  }
+  return inc;
+}
+
+/** Mantém usuários (perfil, e-mail, situação) e perfis de acesso como estão gravados; o resto da configuração segue. */
+export function guardCfg(stored: any, incoming: string): string {
+  if (!stored || typeof stored !== 'object') return incoming;
+  const next = JSON.parse(incoming);
+  if (!next || typeof next !== 'object') return JSON.stringify(stored);
+  next.perfis = stored.perfis;
+  const before = stored.usuarios && typeof stored.usuarios === 'object' ? stored.usuarios : {};
+  const after = next.usuarios && typeof next.usuarios === 'object' ? next.usuarios : {};
+  const users: Record<string, unknown> = {};
+  for (const id of Object.keys(before)) {
+    const b = before[id] ?? {};
+    const a = after[id] && typeof after[id] === 'object' ? after[id] : {};
+    users[id] = { ...b, ...a, perfil: b.perfil, email: b.email, status: b.status, twofa: b.twofa };
+  }
+  next.usuarios = users;
+  return JSON.stringify(next);
+}
+
+const IMAGE_EXT: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
+
+export function storeRoutes(db: DB, uploadDir: string) {
+  const r = Router();
+  mkdirSync(uploadDir, { recursive: true });
+
+  r.get('/', (_req, res) => {
+    res.json({ rev: storeRev(db), items: storeItems(db) });
+  });
+
+  r.get('/changes', (req, res) => {
+    const since = Number(req.query.since ?? 0) || 0;
+    const rows = db.prepare('SELECT k, data, rev FROM store_items WHERE rev > ? ORDER BY rev').all(since) as { k: string; data: string | null; rev: number }[];
+    res.json({ rev: Math.max(since, storeRev(db)), items: rows.map((x) => [x.k, x.data]) });
+  });
+
+  r.post('/save', (req, res) => {
+    const put = Array.isArray(req.body.put) ? (req.body.put as unknown[]) : [];
+    const del = Array.isArray(req.body.del) ? (req.body.del as unknown[]) : [];
+    if (put.length + del.length > 5000) throw new HttpError(400, 'Alterações demais em uma única gravação.');
+    for (const p of put) {
+      if (!Array.isArray(p) || typeof p[0] !== 'string' || typeof p[1] !== 'string' || !KEY_RE.test(p[0])) throw new HttpError(400, 'Registro inválido.');
+      if (p.length > 2 && p[2] !== null && typeof p[2] !== 'string') throw new HttpError(400, 'Registro inválido.');
+      try {
+        JSON.parse(p[1]);
+      } catch {
+        throw new HttpError(400, `Conteúdo inválido em ${p[0]}.`);
+      }
+    }
+    for (const k of del) if (typeof k !== 'string' || !KEY_RE.test(k)) throw new HttpError(400, 'Registro inválido.');
+    const uid = req.user?.id ?? null;
+    // Quem não é administrador não altera usuários nem perfis de acesso pela gravação geral.
+    if (req.user?.role !== 'admin') {
+      if ((del as string[]).includes('v:cfg')) throw new HttpError(403, 'Sem permissão para esta ação.');
+      for (const p of put as [string, string][]) if (p[0] === 'v:cfg') p[1] = guardCfg(storeGet(db, 'v:cfg'), p[1]);
+    }
+    // Gravação simultânea do mesmo registro: junta as duas e devolve o resultado para o navegador.
+    const merged: [string, string][] = [];
+    const curStmt = db.prepare('SELECT data FROM store_items WHERE k = ?');
+    tx(db, () => {
+      for (const p of put as [string, string, (string | null)?][]) {
+        const [k, data] = p;
+        let out = data;
+        if (p.length > 2) {
+          const cur = (curStmt.get(k) as { data: string | null } | undefined)?.data ?? null;
+          out = merge3(p[2] ?? null, cur, data);
+          if (k === 'v:cfg' && req.user?.role !== 'admin') out = guardCfg(storeGet(db, 'v:cfg'), out);
+          if (out !== data) merged.push([k, out]);
+        }
+        storePut(db, k, out, uid);
+      }
+      for (const k of del as string[]) storePut(db, k, null, uid);
+    });
+    res.json({ rev: storeRev(db), merged });
+  });
+
+  r.post('/ids', (req, res) => {
+    res.json(allocIds(db, Number(req.body.n) || 200));
+  });
+
+  /** Um único navegador converte cada pedido da vitrine em atendimento. */
+  r.post('/inbox/claim', (req, res) => {
+    const k = String(req.body.k ?? '');
+    if (!/^m:inbox:[A-Za-z0-9_\-]+$/.test(k)) throw new HttpError(400, 'Registro inválido.');
+    const ok = tx(db, () => {
+      const row = db.prepare('SELECT 1 FROM store_items WHERE k = ? AND data IS NOT NULL').get(k);
+      if (!row) return false;
+      storePut(db, k, null, req.user?.id ?? null);
+      return true;
+    });
+    res.json({ ok });
+  });
+
+  /** Fotos chegam como data URL (já reduzidas no navegador) e viram arquivo em /uploads. */
+  r.post('/files', (req, res) => {
+    const m = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body.data ?? ''));
+    if (!m) throw new HttpError(400, 'Envie uma imagem JPG, PNG ou WebP.');
+    const buf = Buffer.from(m[2]!, 'base64');
+    if (buf.length > 12 * 1024 * 1024) throw new HttpError(400, 'Imagem grande demais (máximo 12 MB).');
+    const name = `${Date.now()}-${randomBytes(12).toString('hex')}${IMAGE_EXT[m[1]!]}`;
+    writeFileSync(join(uploadDir, name), buf);
+    res.status(201).json({ url: `/uploads/${name}` });
+  });
+
+  return r;
+}
+
+/** Pedido de interesse da vitrine: fica na caixa de entrada até um navegador da loja convertê-lo em atendimento. */
+export function storeInbox(db: DB, item: Record<string, unknown>) {
+  const id = `x${Date.now().toString(36)}${randomBytes(4).toString('hex')}`;
+  tx(db, () => storePut(db, `m:inbox:${id}`, JSON.stringify({ ...item, em: new Date().toISOString() })));
+  return id;
+}

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { Field } from '../ui';
 
@@ -7,7 +7,9 @@ export function Login() {
   const { user, login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  if (user) return <Navigate to="/" replace />;
+  const [params] = useSearchParams();
+  if (user) return <GoApp />;
+  const aviso = params.get('confirmado') ? 'E-mail confirmado. Entre com sua senha.' : params.get('link') === 'invalido' ? 'Este link expirou ou já foi usado.' : null;
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -16,6 +18,7 @@ export function Login() {
     setError(null);
     try {
       await login(String(f.get('email')), String(f.get('password')));
+      window.location.href = '/app';
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -25,7 +28,39 @@ export function Login() {
 
   return (
     <div className="auth">
-      <div className="auth-side">
+      <AuthSide />
+      <div className="auth-form">
+        <form onSubmit={submit}>
+          <div>
+            <h1>Entrar</h1>
+            <p className="muted">Acesse com seu e-mail e senha.</p>
+          </div>
+          {aviso && <div className="ok-box" role="status">{aviso}</div>}
+          {error && <div className="error-box" role="alert">{error}</div>}
+          <Field label="E-mail">
+            <input className="input" name="email" type="email" autoComplete="username" required autoFocus />
+          </Field>
+          <Field label="Senha">
+            <input className="input" name="password" type="password" autoComplete="current-password" required />
+          </Field>
+          <button className="btn primary" disabled={busy}>
+            {busy ? 'Entrando…' : 'Entrar'}
+          </button>
+          <p className="small" style={{ textAlign: 'center', margin: 0 }}>
+            <Link to="/esqueci-senha">Esqueci minha senha</Link>
+          </p>
+          <p className="small muted" style={{ textAlign: 'center' }}>
+            Ainda não usa o Pátio? <Link to="/cadastro">Cadastre sua loja grátis</Link>
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export function AuthSide() {
+  return (
+    <div className="auth-side">
         <div className="logo" style={{ padding: 0 }}>
           <svg width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">
             <rect width="32" height="32" rx="8" fill="#14b8a6" />
@@ -45,24 +80,11 @@ export function Login() {
         </div>
         <div className="small">© {new Date().getFullYear()} Pátio</div>
       </div>
-      <div className="auth-form">
-        <form onSubmit={submit}>
-          <div>
-            <h1>Entrar</h1>
-            <p className="muted">Acesse com seu e-mail e senha.</p>
-          </div>
-          {error && <div className="error-box">{error}</div>}
-          <Field label="E-mail">
-            <input className="input" name="email" type="email" autoComplete="username" required autoFocus />
-          </Field>
-          <Field label="Senha">
-            <input className="input" name="password" type="password" autoComplete="current-password" required />
-          </Field>
-          <button className="btn primary" disabled={busy}>
-            {busy ? 'Entrando…' : 'Entrar'}
-          </button>
-        </form>
-      </div>
-    </div>
   );
+}
+
+/** O sistema completo é servido pelo servidor em /app (fora do React). */
+export function GoApp() {
+  window.location.replace('/app');
+  return null;
 }

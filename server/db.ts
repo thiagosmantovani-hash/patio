@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { STORE_SCHEMA } from './store.ts';
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS users (
@@ -18,6 +19,14 @@ CREATE TABLE IF NOT EXISTS sessions (
   token TEXT PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_tokens (
+  hash TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL CHECK (kind IN ('reset','invite','verify')),
+  expires_at TEXT NOT NULL,
+  used_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS settings (
@@ -212,6 +221,10 @@ export function openDatabase(file: string): DB {
   const db = new DatabaseSync(file);
   db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
   db.exec(SCHEMA);
+  db.exec(STORE_SCHEMA);
+  // Colunas novas em bancos já existentes.
+  const cols = (db.prepare('PRAGMA table_info(users)').all() as { name: string }[]).map((c) => c.name);
+  if (!cols.includes('email_verified_at')) db.exec('ALTER TABLE users ADD COLUMN email_verified_at TEXT');
   return db;
 }
 

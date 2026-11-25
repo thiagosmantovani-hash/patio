@@ -1,12 +1,21 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 import type { DB } from '../db.ts';
 import { hashPassword, requireRole, sessionToken, verifyPassword } from '../auth.ts';
 import { HttpError, idParam, notFound, num, oneOf, str } from '../http.ts';
+import { EMAIL_RE, MIN_PASSWORD } from '../security.ts';
 
 const ROLES = ['admin', 'gerente', 'vendedor'] as const;
 const PUBLIC_FIELDS = 'id, name, email, role, commission_rate, active, created_at';
 
-export function userRoutes(db: DB) {
+/** Ganchos para manter o índice central de e-mails (login multiempresa) em dia. */
+export interface AccountHooks {
+  claim(email: string): void;
+  release(email: string): void;
+}
+
+const noHooks: AccountHooks = { claim() {}, release() {} };
+
+export function userRoutes(db: DB, accounts: AccountHooks = noHooks, invite?: (u: { id: number; name: string; email: string }, req: Request) => Promise<boolean>) {
   const r = Router();
 
   // Lista resumida para seletores (vendedor responsável etc.), disponível a todos.
@@ -17,7 +26,7 @@ export function userRoutes(db: DB) {
   r.post('/me/password', (req, res) => {
     const current = str(req.body, 'current', { required: true, label: 'senha atual' })!;
     const next = str(req.body, 'password', { required: true, label: 'nova senha' })!;
-    if (next.length < 6) throw new HttpError(400, 'A nova senha deve ter pelo menos 6 caracteres.');
+    if (next.length < MIN_PASSWORD) throw new HttpError(400, `A nova senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
     const row = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(req.user!.id) as { password_hash: string };
     if (!verifyPassword(current, row.password_hash)) throw new HttpError(400, 'Senha atual incorreta.');
     db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(next), req.user!.id);
@@ -33,30 +42,42 @@ export function userRoutes(db: DB) {
 
   r.post('/', (req, res) => {
     const password = str(req.body, 'password', { required: true, label: 'senha' })!;
-    if (password.length < 6) throw new HttpError(400, 'A senha deve ter pelo menos 6 caracteres.');
-    const info = db
-      .prepare('INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES (?, ?, ?, ?, ?)')
-      .run(
-        str(req.body, 'name', { required: true, label: 'nome' }),
-        str(req.body, 'email', { required: true, label: 'e-mail' }),
-        hashPassword(password),
-        oneOf(req.body, 'role', ROLES, 'vendedor'),
-        num(req.body, 'commission_rate', { min: 0 }) ?? 0,
-      );
+    if (password.length < MIN_PASSWORD) throw new HttpError(400, `A senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
+    const email = str(req.body, 'email', { required: true, label: 'e-mail' })!.toLowerCase();
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Informe um e-mail válido.');
+    if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) throw new HttpError(409, 'Já existe um usuário com este e-mail.');
+    const name = str(req.body, 'name', { required: true, label: 'nome' });
+    const role = oneOf(req.body, 'role', ROLES, 'vendedor');
+    const rate = num(req.body, 'commission_rate', { min: 0 }) ?? 0;
+    accounts.claim(email);
+    let info;
+    try {
+      info = db.prepare('INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES (?, ?, ?, ?, ?)').run(name, email, hashPassword(password), role, rate);
+    } catch (err) {
+      accounts.release(email);
+      throw err;
+    }
     res.status(201).json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(info.lastInsertRowid));
   });
 
   r.put('/:id', (req, res) => {
     const id = idParam(req);
-    const existing = db.prepare('SELECT id FROM users WHERE id = ?').get(id);
+    const existing = db.prepare('SELECT id, email FROM users WHERE id = ?').get(id) as { id: number; email: string } | undefined;
     if (!existing) throw notFound('Usuário');
+    const email = str(req.body, 'email', { required: true, label: 'e-mail' })!.toLowerCase();
+    if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Informe um e-mail válido.');
+    if (email !== existing.email.toLowerCase()) {
+      if (db.prepare('SELECT 1 FROM users WHERE email = ? AND id != ?').get(email, id)) throw new HttpError(409, 'Já existe um usuário com este e-mail.');
+      accounts.claim(email);
+      accounts.release(existing.email);
+    }
     const active = req.body.active === false || req.body.active === 0 ? 0 : 1;
     if (id === req.user!.id && (active === 0 || req.body.role !== 'admin')) {
       throw new HttpError(400, 'Você não pode remover seu próprio acesso de administrador.');
     }
     db.prepare('UPDATE users SET name = ?, email = ?, role = ?, commission_rate = ?, active = ? WHERE id = ?').run(
       str(req.body, 'name', { required: true, label: 'nome' }),
-      str(req.body, 'email', { required: true, label: 'e-mail' }),
+      email,
       oneOf(req.body, 'role', ROLES),
       num(req.body, 'commission_rate', { min: 0 }) ?? 0,
       active,
@@ -64,11 +85,37 @@ export function userRoutes(db: DB) {
     );
     const password = str(req.body, 'password');
     if (password) {
-      if (password.length < 6) throw new HttpError(400, 'A senha deve ter pelo menos 6 caracteres.');
+      if (password.length < MIN_PASSWORD) throw new HttpError(400, `A senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
       db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(password), id);
+      // Senha redefinida pelo administrador: quem estava conectado com a senha antiga precisa entrar de novo.
+      if (id !== req.user!.id) db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
     }
     if (!active) db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
     res.json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(id));
+  });
+
+  /** Envia (ou reenvia) por e-mail o convite com o link para a pessoa criar a própria senha. */
+  r.post('/:id/invite', async (req, res) => {
+    const u = db.prepare('SELECT id, name, email, active FROM users WHERE id = ?').get(idParam(req)) as { id: number; name: string; email: string; active: number } | undefined;
+    if (!u) throw notFound('Usuário');
+    if (!u.active) throw new HttpError(400, 'Reative o usuário antes de enviar o convite.');
+    res.json({ sent: invite ? await invite(u, req) : false });
+  });
+
+  /** Exclui o acesso de vez. O que a pessoa registrou continua no sistema (com o nome gravado nos registros). */
+  r.delete('/:id', (req, res) => {
+    const id = idParam(req);
+    if (id === req.user!.id) throw new HttpError(400, 'Você não pode excluir o seu próprio acesso.');
+    const existing = db.prepare('SELECT id, email, role FROM users WHERE id = ?').get(id) as { id: number; email: string; role: string } | undefined;
+    if (!existing) throw notFound('Usuário');
+    if (existing.role === 'admin') {
+      const others = db.prepare("SELECT COUNT(*) AS n FROM users WHERE role = 'admin' AND active = 1 AND id != ?").get(id) as { n: number };
+      if (!others.n) throw new HttpError(400, 'A loja precisa de pelo menos um administrador ativo.');
+    }
+    db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
+    db.prepare('DELETE FROM users WHERE id = ?').run(id);
+    accounts.release(existing.email);
+    res.json({ ok: true });
   });
 
   return r;
