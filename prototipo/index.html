@@ -3066,6 +3066,7 @@ body.g-dragging,body.g-dragging *{cursor:grabbing!important;user-select:none!imp
 .v10-fipe-res{margin-top:12px;background:var(--green-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
 .v10-fipe-res b{font-size:26px;font-weight:800;color:var(--ink)}
 .v10-fq-st{min-height:24px;margin-top:10px}
+.v10-fq-cod{display:flex;flex-direction:column;gap:6px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:4px}.v10-fq-codr{display:flex;gap:8px}.v10-fq-codr .inp{max-width:160px}
 @media (max-width:720px){.v10-fipe-now{grid-template-columns:1fr}}
 .v10-imp-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 14px}
 .v10-imp-opt{display:flex;flex-direction:column;gap:6px;margin-top:12px}
@@ -8636,11 +8637,11 @@ const V10_NOTA_PORTAIS='<b>Controle manual dos portais.</b> O Pátio ainda não 
 
 /* ---------- FIPE real ---------- */
 const v10Mes=d=>ISO(d||TODAY).slice(0,7);
-function v10FipeReg(v,val,mes){v.fipeReg=Array.isArray(v.fipeReg)?v.fipeReg:[];const m=v10Mes();const e=v.fipeReg.find(x=>x.m===m);if(e){e.val=val;e.ref=mes||e.ref||''}else v.fipeReg.push({m,val,ref:mes||''});v.fipeReg.sort((a,b)=>a.m.localeCompare(b.m));if(v.fipeReg.length>36)v.fipeReg=v.fipeReg.slice(-36)}
+function v10FipeReg(v,val,mes,ref){v.fipeReg=Array.isArray(v.fipeReg)?v.fipeReg:[];const m=/^\d{4}-\d{2}$/.test(ref||'')?ref:v10Mes();const e=v.fipeReg.find(x=>x.m===m);if(e){e.val=val;e.ref=mes||e.ref||''}else v.fipeReg.push({m,val,ref:mes||''});v.fipeReg.sort((a,b)=>a.m.localeCompare(b.m));if(v.fipeReg.length>36)v.fipeReg=v.fipeReg.slice(-36)}
 {const fs0=fipeSerie;
  fipeSerie=function(v){if(!REAL())return fs0(v);
   const reg=(Array.isArray(v.fipeReg)?v.fipeReg:[]).map(x=>({m:x.m,val:+x.val||0})).filter(x=>x.val>0);
-  const cm=v10Mes();if(+v.fipe>0){const last=reg[reg.length-1];if(last&&last.m===cm)last.val=+v.fipe;else reg.push({m:cm,val:+v.fipe})}
+  const cm=v10Mes();if(+v.fipe>0){const last=reg[reg.length-1];if(last&&(last.m===cm||last.val===+v.fipe))last.val=+v.fipe;else reg.push({m:cm,val:+v.fipe})}
   const out=reg.slice(-6).map(x=>({d:new Date(x.m+'-01T12:00'),val:x.val}));
   out.forEach((x,i)=>{const p=out[i-1];x.dv=p?x.val-p.val:0;x.dp=p&&p.val?x.dv/p.val*100:0;x.acc=out[0].val?(x.val-out[0].val)/out[0].val*100:0});
   return out};
@@ -8672,11 +8673,13 @@ function v10fqPaint(){
  const sel=(k,lab,list,val,dis,cls='')=>`<label class="f ${cls}">${lab}<select class="inp" data-fq="${k}" id="fq-${k}" ${dis?'disabled':''}><option value="">${dis?'…':'Selecione'}</option>${list.map(o=>`<option value="${esc(o.codigo)}"${String(o.codigo)===String(val)?' selected':''}>${esc(o.nome)}</option>`).join('')}</select></label>`;
  const fil=Q.modeloQ?Q.modelos.filter(o=>v10norm(o.nome).includes(v10norm(Q.modeloQ))||String(o.codigo)===String(Q.modelo)):Q.modelos;
  el.innerHTML=`<div class="form">
+  <div class="f wide v10-fq-cod"><label for="fq-cod">Já tem o código FIPE? <span class="small muted">(está no CRLV e nos anúncios)</span></label><span class="v10-fq-codr"><input class="inp" id="fq-cod" inputmode="numeric" placeholder="000000-0" value="${esc(Q.cod||'')}" autocomplete="off"><button type="button" class="btn" data-act="v10fipeCod">Buscar pelo código</button></span></div>
+  ${Q.modo==='codigo'?`<p class="wide small">Buscando pelo código <b>${esc(Q.cod)}</b>. <button type="button" class="v10-lk" data-act="v10fipeMarca">Buscar por marca e modelo</button></p>`:''}
   <label class="f">Tipo<select class="inp" data-fq="tipo" id="fq-tipo">${opts([['carros','Carros'],['motos','Motos'],['caminhoes','Caminhões']],Q.tipo)}</select></label>
-  ${sel('marca','Marca',Q.marcas,Q.marca,!Q.marcas.length)}
-  <label class="f wide">Filtrar modelos<input class="inp" type="search" data-fq="modeloQ" id="fq-q" value="${esc(Q.modeloQ)}" placeholder="Digite parte do nome" ${Q.marca?'':'disabled'}></label>
-  ${sel('modelo',`Modelo e versão (${fil.length})`,fil,Q.modelo,!Q.marca||!Q.modelos.length,'wide')}
-  ${sel('ano','Ano modelo e combustível',Q.anos,Q.ano,!Q.modelo||!Q.anos.length)}
+  ${Q.modo==='codigo'?'':sel('marca','Marca',Q.marcas,Q.marca,!Q.marcas.length)}
+  <label class="f wide"${Q.modo==='codigo'?' hidden':''}>Filtrar modelos<input class="inp" type="search" data-fq="modeloQ" id="fq-q" value="${esc(Q.modeloQ)}" placeholder="Digite parte do nome" ${Q.marca?'':'disabled'}></label>
+  ${Q.modo==='codigo'?'':sel('modelo',`Modelo e versão (${fil.length})`,fil,Q.modelo,!Q.marca||!Q.modelos.length,'wide')}
+  ${sel('ano','Ano modelo e combustível',Q.anos,Q.ano,(Q.modo!=='codigo'&&!Q.modelo)||!Q.anos.length)}
  </div>
  <div aria-live="polite" class="v10-fq-st">${Q.load?`<p class="muted">${esc(Q.load)}</p>`:''}${Q.err?`<p class="v9-down">${esc(Q.err)}</p>`:''}
  ${Q.res?`<div class="v10-fipe-res"><span class="eyebrow">${esc(Q.res.mes)} · código ${esc(Q.res.codigo)}</span><b>${brl(Q.res.valor)}</b><span class="small muted">${esc(Q.res.marca)} ${esc(Q.res.modelo)} · ${Q.res.ano||''} · ${esc(Q.res.combustivel)}</span></div>`:''}</div>`;
@@ -8688,15 +8691,18 @@ async function v10fqStep(k){
   if(k==='tipo'){Q.marcas=[];Q.marca='';Q.modelos=[];Q.modelo='';Q.anos=[];Q.ano='';Q.res=null;Q.load='Carregando marcas…';v10fqPaint();Q.marcas=await v10get(`/${Q.tipo}/marcas`);if(Q.v){const b=v10best(Q.marcas,Q.v.marca);if(b){Q.marca=b.codigo;Q.load='';return v10fqStep('marca')}}}
   else if(k==='marca'){Q.modelos=[];Q.modelo='';Q.anos=[];Q.ano='';Q.res=null;if(!Q.marca){Q.load='';return v10fqPaint()}Q.load='Carregando modelos…';v10fqPaint();Q.modelos=await v10get(`/${Q.tipo}/marcas/${Q.marca}/modelos`);if(Q.v&&!Q.modeloQ)Q.modeloQ=String(Q.v.modelo||'').split(' ')[0];if(Q.v){const b=v10best(Q.modelos,Q.v.modelo+' '+Q.v.versao);if(b){Q.modelo=b.codigo;Q.load='';return v10fqStep('modelo')}}}
   else if(k==='modelo'){Q.anos=[];Q.ano='';Q.res=null;if(!Q.modelo){Q.load='';return v10fqPaint()}Q.load='Carregando anos…';v10fqPaint();Q.anos=await v10get(`/${Q.tipo}/marcas/${Q.marca}/modelos/${Q.modelo}/anos`);if(Q.v){const y=String(Q.v.anoMod||''),comb=v10norm(Q.v.combustivel).split(' ')[0];const c=Q.anos.filter(o=>String(o.codigo).startsWith(y+'-'));const b=c.find(o=>comb&&v10norm(o.nome).includes(comb))||c[0];if(b){Q.ano=b.codigo;Q.load='';return v10fqStep('ano')}}}
-  else if(k==='ano'){Q.res=null;if(!Q.ano){Q.load='';return v10fqPaint()}Q.load='Consultando valor…';v10fqPaint();Q.res=await v10get(`/${Q.tipo}/marcas/${Q.marca}/modelos/${Q.modelo}/anos/${Q.ano}`)}
+  else if(k==='codigo'){Q.anos=[];Q.ano='';Q.res=null;Q.load='Buscando o código FIPE…';v10fqPaint();Q.anos=await v10get(`/${Q.tipo}/codigo/${encodeURIComponent(Q.cod)}/anos`);if(!Q.anos.length)throw new Error('Nenhum ano encontrado para este código.');const y=String(Q.v&&Q.v.anoMod||''),comb=v10norm(Q.v&&Q.v.combustivel).split(' ')[0];const c=Q.anos.filter(o=>String(o.codigo).startsWith(y+'-'));const b=c.find(o=>comb&&v10norm(o.nome).includes(comb))||c[0]||(Q.anos.length===1?Q.anos[0]:null);if(b){Q.ano=b.codigo;Q.load='';return v10fqStep('ano')}}
+  else if(k==='ano'){Q.res=null;if(!Q.ano){Q.load='';return v10fqPaint()}Q.load='Consultando valor…';v10fqPaint();Q.res=await v10get(Q.modo==='codigo'?`/${Q.tipo}/codigo/${encodeURIComponent(Q.cod)}/anos/${Q.ano}`:`/${Q.tipo}/marcas/${Q.marca}/modelos/${Q.modelo}/anos/${Q.ano}`)}
  }catch(e){Q.err=e.message||'Não foi possível consultar a FIPE agora.'}
  Q.load='';v10fqPaint();
 }
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='fq-cod'&&UI.fq){e.preventDefault();ACT.v10fipeCod()}});
 document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||!t.dataset.fq||!UI.fq)return;const k=t.dataset.fq;if(k==='modeloQ')return;UI.fq[k]=t.value;v10fqStep(k)});
 document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||t.dataset.fq!=='modeloQ'||!UI.fq)return;UI.fq.modeloQ=t.value;const pos=t.selectionStart;v10fqPaint();const n=document.getElementById('fq-q');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}});
 function v10usarFipe(v,r,ref){
  v.fipe=r.valor;v.fipeRef=Object.assign({},ref,{codigo:r.codigo,mes:r.mes,nome:`${r.marca} ${r.modelo} ${r.ano||''}`.trim()});
- v10FipeReg(v,r.valor,r.mes);
+ (Array.isArray(r.historico)?r.historico:[]).forEach(h=>{if(h&&h.m&&+h.val>0&&!(v.fipeReg||[]).some(x=>x.m===h.m)){v.fipeReg=v.fipeReg||[];v.fipeReg.push({m:h.m,val:+h.val,ref:'histórico FIPE'})}});
+ v10FipeReg(v,r.valor,r.mes,r.ref);
  if(!(+v.fipeEntrada>0)&&(!v.entrada||String(v.entrada).slice(0,7)===v10Mes()))v.fipeEntrada=r.valor;
  touch(v,'precificacao',`Atualizou a FIPE: ${brl(r.valor)} (${r.mes})`);
 }
@@ -8706,9 +8712,13 @@ Object.assign(ACT,{
   openModal('Consultar Tabela FIPE','<div id="fq-body"></div>',`<button class="btn" type="button" data-act="closeModal">Cancelar</button><button class="btn pri" type="button" id="fq-usar" data-act="v10fipeUsar" disabled>Usar este valor</button>`);
   v10fqStep('tipo')},
  v10fipeUsar(){const Q=UI.fq;if(!Q||!Q.res)return;const v=Q.vid&&S.veh[Q.vid];if(!v){closeModal();return}
-  v10usarFipe(v,Q.res,{tipo:Q.tipo,marca:Q.marca,modelo:Q.modelo,ano:Q.ano});save();closeModal();toast('Valor FIPE atualizado');render()},
+  v10usarFipe(v,Q.res,{tipo:Q.tipo,marca:Q.modo==='codigo'?'':Q.marca,modelo:Q.modo==='codigo'?'':Q.modelo,ano:Q.ano});save();closeModal();toast('Valor FIPE atualizado');render()},
+ v10fipeCod(){const Q=UI.fq;if(!Q)return;const el=document.getElementById('fq-cod');let c=String(el&&el.value||'').replace(/\D/g,'');
+  if(c.length!==7){Q.err='O código FIPE tem 7 números, no formato 000000-0.';return v10fqPaint()}
+  Q.cod=c.slice(0,6)+'-'+c.slice(6);Q.modo='codigo';v10fqStep('codigo')},
+ v10fipeMarca(){const Q=UI.fq;if(!Q)return;Q.modo='';Q.cod='';v10fqStep('tipo')},
  async v10fipeAtual(d){const v=S.veh[d.id],r0=v&&v.fipeRef;if(!r0)return ACT.v10fipe(d);
-  try{toast('Consultando a FIPE…');const r=await v10get(`/${r0.tipo}/marcas/${r0.marca}/modelos/${r0.modelo}/anos/${r0.ano}`);v10usarFipe(v,r,r0);save();toast(`FIPE ${r.mes}: ${brl(r.valor)}`);render()}catch(e){toast(e.message)}}
+  try{toast('Consultando a FIPE…');const r=await v10get(r0.codigo&&r0.ano?`/${r0.tipo}/codigo/${encodeURIComponent(r0.codigo)}/anos/${r0.ano}`:`/${r0.tipo}/marcas/${r0.marca}/modelos/${r0.modelo}/anos/${r0.ano}`);v10usarFipe(v,r,r0);save();toast(`FIPE ${r.mes}: ${brl(r.valor)}`);render()}catch(e){toast(e.message)}}
 });
 /* fecha o estado da consulta ao fechar a janela */
 {const cm=closeModal;closeModal=function(){UI.fq=null;return cm()}}
