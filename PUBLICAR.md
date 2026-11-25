@@ -38,6 +38,10 @@ Leva uns 20 minutos. Não precisa saber programar.
 
 O endereço usado nos links dos e-mails vem sozinho do Railway. Se usar domínio próprio para o sistema, defina também `APP_URL` (ex.: `https://app.patio.com.br`).
 
+### Consulta FIPE
+
+A consulta usa a API pública da parallelum (v2), gratuita. Sem chave são 500 consultas por dia para o sistema inteiro (todas as lojas somadas); o Pátio guarda as respostas por algumas horas para economizar. Crie a chave grátis em **fipe.api.br/register** e ponha em `FIPE_TOKEN` para subir para 1.000 por dia. Se o limite acabar, a loja digita o valor à mão até o dia seguinte.
+
 ### Backup fora do servidor
 
 O backup diário fica no mesmo disco do servidor. Uma vez por semana, entre no menu **Plataforma** e clique em **Baixar backup** em cada loja: guarde o arquivo no seu computador ou no Google Drive. Se o seu plano do Railway oferecer backup do volume, ative também.
@@ -83,8 +87,8 @@ docker run -d --name patio --restart unless-stopped -p 3000:3000 -v /srv/patio:/
 | `RESEND_API_KEY` | vazio | Liga o envio de e-mails (convite, esqueci minha senha, confirmação) |
 | `MAIL_FROM` | `Pátio <onboarding@resend.dev>` | Remetente dos e-mails |
 | `APP_URL` | endereço do Railway | Endereço público usado nos links dos e-mails |
-| `FIPE_TOKEN` | vazio | Chave da API da FIPE (parallelum) para mais consultas por dia; sem ela vale o limite gratuito |
-| `FIPE_API_URL` | API v1 da parallelum | Troca o provedor da consulta FIPE (mesmo formato) |
+| `FIPE_TOKEN` | vazio | Chave grátis da API FIPE (cadastro em fipe.api.br/register): sobe de 500 para 1.000 consultas por dia, somando todas as lojas |
+| `FIPE_API_URL` | `https://fipe.parallelum.com.br/api/v2` | Endereço da API FIPE (formato v2) |
 
 > **Importante (segurança):** o cadastro não confirma o e-mail. Logo depois de publicar, e antes de divulgar o link de cadastro, crie a sua conta com o mesmo e-mail que está em `PLATFORM_ADMINS`. Assim ninguém consegue cadastrar esse e-mail antes de você e ganhar acesso ao menu Plataforma.
 

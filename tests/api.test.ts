@@ -382,14 +382,21 @@ test('e-mails: esqueci a senha, convite, confirmação e plataforma só com e-ma
   }
 });
 
-test('FIPE pelo servidor: lista, valor convertido, cache e erro amigável', async () => {
-  const { fipeRoutes, parseValor } = await import('../server/routes/fipe.ts');
+test('FIPE pelo servidor (API v2): lista, código FIPE, histórico, cache e erros', async () => {
+  const { fipeRoutes, parseValor, parseMes } = await import('../server/routes/fipe.ts');
   assert.equal(parseValor('R$ 85.608,00'), 85608);
-  let calls = 0;
-  const fake = (async (url: string) => {
-    calls++;
-    if (url.endsWith('/marcas')) return new Response(JSON.stringify([{ nome: 'Fiat', codigo: 21 }]), { status: 200 });
-    if (url.endsWith('/anos/2020-1')) return new Response(JSON.stringify({ Valor: 'R$ 50.100,00', CodigoFipe: '001-1', MesReferencia: 'novembro de 2026', Marca: 'Fiat', Modelo: 'Uno', AnoModelo: 2020, Combustivel: 'Gasolina' }), { status: 200 });
+  assert.equal(parseMes('março de 2026'), '2026-03');
+  assert.equal(parseMes('novembro de 2026 '), '2026-11');
+  const calls: string[] = [];
+  const preco = { brand: 'Fiat', codeFipe: '001267-0', fuel: 'Gasolina', fuelAcronym: 'G', model: 'Uno', modelYear: 2020, price: 'R$ 50.100,00', referenceMonth: 'novembro de 2026', vehicleType: 1, priceHistory: [{ month: 'outubro de 2026', price: 'R$ 50.900,00', reference: '330' }, { month: 'setembro de 2026', price: 'R$ 51.200,00', reference: '329' }] };
+  const fake = (async (url: string, init?: RequestInit) => {
+    calls.push(url);
+    assert.equal(init?.redirect, 'error');
+    if (url === 'http://fipe/cars/brands') return new Response(JSON.stringify([{ code: '21', name: 'Fiat' }, { code: '../x', name: 'ruim' }]), { status: 200 });
+    if (url.endsWith('/cars/brands/21/models/9/years/2020-1')) return new Response(JSON.stringify(preco), { status: 200 });
+    if (url === 'http://fipe/cars/001267-0/years') return new Response(JSON.stringify([{ code: '2020-1', name: '2020 Gasolina' }]), { status: 200 });
+    if (url === 'http://fipe/cars/001267-0/years/2020-1') return new Response(JSON.stringify(preco), { status: 200 });
+    if (url === 'http://fipe/motorcycles/brands') return new Response('{}', { status: 429 });
     return new Response('{}', { status: 500 });
   }) as typeof fetch;
   const dir3 = mkdtempSync(join(tmpdir(), 'patio-fipe-'));
@@ -401,12 +408,19 @@ test('FIPE pelo servidor: lista, valor convertido, cache e erro amigável', asyn
     const su = await fetch(b3 + '/api/auth/signup', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ company_name: 'F', name: 'F', email: 'f@f.com', password: 'segredo123', accept_terms: true }) });
     const ck = su.headers.get('set-cookie')!.split(';')[0]!;
     const get = (p: string) => fetch(b3 + '/api/fipe' + p, { headers: { cookie: ck } });
-    assert.deepEqual(await (await get('/carros/marcas')).json(), [{ codigo: '21', nome: 'Fiat' }]);
+    assert.deepEqual(await (await get('/carros/marcas')).json(), [{ codigo: '21', nome: 'Fiat' }], 'converte {code,name} e descarta código estranho');
     await get('/carros/marcas');
-    assert.equal(calls, 1, 'segunda consulta vem do cache');
+    assert.equal(calls.filter((c) => c === 'http://fipe/cars/brands').length, 1, 'segunda consulta vem do cache');
     const p = (await (await get('/carros/marcas/21/modelos/9/anos/2020-1')).json()) as any;
     assert.equal(p.valor, 50100);
-    assert.equal(p.codigo, '001-1');
+    assert.equal(p.codigo, '001267-0');
+    assert.equal(p.ref, '2026-11');
+    assert.deepEqual(p.historico, [{ m: '2026-09', val: 51200 }, { m: '2026-10', val: 50900 }]);
+    assert.deepEqual(await (await get('/carros/codigo/001267-0/anos')).json(), [{ codigo: '2020-1', nome: '2020 Gasolina' }]);
+    assert.equal(((await (await get('/carros/codigo/001267-0/anos/2020-1')).json()) as any).valor, 50100);
+    assert.equal((await get('/carros/codigo/12345/anos')).status, 400, 'código FIPE fora do formato');
+    assert.equal((await get('/motos/marcas')).status, 502, 'limite diário vira mensagem amigável');
+    assert.match(((await (await get('/motos/marcas')).json()) as any).error, /Limite diário/);
     assert.equal((await get('/carros/marcas/21/modelos')).status, 502);
     assert.equal((await get('/barcos/marcas')).status, 400);
     assert.equal((await get('/carros/marcas/..%2F../modelos')).status, 400, 'código com caracteres estranhos é recusado');
