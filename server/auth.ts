@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
 import type { DB } from './db.ts';
 import { HttpError } from './http.ts';
@@ -116,4 +116,27 @@ export function requireRole(...roles: Role[]) {
     if (!req.user || !roles.includes(req.user.role)) return next(new HttpError(403, 'Sem permissão para esta ação.'));
     next();
   };
+}
+
+// Códigos de uso único enviados por e-mail (redefinir senha, convite, confirmação de e-mail).
+// No banco fica só o hash: quem lê o banco não consegue usar o link.
+export type TokenKind = 'reset' | 'invite' | 'verify';
+const sha = (s: string) => createHash('sha256').update(s).digest('hex');
+
+export function createUserToken(db: DB, userId: number, kind: TokenKind, ttlMs: number): string {
+  const token = randomBytes(32).toString('base64url');
+  db.prepare('DELETE FROM user_tokens WHERE (user_id = ? AND kind = ?) OR expires_at < ?').run(userId, kind, new Date().toISOString());
+  db.prepare('INSERT INTO user_tokens (hash, user_id, kind, expires_at) VALUES (?, ?, ?, ?)').run(sha(token), userId, kind, new Date(Date.now() + ttlMs).toISOString());
+  return token;
+}
+
+/** Valida o código; se `consume`, marca como usado. Devolve o usuário ou null. */
+export function checkUserToken(db: DB, token: string, kinds: TokenKind[], consume = false): { userId: number; kind: TokenKind } | null {
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(token)) return null;
+  const row = db.prepare('SELECT user_id, kind, expires_at, used_at FROM user_tokens WHERE hash = ?').get(sha(token)) as
+    | { user_id: number; kind: TokenKind; expires_at: string; used_at: string | null }
+    | undefined;
+  if (!row || row.used_at || row.expires_at < new Date().toISOString() || !kinds.includes(row.kind)) return null;
+  if (consume) db.prepare('UPDATE user_tokens SET used_at = ? WHERE hash = ?').run(new Date().toISOString(), sha(token));
+  return { userId: row.user_id, kind: row.kind };
 }

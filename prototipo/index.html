@@ -8606,7 +8606,8 @@ function v10afterHead(h,note){
 }
 
 /* alertas e novidades: sem NF-e no sistema publicado; loja nova não recebe novidades antigas como não lidas */
-{const a0=alertas;alertas=function(){const A=a0();return REAL()?A.filter(x=>!/NF-e/.test(x.t)):A}}
+{const a0=alertas;alertas=function(){const A=a0();if(!REAL())return A;const B=window.PATIO_BOOT,R=A.filter(x=>!/NF-e/.test(x.t));if(B.mail&&!B.email_verified)R.unshift({t:'Confirme seu e-mail para proteger a conta',href:'#painel',i:'shield',act:'data-act="v10verif"'});return R}}
+ACT.v10verif=async function(){try{const r=await srvApi('POST','/api/auth/verify/resend');toast(r.verified?'Seu e-mail já está confirmado':r.sent?'Enviamos o link de confirmação para '+window.PATIO_BOOT.user.email:'Não foi possível enviar agora. Tente mais tarde.')}catch(e){toast(e.message)}};
 {const n0=notificacoes;notificacoes=function(){const N=n0();if(!REAL())return N;const c=String((window.PATIO_BOOT.company||{}).created_at||'').slice(0,10);return c?N.filter(x=>x.tipo!=='novidade'||String(x.d)>=c):N}}
 
 /* ---------- portais: controle manual ---------- */
@@ -9042,12 +9043,15 @@ if(window.PATIO_BOOT){(function(){
   async convite(){
    const id=document.getElementById('fm-user')?.dataset.id,u=id&&CFG().usuarios[id],r=u&&realPorEmail(u.email);
    if(!r){toast('Este usuário ainda não tem login');return}
+   if(B.mail){try{const x=await srvApi('POST','/api/users/'+r.id+'/invite');if(x.sent){toast('Convite enviado para '+r.email);return}}catch(e){}}
    const senha=senhaNova();
    try{realUpsert(await srvApi('PUT','/api/users/'+r.id,{name:r.name,email:r.email,role:r.role,commission_rate:r.commission_rate||0,active:true,password:senha}))}catch(e){toast(e.message);return}
    modalAcesso(u.nome,u.email,senha,false);
   }
  });
- function modalAcesso(nomeU,email,senha,novo){
+ function modalAcesso(nomeU,email,senha,novo,enviado){
+  if(enviado){const msg2=`Olá, ${nomeU.split(' ')[0]}! Seu acesso ao Pátio foi criado.\nEntre em ${location.origin}/login\nE-mail: ${email}\nSenha provisória: ${senha}`;
+   openModal('Convite enviado',`<p>Enviamos para <b>${esc(email)}</b> um convite com o link para ${esc(nomeU.split(' ')[0])} criar a própria senha (vale 7 dias). Se o e-mail não chegar, envie estes dados por WhatsApp:</p><pre class="srv-msg">${esc(msg2)}</pre>`,`<button class="btn" type="button" data-act="closeModal">Fechar</button><button class="btn pri" type="button" data-act="srvCopiar" data-t="${esc(msg2)}">Copiar mensagem</button>`);return}
   const msg=`Olá, ${nomeU.split(' ')[0]}! ${novo?'Seu acesso ao Pátio foi criado':'Sua senha do Pátio foi redefinida'}.\nEntre em ${location.origin}/login\nE-mail: ${email}\nSenha provisória: ${senha}\nTroque a senha depois do primeiro acesso (menu com seu nome › Trocar senha).`;
   openModal(novo?'Acesso criado':'Nova senha gerada',`<p>Envie estes dados para <b>${esc(nomeU)}</b> (por WhatsApp, por exemplo). A senha não aparece de novo depois que você fechar esta janela.</p><pre class="srv-msg" id="srv-msg">${esc(msg)}</pre>`,`<button class="btn" type="button" data-act="closeModal">Fechar</button><button class="btn pri" type="button" data-act="srvCopiar" data-t="${esc(msg)}">Copiar mensagem</button>`);
  }
@@ -9057,7 +9061,7 @@ if(window.PATIO_BOOT){(function(){
    `${B.platform?'<a class="btn" href="/plataforma">Plataforma</a>':''}<button class="btn" type="button" data-act="srvSenha">Trocar senha</button><button class="btn pri" type="button" data-act="srvSair">Sair</button>`);
  }
  function modalSenha(){
-  openModal('Trocar senha',`<form data-form="srvSenha" id="fm-srvsenha" class="form">${mf('Senha atual',mi('current','',{type:'password',req:1}),'wide')}${mf('Nova senha (mínimo 6 caracteres)',mi('password','',{type:'password',req:1}),'wide')}</form>`,footSave('fm-srvsenha','Trocar senha'));
+  openModal('Trocar senha',`<form data-form="srvSenha" id="fm-srvsenha" class="form">${mf('Senha atual',mi('current','',{type:'password',req:1}),'wide')}${mf('Nova senha (mínimo 8 caracteres)',mi('password','',{type:'password',req:1}),'wide')}</form>`,footSave('fm-srvsenha','Trocar senha'));
  }
  const formUser=FORMS.user;
  Object.assign(FORMS,{
@@ -9067,10 +9071,11 @@ if(window.PATIO_BOOT){(function(){
    if(!id){
     if(users().some(u=>String(u.email).toLowerCase()===email)){toast('Já existe um usuário com este e-mail');return}
     const senha=senhaNova();
-    try{realUpsert(await srvApi('POST','/api/users',{name:d.nome,email,password:senha,role}))}catch(e){toast(e.message);return}
+    let criado;try{criado=await srvApi('POST','/api/users',{name:d.nome,email,password:senha,role});realUpsert(criado)}catch(e){toast(e.message);return}
+    let enviado=false;if(B.mail&&criado&&criado.id){try{enviado=!!(await srvApi('POST','/api/users/'+criado.id+'/invite')).sent}catch(e){}}
     const t0=toast;toast=function(){};try{formUser(d,f,fd)}finally{toast=t0}
     const u=users().find(x=>String(x.email).toLowerCase()===email);if(u){u.status='ativo';save();render()}
-    modalAcesso(d.nome,email,senha,true);return;
+    modalAcesso(d.nome,email,senha,true,enviado);return;
    }
    const u=CFG().usuarios[id],r=u&&realPorEmail(u.email);
    if(r){try{realUpsert(await srvApi('PUT','/api/users/'+r.id,{name:d.nome,email,role,commission_rate:r.commission_rate||0,active:u.status!=='suspenso'}))}catch(e){toast(e.message);return}}

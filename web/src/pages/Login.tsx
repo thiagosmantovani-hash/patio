@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { Field } from '../ui';
 
@@ -7,7 +7,9 @@ export function Login() {
   const { user, login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [params] = useSearchParams();
   if (user) return <GoApp />;
+  const aviso = params.get('confirmado') ? 'E-mail confirmado. Entre com sua senha.' : params.get('link') === 'invalido' ? 'Este link expirou ou já foi usado.' : null;
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,7 +35,8 @@ export function Login() {
             <h1>Entrar</h1>
             <p className="muted">Acesse com seu e-mail e senha.</p>
           </div>
-          {error && <div className="error-box">{error}</div>}
+          {aviso && <div className="ok-box" role="status">{aviso}</div>}
+          {error && <div className="error-box" role="alert">{error}</div>}
           <Field label="E-mail">
             <input className="input" name="email" type="email" autoComplete="username" required autoFocus />
           </Field>
@@ -43,6 +46,9 @@ export function Login() {
           <button className="btn primary" disabled={busy}>
             {busy ? 'Entrando…' : 'Entrar'}
           </button>
+          <p className="small" style={{ textAlign: 'center', margin: 0 }}>
+            <Link to="/esqueci-senha">Esqueci minha senha</Link>
+          </p>
           <p className="small muted" style={{ textAlign: 'center' }}>
             Ainda não usa o Pátio? <Link to="/cadastro">Cadastre sua loja grátis</Link>
           </p>

@@ -3,6 +3,7 @@ import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { createApp } from './app.ts';
 import { scheduleBackups } from './backup.ts';
+import { resendMailer } from './mail.ts';
 import { Tenants } from './tenants.ts';
 
 const root = resolve(import.meta.dirname, '..');
@@ -31,6 +32,9 @@ if (existsSync(legacy) && tenants.all().length === 0) {
 
 const platformAdmins = (process.env.PLATFORM_ADMINS ?? '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
 const trustProxy = process.env.TRUST_PROXY ?? (production ? '1' : 'loopback');
+// Endereço público usado nos links dos e-mails. No Railway vem sozinho (RAILWAY_PUBLIC_DOMAIN).
+const appUrl = process.env.APP_URL ?? (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : undefined);
+const mailer = resendMailer(process.env.RESEND_API_KEY, process.env.MAIL_FROM ?? 'Pátio <onboarding@resend.dev>');
 
 const app = createApp(tenants, {
   uploadDir: join(dataDir, 'uploads'),
@@ -39,6 +43,8 @@ const app = createApp(tenants, {
   secureCookies: process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE === '1' : production,
   platformAdmins,
   trustProxy: /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy,
+  mailer,
+  appUrl,
 });
 
 if (process.env.BACKUPS !== '0') scheduleBackups(tenants, join(dataDir, 'backups'), Number(process.env.BACKUP_DAYS ?? 14));
@@ -46,6 +52,8 @@ if (process.env.BACKUPS !== '0') scheduleBackups(tenants, join(dataDir, 'backups
 const server = app.listen(port, () => {
   console.log(`Pátio rodando em http://localhost:${port} · ${tenants.all().length} empresa(s) cadastrada(s)`);
   if (!platformAdmins.length) console.log('Dica: defina PLATFORM_ADMINS com seu e-mail para ver o painel da plataforma.');
+  console.log(mailer.enabled ? `E-mails ligados (Resend) · links em ${appUrl ?? 'endereço da requisição'}` : 'E-mails desligados: defina RESEND_API_KEY para enviar convites e redefinição de senha.');
+  if (production && mailer.enabled && !appUrl) console.warn('Atenção: defina APP_URL para os links dos e-mails.');
 });
 
 const shutdown = () => {

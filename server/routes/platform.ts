@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { sessionCompany, sessionUser } from '../auth.ts';
 import { HttpError, idParam, oneOf } from '../http.ts';
 import type { Tenants } from '../tenants.ts';
-import type { AuthOptions } from './auth.ts';
+import { platformAllowed, type AuthOptions } from './auth.ts';
 
 // Painel do dono do Pátio: quem se cadastrou e quanto cada empresa está usando.
 // Acesso só para os e-mails listados em PLATFORM_ADMINS.
@@ -13,7 +13,7 @@ export function platformRoutes(tenants: Tenants, opts: AuthOptions) {
     const t = tenants.get(sessionCompany(req));
     const user = t ? sessionUser(t.db, req) : null;
     if (!user) return next(new HttpError(401, 'Sessão expirada. Faça login novamente.'));
-    if (!(opts.platformAdmins ?? []).includes(user.email.toLowerCase())) return next(new HttpError(403, 'Sem permissão para esta ação.'));
+    if (!platformAllowed(opts, t!.db, user)) return next(new HttpError(403, 'Sem permissão para esta ação.'));
     next();
   });
 

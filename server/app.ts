@@ -8,7 +8,8 @@ import { errorHandler, HttpError } from './http.ts';
 import { rateLimiter, securityHeaders } from './security.ts';
 import type { Tenant, Tenants } from './tenants.ts';
 import { appraisalRoutes } from './routes/appraisals.ts';
-import { authRoutes, companyInfo, isPlatform, type AuthOptions } from './routes/auth.ts';
+import { accountInfo, authRoutes, companyInfo, type AuthOptions } from './routes/auth.ts';
+import { sendInvite } from './accountMail.ts';
 import { customerRoutes } from './routes/customers.ts';
 import { financeRoutes } from './routes/finance.ts';
 import { fipeRoutes } from './routes/fipe.ts';
@@ -33,12 +34,13 @@ export interface AppOptions extends AuthOptions {
 }
 
 /** Rotas internas de uma empresa, montadas sobre o banco dela (as mesmas regras para todas). */
-function tenantApi(t: Tenant, tenants: Tenants, uploadDir: string, fipe: Router): Router {
+function tenantApi(t: Tenant, tenants: Tenants, opts: AppOptions, fipe: Router): Router {
+  const uploadDir = opts.uploadDir;
   const db = t.db;
   const id = t.company.id;
   const api = Router();
   api.use(requireAuth(db));
-  api.use('/users', userRoutes(db, { claim: (e) => tenants.claim(e, id), release: (e) => tenants.release(e, id) }));
+  api.use('/users', userRoutes(db, { claim: (e) => tenants.claim(e, id), release: (e) => tenants.release(e, id) }, (u, req) => sendInvite(t, u, opts, req, req.user?.name)));
   api.use('/settings', settingsRoutes(db));
   api.use('/vehicles', vehicleRoutes(db, uploadDir));
   api.use('/appraisals', appraisalRoutes(db, uploadDir));
@@ -89,7 +91,7 @@ export function createApp(tenants: Tenants, opts: AppOptions) {
     if (!t) return next(new HttpError(401, 'Sessão expirada. Faça login novamente.'));
     if (t.company.status !== 'ativa') return next(new HttpError(403, 'O acesso desta empresa está suspenso. Fale com o suporte do Pátio.'));
     tenants.touch(t.company.id);
-    routerOf(t, 'api', () => tenantApi(t, tenants, opts.uploadDir, fipe))(req, res, next);
+    routerOf(t, 'api', () => tenantApi(t, tenants, opts, fipe))(req, res, next);
   });
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Rota não encontrada.')));
 
@@ -110,7 +112,7 @@ export function createApp(tenants: Tenants, opts: AppOptions) {
         user,
         company: { ...companyInfo(t), document: t.company.document, city: t.company.city, phone: t.company.phone },
         users: users.map((u) => ({ ...u, active: Boolean(u.active) })),
-        platform: isPlatform(opts, user.email),
+        ...accountInfo(opts, t.db, user),
       };
       const json = JSON.stringify(boot).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
       res.setHeader('Cache-Control', 'no-store');

@@ -8,6 +8,7 @@ import { Vitrine, VitrineVehicle } from './pages/Vitrine';
 import { Signup } from './pages/Signup';
 import { Terms } from './pages/Terms';
 import { Platform } from './pages/Platform';
+import { ForgotPassword, ResetPassword } from './pages/Password';
 import './styles.css';
 
 // O sistema da loja (todos os módulos) é servido em /app. O React cuida do que fica em volta:
@@ -56,6 +57,8 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Signup />} />
       <Route path="/termos" element={<Terms />} />
+      <Route path="/esqueci-senha" element={<ForgotPassword />} />
+      <Route path="/redefinir-senha" element={<ResetPassword />} />
       <Route path="/v/:slug" element={<Vitrine />} />
       <Route path="/v/:slug/:id" element={<VitrineVehicle />} />
       <Route path="/vitrine" element={<MyVitrine />} />

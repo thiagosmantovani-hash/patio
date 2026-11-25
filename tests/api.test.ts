@@ -315,3 +315,104 @@ test('segurança: cabeçalhos, perfis protegidos na configuração e senha redef
   assert.equal((await put('segredo22')).status, 200);
   assert.equal((await call('GET', '/api/store', undefined, vend)).status, 401);
 });
+
+test('e-mails: esqueci a senha, convite, confirmação e plataforma só com e-mail confirmado', async () => {
+  const sent: { to: string; text: string }[] = [];
+  const mailer = { enabled: true, send: async (m: { to: string; text: string }) => (sent.push(m), true) };
+  const dir2 = mkdtempSync(join(tmpdir(), 'patio-mail-'));
+  const t2 = new Tenants(dir2);
+  const s2 = createApp(t2, { uploadDir: join(dir2, 'uploads'), platformAdmins: ['dono@mail.com'], mailer, appUrl: 'https://app.exemplo.com', limits: { signupPerHour: 100, loginPer15Min: 100 } }).listen(0);
+  const b2 = `http://127.0.0.1:${(s2.address() as AddressInfo).port}`;
+  const req = async (method: string, path: string, body?: unknown, cookie = '') => {
+    const r = await fetch(b2 + path, { method, redirect: 'manual', headers: { 'content-type': 'application/json', cookie }, body: body === undefined ? undefined : JSON.stringify(body) });
+    const ct = r.headers.get('content-type') ?? '';
+    return { status: r.status, body: ct.includes('json') ? ((await r.json()) as any) : null, cookie: r.headers.get('set-cookie')?.split(';')[0] ?? '', location: r.headers.get('location') ?? '' };
+  };
+  const link = (m: { text: string }) => decodeURIComponent(/t=([^&\s]+)/.exec(m.text)![1]!);
+  try {
+    // cadastro envia confirmação; plataforma só depois de confirmar
+    const s = await req('POST', '/api/auth/signup', { company_name: 'Loja Mail', name: 'Dono', email: 'dono@mail.com', password: 'segredo123', accept_terms: true });
+    assert.equal(s.status, 201);
+    assert.equal(s.body.verify_sent, true);
+    assert.equal(s.body.platform, false, 'sem confirmar não entra na plataforma');
+    assert.match(sent[0]!.text, /https:\/\/app\.exemplo\.com\/api\/auth\/verify\?t=/);
+    assert.equal((await req('GET', '/api/platform/companies', undefined, s.cookie)).status, 403);
+    const v = await req('GET', '/api/auth/verify?t=' + encodeURIComponent(link(sent[0]!)));
+    assert.equal(v.status, 302);
+    assert.match(v.location, /confirmado=1/);
+    assert.match((await req('GET', '/api/auth/verify?t=' + encodeURIComponent(link(sent[0]!)))).location, /link=invalido/, 'link usado não vale de novo');
+    assert.equal((await req('GET', '/api/auth/me', undefined, s.cookie)).body.platform, true);
+
+    // convite: admin cria usuário e envia link; a pessoa cria a senha e já entra
+    const u = await req('POST', '/api/users', { name: 'Vera Vendas', email: 'vera@mail.com', password: 'provisoria1', role: 'vendedor' }, s.cookie);
+    assert.equal(u.status, 201);
+    assert.equal((await req('POST', `/api/users/${u.body.id}/invite`, {}, s.cookie)).body.sent, true);
+    const inv = sent.at(-1)!;
+    assert.equal(inv.to, 'vera@mail.com');
+    assert.match(inv.text, /redefinir-senha\?t=.*&convite=1/);
+    const tk = await req('GET', '/api/auth/token?t=' + encodeURIComponent(link(inv)));
+    assert.equal(tk.body.kind, 'invite');
+    assert.equal(tk.body.email, 'vera@mail.com');
+    assert.equal((await req('POST', '/api/auth/reset', { t: link(inv), password: 'curta' })).status, 400);
+    const rs = await req('POST', '/api/auth/reset', { t: link(inv), password: 'minhasenha1' });
+    assert.equal(rs.status, 200);
+    assert.equal((await req('GET', '/api/auth/me', undefined, rs.cookie)).body.user.email, 'vera@mail.com');
+    assert.equal((await req('POST', '/api/auth/reset', { t: link(inv), password: 'outrasenha1' })).status, 400, 'convite usado não vale de novo');
+
+    // esqueci a senha: mesma resposta para e-mail que não existe; link troca a senha e derruba sessões antigas
+    const n0 = sent.length;
+    assert.equal((await req('POST', '/api/auth/forgot', { email: 'ninguem@mail.com' })).status, 200);
+    assert.equal(sent.length, n0, 'não envia para e-mail inexistente');
+    const old = (await req('POST', '/api/auth/login', { email: 'vera@mail.com', password: 'minhasenha1' })).cookie;
+    assert.equal((await req('POST', '/api/auth/forgot', { email: 'VERA@mail.com' })).body.ok, true);
+    const fr = sent.at(-1)!;
+    assert.equal(fr.to, 'vera@mail.com');
+    assert.equal((await req('POST', '/api/auth/reset', { t: link(fr), password: 'novasenha22' })).status, 200);
+    assert.equal((await req('GET', '/api/auth/me', undefined, old)).status, 401, 'sessão antiga cai');
+    assert.equal((await req('POST', '/api/auth/login', { email: 'vera@mail.com', password: 'minhasenha1' })).status, 401);
+    assert.equal((await req('POST', '/api/auth/login', { email: 'vera@mail.com', password: 'novasenha22' })).status, 200);
+    assert.equal((await req('GET', '/api/auth/token?t=1.' + 'x'.repeat(40))).status, 400);
+    // vendedor não envia convite
+    const vc = (await req('POST', '/api/auth/login', { email: 'vera@mail.com', password: 'novasenha22' })).cookie;
+    assert.equal((await req('POST', `/api/users/${u.body.id}/invite`, {}, vc)).status, 403);
+  } finally {
+    s2.close();
+    t2.close();
+    rmSync(dir2, { recursive: true, force: true });
+  }
+});
+
+test('FIPE pelo servidor: lista, valor convertido, cache e erro amigável', async () => {
+  const { fipeRoutes, parseValor } = await import('../server/routes/fipe.ts');
+  assert.equal(parseValor('R$ 85.608,00'), 85608);
+  let calls = 0;
+  const fake = (async (url: string) => {
+    calls++;
+    if (url.endsWith('/marcas')) return new Response(JSON.stringify([{ nome: 'Fiat', codigo: 21 }]), { status: 200 });
+    if (url.endsWith('/anos/2020-1')) return new Response(JSON.stringify({ Valor: 'R$ 50.100,00', CodigoFipe: '001-1', MesReferencia: 'novembro de 2026', Marca: 'Fiat', Modelo: 'Uno', AnoModelo: 2020, Combustivel: 'Gasolina' }), { status: 200 });
+    return new Response('{}', { status: 500 });
+  }) as typeof fetch;
+  const dir3 = mkdtempSync(join(tmpdir(), 'patio-fipe-'));
+  const t3 = new Tenants(dir3);
+  const s3 = createApp(t3, { uploadDir: join(dir3, 'uploads'), fipe: fipeRoutes({ fetchImpl: fake, baseUrl: 'http://fipe' }), limits: { signupPerHour: 100, loginPer15Min: 100 } }).listen(0);
+  const b3 = `http://127.0.0.1:${(s3.address() as AddressInfo).port}`;
+  try {
+    assert.equal((await fetch(b3 + '/api/fipe/carros/marcas')).status, 401, 'exige login');
+    const su = await fetch(b3 + '/api/auth/signup', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ company_name: 'F', name: 'F', email: 'f@f.com', password: 'segredo123', accept_terms: true }) });
+    const ck = su.headers.get('set-cookie')!.split(';')[0]!;
+    const get = (p: string) => fetch(b3 + '/api/fipe' + p, { headers: { cookie: ck } });
+    assert.deepEqual(await (await get('/carros/marcas')).json(), [{ codigo: '21', nome: 'Fiat' }]);
+    await get('/carros/marcas');
+    assert.equal(calls, 1, 'segunda consulta vem do cache');
+    const p = (await (await get('/carros/marcas/21/modelos/9/anos/2020-1')).json()) as any;
+    assert.equal(p.valor, 50100);
+    assert.equal(p.codigo, '001-1');
+    assert.equal((await get('/carros/marcas/21/modelos')).status, 502);
+    assert.equal((await get('/barcos/marcas')).status, 400);
+    assert.equal((await get('/carros/marcas/..%2F../modelos')).status, 400, 'código com caracteres estranhos é recusado');
+  } finally {
+    s3.close();
+    t3.close();
+    rmSync(dir3, { recursive: true, force: true });
+  }
+});

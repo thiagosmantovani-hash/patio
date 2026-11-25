@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request } from 'express';
 import type { DB } from '../db.ts';
 import { hashPassword, requireRole, sessionToken, verifyPassword } from '../auth.ts';
 import { HttpError, idParam, notFound, num, oneOf, str } from '../http.ts';
@@ -15,7 +15,7 @@ export interface AccountHooks {
 
 const noHooks: AccountHooks = { claim() {}, release() {} };
 
-export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
+export function userRoutes(db: DB, accounts: AccountHooks = noHooks, invite?: (u: { id: number; name: string; email: string }, req: Request) => Promise<boolean>) {
   const r = Router();
 
   // Lista resumida para seletores (vendedor responsável etc.), disponível a todos.
@@ -92,6 +92,14 @@ export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
     }
     if (!active) db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
     res.json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(id));
+  });
+
+  /** Envia (ou reenvia) por e-mail o convite com o link para a pessoa criar a própria senha. */
+  r.post('/:id/invite', async (req, res) => {
+    const u = db.prepare('SELECT id, name, email, active FROM users WHERE id = ?').get(idParam(req)) as { id: number; name: string; email: string; active: number } | undefined;
+    if (!u) throw notFound('Usuário');
+    if (!u.active) throw new HttpError(400, 'Reative o usuário antes de enviar o convite.');
+    res.json({ sent: invite ? await invite(u, req) : false });
   });
 
   /** Exclui o acesso de vez. O que a pessoa registrou continua no sistema (com o nome gravado nos registros). */
