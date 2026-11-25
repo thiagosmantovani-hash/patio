@@ -2314,7 +2314,7 @@ var qrcode = function() {
 /* Layout: barra lateral branca + topo com busca e "ver como"; área de trabalho cinza-clara com cards brancos arredondados; verde vivo marca ação e progresso */
 :root{
   --bg:#f2f3f5; --surface:#ffffff; --surface-2:#f5f6f8; --surface-3:#eaecef; --line:#e5e7eb; --card-line:#eceef1;
-  --ink:#0f1113; --ink-2:#3a3f46; --muted:#737a84;
+  --ink:#0f1113; --ink-2:#3a3f46; --muted:#5b626b; --bad-ink:#b91c1c; --warn-ink:#92400e; --info-ink:#1d4ed8;
   --green:#22c55e; --green-ink:#052e14; --green-strong:#15803d; --green-soft:#e6f8ed; --green-line:#b7ebc9;
   --pill:#121417; --pill-ink:#ffffff;
   --ok:#16a34a; --warn:#c2740b; --bad:#dc2626; --info:#2563eb;
@@ -2327,7 +2327,7 @@ var qrcode = function() {
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0c0e10; --surface:#15181b; --surface-2:#1b1f23; --surface-3:#242930; --line:#2a3036; --card-line:#22272c;
-  --ink:#eef0f2; --ink-2:#c8cdd3; --muted:#8e959e;
+  --ink:#eef0f2; --ink-2:#c8cdd3; --muted:#8e959e; --bad-ink:var(--bad); --warn-ink:var(--warn); --info-ink:var(--info);
   --green:#2fe06e; --green-ink:#04170a; --green-strong:#4ade80; --green-soft:#12301d; --green-line:#1f5a34;
   --pill:#eef0f2; --pill-ink:#0c0e10;
   --ok:#4ade80; --warn:#fbbf24; --bad:#f87171; --info:#60a5fa;
@@ -2336,7 +2336,7 @@ var qrcode = function() {
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0c0e10; --surface:#15181b; --surface-2:#1b1f23; --surface-3:#242930; --line:#2a3036; --card-line:#22272c;
-  --ink:#eef0f2; --ink-2:#c8cdd3; --muted:#8e959e;
+  --ink:#eef0f2; --ink-2:#c8cdd3; --muted:#8e959e; --bad-ink:var(--bad); --warn-ink:var(--warn); --info-ink:var(--info);
   --green:#2fe06e; --green-ink:#04170a; --green-strong:#4ade80; --green-soft:#12301d; --green-line:#1f5a34;
   --pill:#eef0f2; --pill-ink:#0c0e10;
   --ok:#4ade80; --warn:#fbbf24; --bad:#f87171; --info:#60a5fa;
@@ -3054,19 +3054,113 @@ body.g-dragging,body.g-dragging *{cursor:grabbing!important;user-select:none!imp
 .srv-st::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
 .srv-st.ok{color:var(--green-strong,#15803d)}.srv-st.busy{color:var(--muted,#6b7280)}.srv-st.bad{color:#c62828}
 .srv-msg{white-space:pre-wrap;background:var(--surface-2,#f4f5f7);border:1px solid var(--line,#e3e6ea);border-radius:12px;padding:12px 14px;font:13px/1.55 ui-monospace,Menlo,monospace;margin:12px 0 0}
+/* ================= v9: nova tela de Estoque ================= */
+.v9-skip{position:fixed;left:12px;top:-60px;z-index:100;background:var(--ink);color:var(--surface);border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+.v9-skip:focus{top:12px}
+#conteudo:focus{outline:none}
+/* v9: contraste mínimo de 4,5:1 nos selos e textos de apoio */
+.chip.warn{color:var(--warn-ink,var(--warn))}.chip.bad{color:var(--bad-ink,var(--bad))}.chip.info{color:var(--info-ink,var(--info))}
+.card > header .ht p,.card > header .chip.warn,.card > header .chip.bad,.card > header .chip.info{color:var(--hd-mut,rgba(255,255,255,.72))}
+.card > header .chip.warn{color:#fbbf24}.card > header .chip.bad{color:#fca5a5}.card > header .chip.info{color:#93c5fd}
+.badge-mini.w{color:var(--warn-ink,var(--warn))!important}
+.v9-pdot{background:var(--surface-3);color:var(--ink-2);opacity:1}
+.v9-pdot.on,.v9-pdot.err,.v9-pdot.q{color:#fff}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.pop-host{position:relative;display:inline-flex}
+.v9-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 14px}
+.v9-top h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.v9-top-old{justify-content:flex-end;margin-bottom:-8px}
+.v9-bar{align-items:center}
+.v9-ib{min-width:36px;justify-content:center;padding-left:9px;padding-right:9px}
+.v9-menu{left:auto;right:0;min-width:240px;top:calc(100% + 6px)}
+.v9-verw .v9-menu{left:0;right:auto;min-width:280px}
+.v9-menu .it.on{background:var(--surface-2);font-weight:700}
+.v9-menu .it{justify-content:space-between;color:var(--ink);font:inherit;font-size:13.5px}
+.v9-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:color-mix(in srgb,var(--bad) 9%,var(--surface));border:1px solid color-mix(in srgb,var(--bad) 35%,transparent);color:var(--ink);border-radius:12px;padding:10px 14px;margin:0 0 12px;font-size:13.5px}
+.v9-banner .i{color:var(--bad);vertical-align:-3px}
+.v9-bl{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.v9-bl .lk{font-weight:700;color:var(--bad-ink,var(--bad));background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;font-size:13px}
+.v9-x{background:none;border:0;cursor:pointer;color:var(--ink-2);display:grid;place-items:center;width:30px;height:30px;border-radius:8px}
+.v9-x:hover{background:var(--surface-2)}
+.v9-tools{display:flex;align-items:center;gap:8px;margin:0 0 12px;flex-wrap:wrap}
+.v9-wrap{padding:0;overflow-x:auto}
+.v9-tbl{min-width:900px;font-size:13px}
+.v9-stmv{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.v9-tbl th,.v9-tbl td{padding-left:10px;padding-right:10px}
+.v9-tbl td{vertical-align:middle;padding-top:12px;padding-bottom:12px}
+.v9-tbl th{white-space:nowrap}
+.v9-sth{background:none;border:0;padding:0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.v9-dir{display:inline-flex;opacity:.35;transition:transform .15s}.v9-dir.on{opacity:1}.v9-dir.asc{transform:rotate(180deg)}
+.v9-chev{display:inline-flex;transition:transform .15s}.v9-chev.up{transform:rotate(180deg)}
+.v9-thx{display:inline-flex;align-items:center;gap:6px}
+.v9-sub{display:block;font-size:11px;font-weight:500;text-transform:none;letter-spacing:0;opacity:.75}
+.v9-eye{background:none;border:0;color:inherit;cursor:pointer;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:7px;opacity:.85}
+.v9-eye:hover{background:rgba(127,127,127,.18);opacity:1}
+.v9-veic{display:flex;gap:10px;align-items:center;min-width:230px}
+.v9-th{position:relative;display:block;flex:none;width:80px;border-radius:10px;overflow:hidden}
+.v9-th .thumb{width:80px;height:60px;display:block}
+.v9-th .thumb svg,.v9-th .thumb img{width:100%;height:100%;object-fit:cover}
+.v9-fc{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.66);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:1px 5px;display:inline-flex;gap:3px;align-items:center}
+.v9-fc .i{width:12px;height:12px}
+.v9-vt{display:flex;flex-direction:column;gap:2px;align-items:flex-start;min-width:0}
+.v9-nm{font-weight:700;color:var(--ink);text-decoration:none;font-size:14.5px}
+.v9-nm:hover{text-decoration:underline}
+.v9-anun{display:flex;flex-direction:column;gap:3px;background:none;border:1px solid transparent;border-radius:10px;padding:6px 8px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}
+.v9-anun:hover{border-color:var(--line);background:var(--surface-2)}
+.v9-anun-t{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.v9-anun-l{display:inline-flex;align-items:center;gap:4px}
+.v9-dots{display:inline-flex}
+.v9-pdot{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:8.5px;font-weight:800;border:2px solid var(--surface);margin-left:-6px}
+.v9-pdot:first-child{margin-left:0}
+.v9-pdot.on{background:var(--pc);opacity:1}
+.v9-pdot.q{background:var(--pc);opacity:.6;outline:2px dashed var(--info);outline-offset:-2px}
+.v9-pdot.err{background:var(--bad);opacity:1}
+.v9-kv{display:grid;grid-template-columns:auto auto;justify-content:start;column-gap:8px;row-gap:1px;font-size:12px;align-items:baseline;white-space:nowrap}
+.v9-kv>span{color:var(--muted)}
+.v9-kv>b{font-weight:700;font-variant-numeric:tabular-nums}
+.v9-mask{letter-spacing:.06em;color:var(--ink-2)}
+.v9-up{color:var(--green-strong,#15803d)!important}
+.v9-down{color:#c62828!important}
+.v9-mov{display:flex;flex-direction:column;gap:2px;font-size:12.5px;white-space:nowrap}
+.v9-mov .i{vertical-align:-3px}
+.v9-act{gap:4px;justify-content:flex-end}
+.v9-xrow>td{background:var(--surface-2);padding:0!important}
+.v9-det{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.v9-det-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.v9-det .tbl{background:var(--surface);border-radius:10px}
+.v9-det-f{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.v9-pname{display:inline-flex;gap:8px;align-items:center}
+.v9-pname i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.v9-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.v9-card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--card-line,var(--line));border-radius:var(--r-lg,16px);overflow:hidden;box-shadow:var(--shadow)}
+.v9-cph{display:block}
+.v9-cb{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.v9-cf{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px solid var(--line);padding:8px 10px}
+.v9-card .v9-det{border-top:1px solid var(--line);background:var(--surface-2)}
+.v9-card .v9-det .tbl{font-size:12.5px}
+.v9-cardbar{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin:-4px 0 8px}
+.v9-pag{display:flex;gap:6px;justify-content:center;align-items:center;margin:16px 0 4px;flex-wrap:wrap}
+.v9-st{display:flex;flex-direction:column;gap:10px}
+.v9-stp{border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--surface)}
+.v9-stp summary{display:flex;justify-content:space-between;gap:10px;cursor:pointer;align-items:center;flex-wrap:wrap}
+.v9-stg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.v9-stg>div{background:var(--surface-2);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.v9-stg span{font-size:11.5px;color:var(--muted)}.v9-stg b{font-size:20px}
+@media (max-width:720px){.v9-stg{grid-template-columns:repeat(2,1fr)}.v9-bar .seg{order:5}}
 </style>
 </head>
 <body>
 
 <div class="shell">
-  <aside class="side"><div class="side-in">
+  <button type="button" class="v9-skip" data-act="v9skip">Pular para o conteúdo</button>
+<aside class="side"><div class="side-in">
     <a class="logo" href="#painel">Pátio<i></i></a>
     <nav class="nav" id="nav" aria-label="Menu principal"></nav>
     <div class="side-card" id="sidecard"></div>
   </div></aside>
   <div class="main">
     <header class="topbar" id="topbar"></header>
-    <main class="content"><div class="wrap" id="app"></div></main>
+    <main class="content" id="conteudo" tabindex="-1"><div class="wrap" id="app"></div></main>
   </div>
 </div>
 <div class="modal" id="modal" hidden></div>
@@ -5484,7 +5578,7 @@ function topbarHTML(){
   <button class="icon-btn" type="button" data-act="theme" aria-label="${dark?'Usar tema claro':'Usar tema escuro'}">${ic(dark?'sun':'moon')}</button>
   <div class="me"><button class="icon-btn" type="button" data-act="pop" data-v="notif" aria-label="Alertas" aria-expanded="${UI.pop==='notif'}">${ic('bell')}${A.length?'<span class="dot"></span>':''}</button>
    ${UI.pop==='notif'?`<div class="pop"><div class="grp">Alertas</div>${A.map(a=>`<a class="it" href="${a.href}" ${a.act||''}>${ic(a.i,'sm')}<span>${esc(a.t)}</span></a>`).join('')||'<div class="empty small">Nenhum alerta.</div>'}</div>`:''}</div>
-  <div class="me"><button type="button" data-act="pop" data-v="me" aria-expanded="${UI.pop==='me'}" aria-label="Trocar usuário"><span class="av">${esc(ini(u.nome))}</span><div class="nm"><b>${esc(u.nome)}</b><span>${esc(perfil(u.perfil).nome)} · ${esc(u.email)}</span></div>${ic('chev','sm')}</button>
+  <div class="me"><button type="button" data-act="pop" data-v="me" aria-expanded="${UI.pop==='me'}"><span class="sr-only">Trocar usuário: </span><span class="av">${esc(ini(u.nome))}</span><div class="nm"><b>${esc(u.nome)}</b><span>${esc(perfil(u.perfil).nome)} · ${esc(u.email)}</span></div>${ic('chev','sm')}</button>
    ${UI.pop==='me'?`<div class="pop"><div class="grp">Ver o sistema como</div>${users().filter(x=>x.status==='ativo').map(x=>`<button type="button" class="it" data-act="verComo" data-id="${x.id}"><span class="av sm ${x.id===u.id?'':'g'}">${esc(ini(x.nome))}</span><span><b>${esc(x.nome)}</b><br><span class="small muted">${esc(perfil(x.perfil).nome)}</span></span>${x.id===u.id?`<span style="margin-left:auto;color:var(--green-strong)">${ic('check','sm')}</span>`:''}</button>`).join('')}<p class="small muted" style="padding:8px 10px">Protótipo: troca o usuário logado para conferir as permissões de cada perfil.</p></div>`:''}</div>
  </div>`;
 }
@@ -5876,7 +5970,7 @@ const ACT={
  copiarCsv(d){const x=CFG().exports.find(e=>e.id===+d.id);copyText(x.csv,document.getElementById('exp-out'))}
 };
 document.addEventListener('click',e=>{
- if(UI.pop&&!e.target.closest('.me,.gsearch')){UI.pop='';if(!e.target.closest('[data-act]'))render()}
+ if(UI.pop&&!e.target.closest('.me,.gsearch,.pop-host')){UI.pop='';if(!e.target.closest('[data-act]'))render()}
  const t=e.target.closest('[data-act]'); if(!t||t.disabled)return;
  const f=ACT[t.dataset.act]; if(!f)return;
  if(t.tagName==='A'&&t.getAttribute('href')&&['vfilter','vtab','vsort','cfgGo'].includes(t.dataset.act))e.preventDefault();
@@ -8209,6 +8303,265 @@ Object.assign(ACT,{
  userDelOk(d){const nm=(CFG().usuarios[d.id]||{}).nome;if(v81Excluir(d.id)){save();closeModal();render();toast(nm+' foi excluído')}}
 });
 
+/* ================= v9: nova tela de Estoque (lista e cartões, anúncios na linha, valores e FIPE) =================
+   Inspirada na tela atualizada do Autoconf (25/11/2026). A tela antiga continua disponível em "Versão da página". */
+IC.sort='<path d="M4 7h16M7 12h10M10 17h4"/>';
+const v9Chev=(open)=>`<span class="v9-chev ${open?'up':''}" aria-hidden="true">${ic('chev','sm')}</span>`;
+const v9Prefs=()=>{if(!S.uiPrefs||typeof S.uiPrefs!=='object')S.uiPrefs={};const k=v8Uid();return S.uiPrefs[k]=S.uiPrefs[k]||{}};
+const v9Pref=(k,def)=>{const p=v9Prefs();return p[k]===undefined?def:p[k]};
+const v9VerCusto=()=>can('negociacoes')||can('financeiro');
+const V9_PAG=20;
+const vf9Default=()=>({q:'',estoque:'',neg:'',status:'estoque',pend:'',veic:'',tipo:'',integ:'',anSt:'',dest:false,minhas:false,sort:'entrada-desc',pag:1});
+Object.assign(UI,{vf9:vf9Default(),v9Exp:{},v9Banner:true});
+const V9_SORTS=[['entrada-desc','Entrada mais recente'],['entrada-asc','Entrada mais antiga'],['dias-desc','Mais dias em estoque'],['dias-asc','Menos dias em estoque'],['saida-desc','Saída mais recente'],['saida-asc','Saída mais antiga'],['nome-asc','Veículo (A a Z)'],['nome-desc','Veículo (Z a A)'],['valor-asc','Menor valor'],['valor-desc','Maior valor'],['fipe-desc','Maior variação da FIPE'],['fipe-asc','Menor variação da FIPE'],['pend-desc','Mais pendências']];
+function v9FipeEnt(v){
+ if(+v.fipeEntrada>0)return +v.fipeEntrada;
+ const s=fipeSerie(v);if(!s.length)return +v.fipe||0;
+ const e=String(v.entrada||'').slice(0,7);const hit=s.filter(x=>ISO(x.d).slice(0,7)<=e).pop();
+ return (hit||s[0]).val;
+}
+const v9FipeAtual=v=>{const s=fipeSerie(v);return s.length?s[s.length-1].val:(+v.fipe||0)};
+const v9Var=v=>{const a=v9FipeEnt(v),b=v9FipeAtual(v);return {a,b,dv:b-a,dp:a?(b-a)/a*100:0}};
+const v9Lucro=v=>(preco(v)||0)-(+v.compra||0)-gastoReal(v);
+const v9Dias=v=>v.status==='estoque'?daysSince(v.entrada):Math.max(0,Math.round((new Date((v.saida||TODAY_ISO)+'T12:00')-new Date(v.entrada+'T12:00'))/864e5));
+function v9Status(v){
+ if(v.status!=='estoque')return statusChip(v);
+ if(v.bloqueado)return chip('Bloqueado','bad dot');
+ const p=pendencias(v);
+ const ord=[['avaliacao','Avaliação pendente'],['precificacao','Precificação pendente'],['negociacao','Negociação pendente'],['pericia','Perícia pendente']];
+ for(const [k,l] of ord)if(p.includes(k))return chip(l,'warn dot');
+ if(REC.some(([k])=>p.includes(k)))return chip('Recebimento pendente','warn dot');
+ if(p.includes('proposta'))return chip('Proposta em andamento','info dot');
+ return chip(v.estoque==='atacado'?'Em atacado':'Em showroom',v.estoque==='atacado'?'dot':'info dot');
+}
+const v9Portais=()=>portaisAtivos();
+const V9_ERR=['erro','errodest','errodesp'];
+function v9AnunResumo(v){
+ const P=v9Portais(),pub=P.filter(([k])=>anunStatus(v,k)==='publicado').length,err=P.filter(([k])=>V9_ERR.includes(anunStatus(v,k))).length;
+ const dots=P.slice(0,6).map(([k,l,c])=>{const s=anunStatus(v,k);return `<span class="v9-pdot ${s==='publicado'?'on':V9_ERR.includes(s)?'err':s==='fila'||s==='filadesp'?'q':''}" style="--pc:${esc(c||'#111')}" title="${esc(l)}: ${esc((ANUN_ST[s]||['—'])[0])}">${esc(String(l).replace(/[^A-Za-zÀ-ú0-9]/g,'').slice(0,2).toUpperCase())}</span>`}).join('')+(P.length>6?`<span class="small muted">+${P.length-6}</span>`:'');
+ return {pub,tot:P.length,err,dots};
+}
+function v9Filtra(){
+ const f=UI.vf9,q=f.q.trim().toLowerCase(),eu=String((me()||{}).nome||'').toLowerCase();
+ let L=vehList().filter(v=>{
+  if(f.status==='bloqueado'){if(!v.bloqueado||v.status!=='estoque')return false}
+  else if(f.status==='promocao'){if(v.status!=='estoque'||!(v.promo>0))return false}
+  else if(f.status&&v.status!==f.status)return false;
+  if(f.estoque&&v.estoque!==f.estoque)return false;
+  if(f.neg&&v.neg!==f.neg)return false;
+  if(f.veic==='zero'&&!v.zeroKm)return false;
+  if(f.veic==='usado'&&v.zeroKm)return false;
+  if(f.tipo&&String(v.tipo||'Carro')!==f.tipo)return false;
+  if(f.pend&&!pendencias(v).includes(f.pend))return false;
+  if(f.integ||f.anSt){const ks=f.integ?[f.integ]:v9Portais().map(p=>p[0]);
+   const ok=ks.some(k=>{const s=anunStatus(v,k);if(!f.anSt)return s!=='nao'&&s!=='despublicado';if(f.anSt==='erro')return V9_ERR.includes(s);return s===f.anSt});if(!ok)return false}
+  if(f.dest&&!(v.destaques&&Object.values(v.destaques).some(Boolean)))return false;
+  if(f.minhas&&String(v.aval&&v.aval.solicitante||'').toLowerCase()!==eu)return false;
+  if(q&&!(`${v.placa} ${v.marca} ${v.modelo} ${v.versao} ${v.cor} ${v.anoMod} ${v.chassi||''}`.toLowerCase().includes(q)))return false;
+  return true});
+ const [c,dir]=String(f.sort||'entrada-desc').split('-'),m=dir==='asc'?1:-1;
+ const key={entrada:v=>String(v.entrada||''),dias:v=>v9Dias(v),saida:v=>String(v.saida||''),nome:v=>`${v.marca} ${v.modelo} ${v.versao}`.toLowerCase(),valor:v=>preco(v)||0,fipe:v=>v9Var(v).dp,pend:v=>pendencias(v).length}[c]||(v=>String(v.entrada||''));
+ L.sort((a,b)=>{const x=key(a),y=key(b);return (x<y?-1:x>y?1:0)*m||b.id-a.id});
+ return L;
+}
+const V9_MASK='<span class="v9-mask" aria-label="valor oculto">R$ •••</span>';
+const v9Money=(n,k)=>v9Pref(k,true)?V9_MASK:brl(n);
+function v9Valores(v){
+ const L=v9Lucro(v),hid=v9Pref('hideVal',true);
+ return `<div class="v9-kv">${v9VerCusto()?`<span>Compra</span><b>${v9Money(+v.compra||0,'hideVal')}</b>`:''}<span>Venda</span><b>${v.venda>0?(hid?V9_MASK:(v.promo>0?`<s class="muted">${brl(v.venda)}</s> `:'')+brl(preco(v))):'<i class="muted">sem preço</i>'}</b>${v9VerCusto()&&v.venda>0?`<span>Lucro bruto</span><b class="${hid?'':L>=0?'v9-up':'v9-down'}">${v9Money(L,'hideVal')}</b>`:''}</div>`;
+}
+function v9Fipe(v){
+ const r=v9Var(v),hid=v9Pref('hideFipe',true),cls=r.dv>0?'v9-up':r.dv<0?'v9-down':'';
+ const seta=r.dv>0?'▲':r.dv<0?'▼':'';
+ return `<div class="v9-kv"><span>Entrada</span><b>${v9Money(r.a,'hideFipe')}</b><span>Atual</span><b>${v9Money(r.b,'hideFipe')}</b><span>Variação</span><b class="${hid?'':cls}">${hid?'<span class="v9-mask" aria-label="valor oculto">•••</span>':`<span aria-hidden="true">${seta}</span> ${r.dp>0?'+':''}${r.dp.toFixed(1).replace('.',',')}%`}</b></div>`;
+}
+function v9Mov(v){
+ const d=v9Dias(v),late=v.status==='estoque'&&d>(+CFG().loja.diasAlerta||90);
+ return `<div class="v9-mov"><span title="Data de entrada"><span class="sr-only">Entrada: </span>${ic('arrowDown','sm')} ${dtf(v.entrada)}</span>${v.status!=='estoque'&&v.saida?`<span title="Data de saída"><span class="sr-only">Saída: </span>${ic('up','sm')} ${dtf(v.saida)}</span>`:''}<span class="small ${late?'v9-down':'muted'}">${d} ${d===1?'dia':'dias'} em estoque</span></div>`;
+}
+function v9Acoes(v){
+ const open=UI.pop==='v9a-'+v.id;
+ const item=(tab,l,i)=>`<button type="button" class="it" role="menuitem" data-act="v9go" data-id="${v.id}" data-tab="${tab}">${ic(i,'sm')}<span>${l}</span></button>`;
+ return `<div class="v9-act pop-host"><a class="btn sm" href="#v-${v.id}">${ic('edit','sm')} Editar</a><button type="button" class="btn sm v9-ib" data-act="pop" data-v="v9a-${v.id}" aria-label="Atalhos do ${esc(nome(v))}" aria-haspopup="menu" aria-expanded="${open}">${v9Chev(open)}</button>
+ ${open?`<div class="pop v9-menu" role="menu"><div class="grp">Atalhos</div>${item('servicos','Custos e serviços','wrench')}${item('ficha','Editar ficha técnica','file')}${item('precificacao','Precificação','tag')}${item('anuncios','Anúncios e fotos','mega')}${can('negociacoes')&&v.status==='estoque'?item('negSaida','Negociação de saída','swap'):''}</div>`:''}</div>`;
+}
+function v9AnunCell(v){
+ const r=v9AnunResumo(v),exp=!!UI.v9Exp[v.id],lc=leadsDoVeic(v.id);
+ return `<button type="button" class="v9-anun" data-act="v9exp" data-id="${v.id}" aria-expanded="${exp}" aria-controls="v9x-${v.id}">
+  <span class="v9-anun-t"><span class="sr-only">Anúncios do ${esc(nome(v))}: </span>${ic('mega','sm')} <b>${r.pub}/${r.tot}</b><span class="sr-only"> publicados</span><span class="v9-dots" aria-hidden="true">${r.dots}</span>${v9Chev(exp)}</span>
+  <span class="v9-anun-l small muted">${ic('user','sm')} ${lc} ${lc===1?'lead':'leads'}${r.err?` <span class="chip bad">${r.err} erro${r.err>1?'s':''}</span>`:''}</span></button>`;
+}
+function v9LeadsPortal(v,l){const n=String(l).toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5);return vals(S.lead).filter(x=>x.vid===v.id&&String(x.origem||'').toLowerCase().replace(/[^a-z0-9]/g,'').includes(n)).length}
+function v9AnunDet(v){
+ const P=v9Portais(),r=v9AnunResumo(v),podeAn=can('anuncios')||can('veiculos');
+ return `<div class="v9-det" id="v9x-${v.id}"><div class="v9-det-h"><span><b>Anúncios nos portais</b> <span class="small muted">${r.pub} de ${r.tot} publicados</span></span><button type="button" class="btn sm" data-act="v9go" data-id="${v.id}" data-tab="anuncios">${ic('edit','sm')} Editar anúncios</button></div>
+ <div class="tbl-wrap"><table class="tbl"><caption class="sr-only">Anúncios do ${esc(nome(v))} por portal</caption><thead><tr><th scope="col">Portal</th><th scope="col">Status</th><th scope="col">Detalhe</th><th scope="col" class="n">Leads</th><th scope="col" class="n"><span class="sr-only">Ação</span></th></tr></thead><tbody>
+ ${P.map(([k,l,c])=>{const s=anunStatus(v,k),st=ANUN_ST[s]||['—',''],errs=s==='erro'?anuncioErros(v,k):s==='errodest'?[destaqueErro(v,k)]:[];
+  const det=errs.length?esc(errs.map(e=>e&&e.msg).filter(Boolean).join(' · ')):s==='publicado'?(k==='site'?'Publicado no site':'Publicado'):s==='fila'?'Aguardando sincronização':s==='filadesp'?'Remoção aguardando sincronização':s==='errodesp'?'O portal não confirmou a remoção':'—';
+  const btn=!podeAn||v.status!=='estoque'?'':s==='nao'||s==='despublicado'?`<button type="button" class="btn xs" data-act="pub" data-id="${v.id}" data-k="${esc(k)}" ${v.bloqueado?'disabled title="Veículo bloqueado"':''}>Publicar <span class="sr-only">no ${esc(l)}</span></button>`:s==='fila'?`<button type="button" class="btn xs" data-act="pub" data-id="${v.id}" data-k="${esc(k)}">Cancelar <span class="sr-only">publicação no ${esc(l)}</span></button>`:s==='filadesp'?'<span class="small muted">Na fila</span>':`<button type="button" class="btn xs" data-act="pub" data-id="${v.id}" data-k="${esc(k)}">Despublicar <span class="sr-only">do ${esc(l)}</span></button>`;
+  return `<tr><td><span class="v9-pname"><i style="background:${esc(c||'#111')}" aria-hidden="true"></i>${esc(l)}</span></td><td>${chip(st[0],st[1])}</td><td class="small">${det}</td><td class="n small">${v9LeadsPortal(v,l)}</td><td class="n">${btn}</td></tr>`}).join('')}
+ </tbody></table></div>${podeAn&&v.status==='estoque'?`<div class="v9-det-f"><button type="button" class="btn sm" data-act="pubAll" data-id="${v.id}" data-v="1">Publicar em todos</button><button type="button" class="btn sm ghost" data-act="pubAll" data-id="${v.id}" data-v="0">Despublicar de todos</button><span class="small muted">As mudanças entram na fila e saem na próxima sincronização dos anúncios.</span></div>`:''}</div>`;
+}
+function v9Veic(v){return `<div class="v9-veic"><a href="#v-${v.id}" class="v9-th" tabindex="-1" aria-hidden="true">${thumb(v)}<span class="v9-fc">${ic('eye','sm')}${+v.fotos||0}</span></a><div class="v9-vt">${plate(v)}<a class="v9-nm" href="#v-${v.id}">${esc(nome(v))}</a><span class="small muted">${esc(v.versao||'')}</span><span class="small muted">${v.anoFab}/${v.anoMod} · ${v.zeroKm?'0 km':numf(v.km)+' km'}</span><span>${chip(v.neg==='consignado'?'Consignado':'Próprio','line')}</span></div></div>`}
+function v9Linha(v){
+ return `<tr class="v9-row"><td>${v9Veic(v)}</td><td><div class="v9-stmv">${v9Status(v)}${v9Mov(v)}</div></td><td>${v9AnunCell(v)}</td><td>${v9Valores(v)}</td><td>${v9Fipe(v)}</td><td class="n">${v9Acoes(v)}</td></tr>${UI.v9Exp[v.id]?`<tr class="v9-xrow"><td colspan="6">${v9AnunDet(v)}</td></tr>`:''}`;
+}
+function v9Card(v){
+ const p=pendencias(v);
+ return `<article class="v9-card" aria-label="${esc(nome(v))}"><a class="v9-cph" href="#v-${v.id}" tabindex="-1" aria-hidden="true">${photo(v)}</a><div class="v9-cb">
+  <div><a class="v9-nm" href="#v-${v.id}">${esc(nome(v))}</a><div class="small muted">${esc(v.versao||'')}</div><div class="small muted">${v.anoFab}/${v.anoMod} · ${v.zeroKm?'0 km':numf(v.km)+' km'}</div></div>
+  <div class="chips">${v9Status(v)}${p.length>1?chip('+'+(p.length-1)+' pendências','warn'):''}</div>
+  <div class="small muted">${ic('cal','sm')} ${v9Dias(v)} ${v9Dias(v)===1?'dia':'dias'} em estoque</div>
+  ${v9Valores(v)}
+ </div><div class="v9-cf">${v9AnunCell(v)}${v9Acoes(v)}</div>${UI.v9Exp[v.id]?v9AnunDet(v):''}</article>`;
+}
+function v9Stats(){
+ const P=v9Portais().filter(p=>p[0]!=='site'),E=estoque(),tot=E.length;
+ return P.map(([k,l,c])=>{const st={publicado:0,erro:0,fila:0};E.forEach(v=>{const s=anunStatus(v,k);if(s==='publicado')st.publicado++;else if(V9_ERR.includes(s))st.erro++;else if(s==='fila'||s==='filadesp')st.fila++});
+  const cf=CFG().portais.find(p=>p.k===k)||{},limite=+cf.limite||0,dest=E.filter(v=>v.destaques&&v.destaques[k]).length,dl=regra(k).destaques||0;
+  return Object.assign({k,l,c,tot,limite,dest,dl},st)});
+}
+function v9StatsModal(){
+ const R=v9Stats();
+ openModal('Estatísticas dos portais',R.length?`<div class="v9-st">${R.map(r=>`<details class="v9-stp"><summary><span class="v9-pname"><i style="background:${esc(r.c||'#111')}" aria-hidden="true"></i><b>${esc(r.l)}</b></span><span class="small muted">${r.publicado}/${r.tot} publicados${r.erro?`, <span class="v9-down">${r.erro} com erro</span>`:''}</span></summary>
+  <div class="v9-stg"><div><span>Publicados</span><b>${r.publicado}</b></div><div><span>Com erro</span><b class="${r.erro?'v9-down':''}">${r.erro}</b></div><div><span>Na fila</span><b>${r.fila}</b></div><div><span>Limite do plano</span><b>${r.limite||'—'}</b></div></div>
+  ${r.dl?`<div class="small muted" style="margin-top:8px">Destaques: ${r.dest} de ${r.dl} do plano</div>`:''}
+  ${r.erro?`<button type="button" class="btn sm" style="margin-top:10px" data-act="v9erros" data-k="${esc(r.k)}">Ver veículos com erro no ${esc(r.l)}</button>`:''}</details>`).join('')}</div>`:'<p class="muted">Nenhum portal ativo. Ative os portais em Configurações › Anúncios.</p>',`<button class="btn" type="button" data-act="closeModal">Fechar</button>`);
+}
+function v9FiltrosModal(){
+ const f=UI.vf9,integ=[['','Todas']].concat(v9Portais().map(p=>[p[0],p[1]]));
+ const sel=(n,l,list)=>mf(l,`<select class="inp" name="${n}" id="v9f-${n}">${opts(list,f[n])}</select>`);
+ openModal('Filtros',`<form data-form="v9filtros" id="fm-v9f" class="form">
+ ${sel('status','Status',[['','Todos os status'],['estoque','Em estoque'],['vendido','Vendidos'],['devolvido','Devolvidos'],['bloqueado','Bloqueados'],['promocao','Em promoção'],['cancelado','Avaliação cancelada']])}
+ ${sel('estoque','Estoque',[['','Showroom e atacado'],['showroom','Showroom'],['atacado','Atacado']])}
+ ${sel('neg','Negociação',[['','Próprio e consignado'],['proprio','Próprio'],['consignado','Consignado']])}
+ ${sel('veic','Veículos',[['','Zero km e usados'],['zero','Zero km'],['usado','Usados']])}
+ ${sel('tipo','Tipo',[['','Todos'],['Carro','Carros'],['Moto','Motos'],['Caminhão','Caminhões']])}
+ ${sel('pend','Pendências',[['','Qualquer pendência']].concat(Object.entries(PEND)))}
+ ${sel('integ','Integração',integ)}
+ ${sel('anSt','Status do anúncio',[['','Todos'],['publicado','Publicado'],['erro','Com erro'],['fila','Na fila de publicação'],['filadesp','Na fila de despublicação'],['nao','Não publicado']])}
+ <label class="check wide"><input type="checkbox" name="dest" ${f.dest?'checked':''}> Com destaque em algum portal</label>
+ <label class="check wide"><input type="checkbox" name="minhas" ${f.minhas?'checked':''}> Minhas solicitações de avaliação</label>
+ </form>`,`<button class="btn ghost" type="button" data-act="v9limpa">Limpar filtros</button><button class="btn" type="button" data-act="closeModal">Cancelar</button><button class="btn pri" type="submit" form="fm-v9f">Filtrar</button>`);
+}
+function v9CSV(L){
+ const vc=v9VerCusto();
+ const h=['Placa','Marca','Modelo','Versão','Ano','KM','Origem','Estoque','Status','Entrada','Saída','Dias em estoque'].concat(vc?['Compra']:[],['Venda'],vc?['Lucro bruto']:[],['FIPE entrada','FIPE atual','Variação FIPE %','Anúncios publicados','Leads']);
+ const rows=L.map(v=>{const r=v9Var(v),a=v9AnunResumo(v);return [v.placa||'Zero km',v.marca,v.modelo,v.versao,`${v.anoFab}/${v.anoMod}`,v.km,v.neg==='consignado'?'Consignado':'Próprio',v.estoque==='atacado'?'Atacado':'Showroom',v.status,v.entrada,v.saida||'',v9Dias(v)].concat(vc?[+v.compra||0]:[],[preco(v)||0],vc?[v9Lucro(v)]:[],[r.a,r.b,r.dp.toFixed(2),`${a.pub}/${a.tot}`,leadsDoVeic(v.id)])});
+ /* evita injeção de fórmula ao abrir no Excel */
+ const cell=c=>{let s=String(c??'');if(/^[=+\-@\t\r]/.test(s)&&!/^-?\d+([.,]\d+)?$/.test(s))s="'"+s;return `"${s.replace(/"/g,'""')}"`};
+ return '﻿'+[h].concat(rows).map(r=>r.map(cell).join(';')).join('\r\n');
+}
+function v9VersaoSel(){
+ const open=UI.pop==='v9ver',cur=v9Pref('versao','nova');
+ return `<span class="pop-host v9-verw"><button type="button" class="btn sm" data-act="pop" data-v="v9ver" aria-haspopup="menu" aria-expanded="${open}">${ic('grid','sm')} Versão da página ${v9Chev(open)}</button>
+ ${open?`<div class="pop v9-menu v9-vermenu" role="menu"><button type="button" class="it ${cur==='nova'?'on':''}" role="menuitemradio" aria-checked="${cur==='nova'}" data-act="v9pref" data-k="versao" data-v="nova"><span><b>Atualizada</b> ${chip('Novo','ok')}<br><span class="small muted">Anúncios, valores e FIPE na mesma tela</span></span></button><button type="button" class="it ${cur==='antiga'?'on':''}" role="menuitemradio" aria-checked="${cur==='antiga'}" data-act="v9pref" data-k="versao" data-v="antiga"><span><b>Antiga</b><br><span class="small muted">A tela que você já conhece</span></span></button></div>`:''}</span>`;
+}
+const viewVeiculosAntiga=viewVeiculos;
+function viewVeiculos9(){
+ if(v9Pref('versao','nova')==='antiga')return `<div class="v9-top v9-top-old">${v9VersaoSel()}</div>`+viewVeiculosAntiga();
+ const f=UI.vf9,L=v9Filtra(),modo=v9Pref('modo','lista'),ERR=errosAnuncios(),ni=new Set(ERR.map(e=>e.k)).size;
+ const pags=Math.max(1,Math.ceil(L.length/V9_PAG));if(f.pag>pags)f.pag=pags;if(f.pag<1)f.pag=1;
+ const pg=L.slice((f.pag-1)*V9_PAG,f.pag*V9_PAG);
+ const extras=[f.pend,f.veic,f.tipo,f.integ,f.anSt,f.dest,f.minhas].filter(Boolean).length;
+ const segN=[['','Todos'],['proprio','Próprio'],['consignado','Consignado']].map(([k,l])=>`<button type="button" class="${f.neg===k?'on':''}" data-act="v9f" data-k="neg" data-v="${k}" aria-pressed="${f.neg===k}">${l}</button>`).join('');
+ const sortOpen=UI.pop==='v9sort',hidV=v9Pref('hideVal',true),hidF=v9Pref('hideFipe',true);
+ const sujo=JSON.stringify(Object.assign({},f,{sort:'',pag:1}))!==JSON.stringify(Object.assign(vf9Default(),{sort:''}));
+ const head=`<div class="v9-top"><h1>Veículos</h1>${v9VersaoSel()}</div>`;
+ const bar=`<div class="toolbar v9-bar">
+  <span class="search">${ic('search','sm')}<input class="inp" id="v9-q" type="search" placeholder="Buscar placa, marca, modelo…" value="${esc(f.q)}" data-ui="vf9.q" data-live="1" aria-label="Buscar veículos"></span>
+  <select class="inp" id="v9-est" data-ui="vf9.estoque" aria-label="Estoque">${opts([['','Showroom e atacado'],['showroom','Showroom'],['atacado','Atacado']],f.estoque)}</select>
+  <select class="inp" id="v9-st" data-ui="vf9.status" aria-label="Status">${opts([['','Todos os status'],['estoque','Em estoque'],['vendido','Vendidos'],['devolvido','Devolvidos'],['bloqueado','Bloqueados'],['promocao','Em promoção'],['cancelado','Avaliação cancelada']],f.status)}</select>
+  <div class="seg" role="group" aria-label="Origem do veículo">${segN}</div>
+  <button type="button" class="btn ${extras?'pri':''}" data-act="v9filtros" aria-label="Mais filtros${extras?' ('+extras+' ativos)':''}" title="Mais filtros">${ic('filter','sm')}${extras?` ${extras}`:''}</button>
+  ${sujo?`<button class="btn ghost sm" type="button" data-act="v9limpa">Limpar filtros</button>`:''}
+  <span style="flex:1"></span>
+  ${can('avaliacoes')?`<button class="btn pri" type="button" data-act="novaAval">${ic('plus','sm')} Solicitar avaliação</button>`:''}
+ </div>`;
+ const banner=ERR.length&&UI.v9Banner?`<div class="v9-banner" role="status"><span>${ic('shield','sm')} <b>${ERR.length} ${ERR.length===1?'anúncio':'anúncios'} com erro em ${ni} ${ni===1?'integração':'integrações'}.</b> Esses veículos não aparecem nesses portais até a correção.</span><span class="v9-bl"><button type="button" class="lk" data-act="v9erros">Ver veículos com erro</button><button type="button" class="lk" data-act="v9stats">Ver estatísticas</button><a class="lk" href="#anuncios" data-act="ui" data-k="anunTab" data-v="erros">Erros e soluções</a><button type="button" class="v9-x" data-act="v9ban" aria-label="Fechar aviso">${ic('x','sm')}</button></span></div>`:'';
+ const tools=`<div class="v9-tools"><span class="chip line" role="status">${L.length} ${L.length===1?'veículo':'veículos'}</span><span style="flex:1"></span>
+  <button type="button" class="btn sm v9-ib" data-act="v9stats" aria-label="Estatísticas dos portais" title="Estatísticas dos portais">${ic('chart','sm')}</button>
+  <button type="button" class="btn sm v9-ib" data-act="v9csv" aria-label="Baixar a lista em CSV" title="Baixar a lista (CSV)">${ic('download','sm')}</button>
+  <span class="pop-host v9-sortw"><button type="button" class="btn sm v9-ib" data-act="pop" data-v="v9sort" aria-label="Ordenar. Atual: ${esc((V9_SORTS.find(s=>s[0]===f.sort)||V9_SORTS[0])[1])}" aria-haspopup="menu" aria-expanded="${sortOpen}" title="Ordenar">${ic('sort','sm')}</button>
+  ${sortOpen?`<div class="pop v9-menu" role="menu">${V9_SORTS.map(([k,l])=>`<button type="button" class="it ${f.sort===k?'on':''}" role="menuitemradio" aria-checked="${f.sort===k}" data-act="v9sort" data-v="${k}"><span>${l}</span>${f.sort===k?ic('check','sm'):''}</button>`).join('')}</div>`:''}</span>
+  <div class="seg" role="group" aria-label="Modo de exibição"><button type="button" class="${modo==='lista'?'on':''}" data-act="v9pref" data-k="modo" data-v="lista" aria-pressed="${modo==='lista'}" aria-label="Lista" title="Lista">${ic('list','sm')}</button><button type="button" class="${modo==='cards'?'on':''}" data-act="v9pref" data-k="modo" data-v="cards" aria-pressed="${modo==='cards'}" aria-label="Cartões" title="Cartões">${ic('grid','sm')}</button></div></div>`;
+ const eye=(k,hid,lab)=>`<button type="button" class="v9-eye" data-act="v9pref" data-k="${k}" data-v="${hid?'0':'1'}" aria-pressed="${!hid}" aria-label="${hid?'Mostrar':'Ocultar'} ${lab}" title="${hid?'Mostrar':'Ocultar'} ${lab}">${ic(hid?'eyeOff':'eye','sm')}</button>`;
+ const sortTh=(k,l)=>{const [c,d]=f.sort.split('-');const on=c===k;return `<button type="button" class="v9-sth ${on?'on':''}" data-act="v9sort" data-v="${k}-${on&&d==='desc'?'asc':'desc'}">${l} <span class="v9-dir ${on?'on':''} ${on&&d==='asc'?'asc':''}" aria-hidden="true">${ic('arrowDown','sm')}</span></button>`};
+ const ariaSort=k=>{const [c,d]=f.sort.split('-');return c===k?` aria-sort="${d==='asc'?'ascending':'descending'}"`:''};
+ const lista=`<div class="tbl-wrap card v9-wrap"><table class="tbl v9-tbl"><caption class="sr-only">Veículos do estoque, página ${f.pag} de ${pags}</caption><thead><tr><th scope="col"${ariaSort('nome')}>${sortTh('nome','Veículo')}</th><th scope="col"${ariaSort('entrada')}>${sortTh('entrada','Status e entrada')}</th><th scope="col">Anúncios</th><th scope="col"${ariaSort('valor')}><span class="v9-thx">${sortTh('valor','Valores')}${eye('hideVal',hidV,'valores')}</span></th><th scope="col"${ariaSort('fipe')}><span class="v9-thx">${sortTh('fipe','FIPE')}${eye('hideFipe',hidF,'FIPE')}</span></th><th scope="col" class="n"><span class="sr-only">Ações</span></th></tr></thead><tbody>${pg.map(v9Linha).join('')}</tbody></table></div>`;
+ const cards=`<div class="v9-cardbar small muted"><span>Valores</span>${eye('hideVal',hidV,'valores')}</div><div class="v9-grid">${pg.map(v9Card).join('')}</div>`;
+ const pag=pags>1?`<nav class="v9-pag" aria-label="Páginas da lista"><button type="button" class="btn sm v9-ib" data-act="v9pag" data-v="${f.pag-1}" ${f.pag<=1?'disabled':''} aria-label="Página anterior">${ic('left','sm')}</button>${Array.from({length:pags},(_,i)=>i+1).filter(n=>n===1||n===pags||Math.abs(n-f.pag)<=2).map((n,i,a)=>`${i&&n-a[i-1]>1?'<span class="muted" aria-hidden="true">…</span>':''}<button type="button" class="btn sm ${n===f.pag?'pri':''}" data-act="v9pag" data-v="${n}" aria-label="Página ${n}" ${n===f.pag?'aria-current="page"':''}>${n}</button>`).join('')}<button type="button" class="btn sm v9-ib" data-act="v9pag" data-v="${f.pag+1}" ${f.pag>=pags?'disabled':''} aria-label="Próxima página">${ic('right','sm')}</button></nav>`:'';
+ return head+bar+banner+tools+(L.length?(modo==='cards'?cards:lista)+pag:'<div class="card empty">Nenhum veículo com esses filtros.</div>');
+}
+VIEWS.veiculos=viewVeiculos9;
+/* acessibilidade: tabelas que rolam de lado recebem foco pelo teclado e um nome */
+function v9A11y(){document.querySelectorAll('.tbl-wrap').forEach(w=>{if(w.scrollWidth>w.clientWidth+2){if(!w.hasAttribute('tabindex'))w.setAttribute('tabindex','0');if(!w.getAttribute('role')){w.setAttribute('role','region');const c=w.querySelector('caption'),h=w.closest('section,.card')?.querySelector('h2,h3');w.setAttribute('aria-label',(c||h)?(c||h).textContent.trim()+' (role para ver mais colunas)':'Tabela (role para ver mais colunas)')}}})}
+/* acessibilidade: depois de redesenhar a tela, o foco volta para o mesmo botão (antes só voltava para campos com id) */
+const V9_KEYS=['act','id','k','v','tab','path','val','sec','to','p'];
+function v9FocusKey(el){if(!el||el===document.body||el.id||!el.dataset||!el.dataset.act)return null;return V9_KEYS.filter(k=>el.dataset[k]!==undefined).map(k=>`[data-${k}="${CSS.escape(el.dataset[k])}"]`).join('')}
+{const r9=render;render=function(){
+  const ae=document.activeElement,inModal=ae&&$modal.contains(ae),host=ae&&ae.closest&&ae.closest('.pop-host,.me'),hostKey=host?v9FocusKey(host.querySelector('[data-act="pop"]')):null,key=v9FocusKey(ae);
+  r9();
+  try{v9A11y();if((key||hostKey)&&!inModal&&!document.activeElement?.closest?.('#modal')&&(document.activeElement===document.body||!document.activeElement)){
+   const pop=UI.pop&&ae&&ae.dataset.act==='pop'?document.querySelector('.pop [role="menuitem"],.pop [role="menuitemradio"],.pop a,.pop button'):null;
+   const el=pop||(key&&(document.querySelector(key)||document.querySelector(key.replace(/\[data-v="[^"]*"\]/,''))))||(hostKey&&document.querySelector(hostKey));if(el)el.focus({preventScroll:true})}}catch(e){}
+ }}
+/* janelas: foco preso dentro enquanto abertas e devolvido a quem abriu ao fechar */
+{let opener=null,openerKey=null;const om=openModal,cm=closeModal;
+ openModal=function(...a){const ae=document.activeElement;if($modal.hidden){opener=ae;openerKey=v9FocusKey(ae)}om(...a);if(!$modal.contains(document.activeElement)){const b=$modal.querySelector('button,[href],input,select,textarea');if(b)b.focus()}};
+ closeModal=function(){cm();const el=(opener&&document.contains(opener)&&opener)||(openerKey&&document.querySelector(openerKey));opener=null;openerKey=null;if(el)try{el.focus({preventScroll:true})}catch(e){}};
+ document.addEventListener('keydown',e=>{if(e.key!=='Tab'||$modal.hidden)return;const f=[...$modal.querySelectorAll('button:not([disabled]),[href],input:not([type=hidden]):not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(x=>x.offsetParent!==null);if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}});
+}
+ACT.v9skip=function(){const m=document.getElementById('conteudo');if(m)m.focus()};
+
+Object.assign(ACT,{
+ v9f(d){UI.vf9[d.k]=d.v;UI.vf9.pag=1;render()},
+ v9filtros(){v9FiltrosModal()},
+ v9limpa(){const s=UI.vf9.sort;UI.vf9=vf9Default();UI.vf9.sort=s;if(!$modal.hidden)closeModal();render()},
+ v9sort(d){UI.vf9.sort=d.v;UI.vf9.pag=1;UI.pop='';render()},
+ v9pag(d){UI.vf9.pag=+d.v||1;render();const t=document.querySelector('.v9-tools');if(t)t.scrollIntoView({block:'start'})},
+ v9pref(d){const p=v9Prefs();p[d.k]=d.v==='1'?true:d.v==='0'?false:d.v;UI.pop='';save();render()},
+ v9exp(d){UI.v9Exp[d.id]=!UI.v9Exp[d.id];render()},
+ v9go(d){UI.pop='';UI.vTab[d.id]=d.tab;if(location.hash==='#v-'+d.id)render();else location.hash='v-'+d.id},
+ v9stats(){v9StatsModal()},
+ v9erros(d){const s=UI.vf9.sort;UI.vf9=vf9Default();UI.vf9.sort=s;UI.vf9.anSt='erro';if(d&&d.k)UI.vf9.integ=d.k;if(!$modal.hidden)closeModal();if(location.hash!=='#veiculos')location.hash='veiculos';else render()},
+ v9ban(){UI.v9Banner=false;render()},
+ async v9csv(){const L=v9Filtra();await baixarArquivo(`veiculos-${TODAY_ISO}.csv`,new Blob([v9CSV(L)],{type:'text/csv;charset=utf-8'}))}
+});
+Object.assign(FORMS,{
+ v9filtros(d){const s=UI.vf9.sort;UI.vf9=Object.assign(vf9Default(),{status:d.status||'',estoque:d.estoque||'',neg:d.neg||'',veic:d.veic||'',tipo:d.tipo||'',pend:d.pend||'',integ:d.integ||'',anSt:d.anSt||'',dest:!!d.dest,minhas:!!d.minhas,sort:s});closeModal();render()}
+});
+/* atalhos antigos (painel, alertas) passam a filtrar a tela nova também */
+{const vf0=ACT.vfilter,vs0=ACT.vsort;
+ ACT.vfilter=function(d){const s=UI.vf9.sort;UI.vf9=vf9Default();UI.vf9.sort=s;if(d.k in UI.vf9)UI.vf9[d.k]=d.v;return vf0(d)};
+ ACT.vsort=function(d){const m={recentes:'entrada-desc',antigos:'dias-desc',maior:'valor-desc',menor:'valor-asc',pend:'pend-desc'};UI.vf9=vf9Default();UI.vf9.sort=m[d.v]||'entrada-desc';return vs0(d)};
+}
+
+/* ================= v9: notificações de lead novo e de proposta de compra ================= */
+NOVIDADES.unshift({id:'nv-2026-11-25a',d:'2026-11-25',t:'Seu Estoque ganhou uma tela nova',txt:'Valores de compra, venda e lucro organizados; anúncios por portal direto na linha do veículo, com publicar e despublicar sem sair da tela; FIPE de entrada e atual com a variação; entrada, saída e dias em estoque; status mais visual; lista ou cartões; estatísticas dos portais e download da lista. A tela antiga continua em Versão da página.',href:'#veiculos',tag:'Estoque'},
+ {id:'nv-2026-11-25b',d:'2026-11-25',t:'Avisos de lead novo e de proposta de compra',txt:'A central de notificações avisa quando chega um lead para você e quando um carro avaliado está pronto para receber a proposta de compra.',href:'#notificacoes',tag:'Geral'});
+{const n0=notificacoes;
+ notificacoes=function(){
+  const N=n0(),uid=+((me()||{}).id||0),adm=can('configuracoes');
+  if(can('atendimentos')){
+   const lim=dAgo(3);
+   vals(S.lead).filter(l=>l.status==='pendente'&&String(l.data||'')>=lim&&(adm||!l.uid||+l.uid===uid)).forEach(l=>{const v=l.vid&&S.veh[l.vid];
+    N.push({id:'lead-'+l.id,tipo:'lead',i:'chat',t:`Você recebeu um novo lead: ${l.nome||'sem nome'}`,txt:`${l.origem||'Origem não informada'}${v?' · interesse no '+nome(v)+' '+(v.anoMod||''):''}`,href:'#atendimentos',d:l.data})});
+  }
+  if(can('avaliacoes')||can('negociacoes'))estoque().filter(v=>v.aval&&v.aval.done&&!(+v.compra>0)&&!v.negEntrada).forEach(v=>{
+   N.push({id:'prop-'+v.id,tipo:'proposta',i:'swap',t:`${nome(v)}${v.placa?' ('+v.placa+')':''} disponível para proposta de compra`,txt:'Avaliação concluída. Defina o valor de compra na precificação e faça a proposta ao cliente.',href:'#v-'+v.id,d:v.aval.data||v.entrada})});
+  return N.sort((a,b)=>String(b.d).localeCompare(String(a.d)));
+ };
+}
+{const vn0=viewNotificacoes;
+ viewNotificacoes=function(){const h=vn0(),all=notificacoes(),f=UI.ntF;
+  const tab=(k,l)=>`<button type="button" class="${f===k?'on':''}" data-act="ui" data-k="ntF" data-v="${k}">${l} <span class="muted">${all.filter(x=>x.tipo===k).length}</span></button>`;
+  const i=h.indexOf('<div class="tabs">'),j=i<0?-1:h.indexOf('</div>',i);
+  return j<0?h:h.slice(0,j)+tab('lead','Leads')+tab('proposta','Propostas')+h.slice(j);
+ };
+ VIEWS.notificacoes=viewNotificacoes;
+}
+
 /* ================= v7: modo servidor (os dados da loja ficam no servidor do Pátio) =================
    Só age quando a página é aberta pelo servidor (window.PATIO_BOOT existe). Fora dele, o protótipo
    continua salvando no navegador como antes.
@@ -8427,7 +8780,7 @@ if(window.PATIO_BOOT){(function(){
  }
  const formUser=FORMS.user;
  Object.assign(FORMS,{
-  async srvSenha(d){if(String(d.password).length<6){toast('A nova senha deve ter pelo menos 6 caracteres');return}try{await srvApi('POST','/api/users/me/password',{current:d.current,password:d.password});closeModal();toast('Senha alterada')}catch(e){toast(e.message)}},
+  async srvSenha(d){if(String(d.password).length<8){toast('A nova senha deve ter pelo menos 8 caracteres');return}try{await srvApi('POST','/api/users/me/password',{current:d.current,password:d.password});closeModal();toast('Senha alterada')}catch(e){toast(e.message)}},
   async user(d,f,fd){
    const id=+f.dataset.id,email=String(d.email||'').trim().toLowerCase(),role=roleDe(d.perfil);
    if(!id){
