@@ -3058,6 +3058,19 @@ body.g-dragging,body.g-dragging *{cursor:grabbing!important;user-select:none!imp
 .v9-skip{position:fixed;left:12px;top:-60px;z-index:100;background:var(--ink);color:var(--surface);border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
 .v9-skip:focus{top:12px}
 #conteudo:focus{outline:none}
+.v10-breve{display:flex;flex-direction:column;gap:8px;align-items:flex-start}.v10-breve p{margin:0;line-height:1.5}
+.v10-nota{background:color-mix(in srgb,var(--info) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--info) 30%,transparent);border-radius:12px;padding:11px 14px;margin:0 0 14px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+.v10-fipe-now{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.v10-fipe-now>div{background:var(--surface-2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;align-items:flex-start}
+.v10-fipe-now b{font-size:22px;font-weight:800}
+.v10-fipe-res{margin-top:12px;background:var(--green-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.v10-fipe-res b{font-size:26px;font-weight:800;color:var(--ink)}
+.v10-fq-st{min-height:24px;margin-top:10px}
+@media (max-width:720px){.v10-fipe-now{grid-template-columns:1fr}}
+.v10-imp-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px 14px}
+.v10-imp-opt{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.v10-lk{background:none;border:0;padding:0;cursor:pointer;font:inherit;text-decoration:underline;color:var(--green-strong)}
+.v10-vazio{display:flex;flex-direction:column;align-items:center;gap:8px;padding:36px 20px;text-align:center}.v10-vazio p{margin:0}.v10-vazio .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 /* v9: contraste mínimo de 4,5:1 nos selos e textos de apoio */
 .chip.warn{color:var(--warn-ink,var(--warn))}.chip.bad{color:var(--bad-ink,var(--bad))}.chip.info{color:var(--info-ink,var(--info))}
 .card > header .ht p,.card > header .chip.warn,.card > header .chip.bad,.card > header .chip.info{color:var(--hd-mut,rgba(255,255,255,.72))}
@@ -8480,6 +8493,7 @@ function viewVeiculos9(){
  </div>`;
  const banner=ERR.length&&UI.v9Banner?`<div class="v9-banner" role="status"><span>${ic('shield','sm')} <b>${ERR.length} ${ERR.length===1?'anúncio':'anúncios'} com erro em ${ni} ${ni===1?'integração':'integrações'}.</b> Esses veículos não aparecem nesses portais até a correção.</span><span class="v9-bl"><button type="button" class="lk" data-act="v9erros">Ver veículos com erro</button><button type="button" class="lk" data-act="v9stats">Ver estatísticas</button><a class="lk" href="#anuncios" data-act="ui" data-k="anunTab" data-v="erros">Erros e soluções</a><button type="button" class="v9-x" data-act="v9ban" aria-label="Fechar aviso">${ic('x','sm')}</button></span></div>`:'';
  const tools=`<div class="v9-tools"><span class="chip line" role="status">${L.length} ${L.length===1?'veículo':'veículos'}</span><span style="flex:1"></span>
+  ${can('veiculos')&&can('avaliacoes')?`<button type="button" class="btn sm" data-act="v10imp">${ic('file','sm')} Importar planilha</button>`:''}
   <button type="button" class="btn sm v9-ib" data-act="v9stats" aria-label="Estatísticas dos portais" title="Estatísticas dos portais">${ic('chart','sm')}</button>
   <button type="button" class="btn sm v9-ib" data-act="v9csv" aria-label="Baixar a lista em CSV" title="Baixar a lista (CSV)">${ic('download','sm')}</button>
   <span class="pop-host v9-sortw"><button type="button" class="btn sm v9-ib" data-act="pop" data-v="v9sort" aria-label="Ordenar. Atual: ${esc((V9_SORTS.find(s=>s[0]===f.sort)||V9_SORTS[0])[1])}" aria-haspopup="menu" aria-expanded="${sortOpen}" title="Ordenar">${ic('sort','sm')}</button>
@@ -8491,7 +8505,7 @@ function viewVeiculos9(){
  const lista=`<div class="tbl-wrap card v9-wrap"><table class="tbl v9-tbl"><caption class="sr-only">Veículos do estoque, página ${f.pag} de ${pags}</caption><thead><tr><th scope="col"${ariaSort('nome')}>${sortTh('nome','Veículo')}</th><th scope="col"${ariaSort('entrada')}>${sortTh('entrada','Status e entrada')}</th><th scope="col">Anúncios</th><th scope="col"${ariaSort('valor')}><span class="v9-thx">${sortTh('valor','Valores')}${eye('hideVal',hidV,'valores')}</span></th><th scope="col"${ariaSort('fipe')}><span class="v9-thx">${sortTh('fipe','FIPE')}${eye('hideFipe',hidF,'FIPE')}</span></th><th scope="col" class="n"><span class="sr-only">Ações</span></th></tr></thead><tbody>${pg.map(v9Linha).join('')}</tbody></table></div>`;
  const cards=`<div class="v9-cardbar small muted"><span>Valores</span>${eye('hideVal',hidV,'valores')}</div><div class="v9-grid">${pg.map(v9Card).join('')}</div>`;
  const pag=pags>1?`<nav class="v9-pag" aria-label="Páginas da lista"><button type="button" class="btn sm v9-ib" data-act="v9pag" data-v="${f.pag-1}" ${f.pag<=1?'disabled':''} aria-label="Página anterior">${ic('left','sm')}</button>${Array.from({length:pags},(_,i)=>i+1).filter(n=>n===1||n===pags||Math.abs(n-f.pag)<=2).map((n,i,a)=>`${i&&n-a[i-1]>1?'<span class="muted" aria-hidden="true">…</span>':''}<button type="button" class="btn sm ${n===f.pag?'pri':''}" data-act="v9pag" data-v="${n}" aria-label="Página ${n}" ${n===f.pag?'aria-current="page"':''}>${n}</button>`).join('')}<button type="button" class="btn sm v9-ib" data-act="v9pag" data-v="${f.pag+1}" ${f.pag>=pags?'disabled':''} aria-label="Próxima página">${ic('right','sm')}</button></nav>`:'';
- return head+bar+banner+tools+(L.length?(modo==='cards'?cards:lista)+pag:'<div class="card empty">Nenhum veículo com esses filtros.</div>');
+ return head+bar+banner+tools+(L.length?(modo==='cards'?cards:lista)+pag:(vehList().length?'<div class="card empty">Nenhum veículo com esses filtros.</div>':`<div class="card empty v10-vazio"><b>Seu estoque ainda está vazio.</b><p>Cadastre o primeiro carro pela avaliação ou traga o estoque de uma planilha.</p><div class="actions">${can('avaliacoes')?`<button class="btn pri" type="button" data-act="novaAval">${ic('plus','sm')} Solicitar avaliação</button>`:''}${can('veiculos')&&can('avaliacoes')?`<button class="btn" type="button" data-act="v10imp">${ic('file','sm')} Importar planilha</button>`:''}</div></div>`));
 }
 VIEWS.veiculos=viewVeiculos9;
 /* acessibilidade: tabelas que rolam de lado recebem foco pelo teclado e um nome */
@@ -8562,6 +8576,273 @@ NOVIDADES.unshift({id:'nv-2026-11-25a',d:'2026-11-25',t:'Seu Estoque ganhou uma 
  VIEWS.notificacoes=viewNotificacoes;
 }
 
+/* ================= v10: sistema publicado (modo real) =================
+   Quando o Pátio roda no servidor (window.PATIO_BOOT), nada pode fingir que aconteceu:
+   - FIPE: consulta real pela Tabela FIPE (servidor do Pátio) e histórico com os valores realmente consultados;
+   - portais: controle manual de onde o carro está anunciado (o envio automático ainda não existe);
+   - consulta veicular, consulta de mercado, NF-e, assinatura digital e IdentKey: avisam que chegam em breve.
+   No protótipo de demonstração (sem servidor) tudo continua simulado como antes. */
+const REAL=()=>!!window.PATIO_BOOT;
+function emBreve(titulo,txt){openModal(titulo,`<div class="v10-breve"><span class="chip info">Em breve</span><p>${txt}</p></div>`,`<button class="btn pri" type="button" data-act="closeModal">Entendi</button>`)}
+const V10_BREVE={
+ consulta:['Consulta veicular','A consulta de restrições, débitos, leilão e roubo pela placa depende da contratação de um provedor de dados veiculares. Enquanto isso, consulte no site do Detran ou no seu fornecedor atual e anote o resultado nas observações do veículo.'],
+ mercado:['Consulta de mercado','A média de preços anunciados nos portais vai chegar com a integração aos portais. Por enquanto, use a FIPE ou digite o valor de venda esperado.'],
+ nfe:['Emissão de NF-e','A emissão de nota fiscal precisa do certificado digital da loja e da integração com a SEFAZ. Enquanto isso, emita pelo seu emissor atual.'],
+ assin:['Assinatura digital','O envio para assinatura eletrônica ainda não está ligado. Baixe o contrato em PDF ou Word, imprima e colha as assinaturas.'],
+ identkey:['Claviculário IdentKey','A conexão com a IdentBox chega em breve. O controle de chaves por etiqueta QR já funciona sem nenhum equipamento.'],
+ notif:['Notificações por WhatsApp e e-mail','Os avisos de chave fora do prazo aparecem no sino do Pátio. O envio por WhatsApp e e-mail chega em breve.']
+};
+ACT.v10breve=d=>{const b=V10_BREVE[d.k];if(b)emBreve(b[0],b[1])};
+{const wrap=(obj,name,k)=>{const f=obj[name];if(typeof f!=='function')return;obj[name]=function(...a){if(REAL()){const b=V10_BREVE[k];emBreve(b[0],b[1]);return}return f.apply(this,a)}};
+ [['cvNova','consulta'],['cvAtualizar','consulta'],['emitirNfe','nfe'],['assin','assin'],['intAssin','assin'],['chvIkTest','identkey'],['chvIkSync','identkey'],['chvIkSim','identkey'],['chvTesteNotif','notif']].forEach(([n,k])=>wrap(ACT,n,k));
+ wrap(FORMS,'consulta','consulta');
+}
+/* insere um aviso logo depois do cabeçalho da página */
+function v10afterHead(h,note){
+ const s=h.indexOf('<div class="phead">');if(s<0)return note+h;
+ const re=/<div\b|<\/div>/g;re.lastIndex=s;let depth=0,m;
+ while((m=re.exec(h))){depth+=m[0]==='</div>'?-1:1;if(!depth){const e=m.index+6;return h.slice(0,e)+note+h.slice(e)}}
+ return note+h;
+}
+
+/* alertas e novidades: sem NF-e no sistema publicado; loja nova não recebe novidades antigas como não lidas */
+{const a0=alertas;alertas=function(){const A=a0();return REAL()?A.filter(x=>!/NF-e/.test(x.t)):A}}
+{const n0=notificacoes;notificacoes=function(){const N=n0();if(!REAL())return N;const c=String((window.PATIO_BOOT.company||{}).created_at||'').slice(0,10);return c?N.filter(x=>x.tipo!=='novidade'||String(x.d)>=c):N}}
+
+/* ---------- portais: controle manual ---------- */
+{const pub0=ACT.pub,all0=ACT.pubAll;
+ ACT.pub=function(d){if(!REAL())return pub0(d);const v=vehAt(d),k=d.k,N=portalNome(k);v.fila=v.fila||{};delete v.fila[k];
+  if(v.bloqueado&&!v.pubs[k]){toast('Veículo bloqueado: desbloqueie antes de anunciar');return}
+  v.pubs[k]=!v.pubs[k];
+  touch(v,'anuncios',(v.pubs[k]?'Marcou como anunciado no ':'Marcou como retirado do ')+N);
+  toast(k==='site'?(v.pubs[k]?'Publicado no site da loja':'Retirado do site da loja'):(v.pubs[k]?`Marcado como anunciado no ${N}. Publique também no painel do portal.`:`Marcado como retirado do ${N}. Retire também no painel do portal.`));
+  save();render()};
+ ACT.pubAll=function(d){if(!REAL())return all0(d);const v=vehAt(d);v.fila=v.fila||{};let n=0;
+  portaisAtivos().forEach(([k])=>{delete v.fila[k];if(d.v==='1'&&!v.pubs[k]&&!v.bloqueado){v.pubs[k]=true;n++}if(d.v!=='1'&&v.pubs[k]){v.pubs[k]=false;n++}});
+  touch(v,'anuncios',d.v==='1'?`Marcou como anunciado em ${n} canais`:`Marcou como retirado de ${n} canais`);save();toast(n?`${n} canais atualizados`:'Nada a alterar');render()};
+}
+const V10_NOTA_PORTAIS='<b>Controle manual dos portais.</b> O Pátio ainda não envia os anúncios para OLX, Webmotors e os outros portais: publique no painel de cada portal e marque aqui onde o carro está anunciado. O <b>Site da loja</b> e o <b>feed XML</b> já funcionam de verdade.';
+{const va=VIEWS.anuncios;VIEWS.anuncios=function(){const h=va();if(!REAL())return h;
+  return v10afterHead(h.replace('Publicar e atualizar entram na fila do portal.','Marque onde o carro está anunciado.'),`<div class="v10-nota" role="note">${V10_NOTA_PORTAIS}</div>`)}}
+
+/* ---------- consulta de mercado e consulta veicular: em breve ---------- */
+{const ms0=mercStats,mh0=mercadoHTML,bc0=baseCompraHTML;
+ mercStats=function(v){return REAL()?null:ms0(v)};
+ mercadoHTML=function(v){if(!REAL())return mh0(v);return `<section class="card"><header><div class="ht"><h3>Consulta de mercado</h3><p>Média de preços anunciados nos portais</p></div></header><div class="bd"><div class="v10-breve"><span class="chip info">Em breve</span><p>${V10_BREVE.mercado[1]}</p></div></div></section>`};
+ baseCompraHTML=function(v){const h=bc0(v);return REAL()?h.replace(/<button[^>]*data-val="mercado"[^>]*>[\s\S]*?<\/button>/,''):h};
+ const vc=VIEWS.consultas;VIEWS.consultas=function(){const h=vc();if(!REAL())return h;return v10afterHead(h,`<div class="v10-nota" role="note"><span class="chip info">Em breve</span> ${V10_BREVE.consulta[1]}</div>`)};
+}
+
+/* ---------- FIPE real ---------- */
+const v10Mes=d=>ISO(d||TODAY).slice(0,7);
+function v10FipeReg(v,val,mes){v.fipeReg=Array.isArray(v.fipeReg)?v.fipeReg:[];const m=v10Mes();const e=v.fipeReg.find(x=>x.m===m);if(e){e.val=val;e.ref=mes||e.ref||''}else v.fipeReg.push({m,val,ref:mes||''});v.fipeReg.sort((a,b)=>a.m.localeCompare(b.m));if(v.fipeReg.length>36)v.fipeReg=v.fipeReg.slice(-36)}
+{const fs0=fipeSerie;
+ fipeSerie=function(v){if(!REAL())return fs0(v);
+  const reg=(Array.isArray(v.fipeReg)?v.fipeReg:[]).map(x=>({m:x.m,val:+x.val||0})).filter(x=>x.val>0);
+  const cm=v10Mes();if(+v.fipe>0){const last=reg[reg.length-1];if(last&&last.m===cm)last.val=+v.fipe;else reg.push({m:cm,val:+v.fipe})}
+  const out=reg.slice(-6).map(x=>({d:new Date(x.m+'-01T12:00'),val:x.val}));
+  out.forEach((x,i)=>{const p=out[i-1];x.dv=p?x.val-p.val:0;x.dp=p&&p.val?x.dv/p.val*100:0;x.acc=out[0].val?(x.val-out[0].val)/out[0].val*100:0});
+  return out};
+}
+{const fe0=v9FipeEnt;v9FipeEnt=function(v){if(!REAL())return fe0(v);if(+v.fipeEntrada>0)return +v.fipeEntrada;const r=(v.fipeReg||[]).find(x=>+x.val>0);return r?+r.val:(+v.fipe||0)}}
+{const fx0=fipeExtratoHTML;
+ fipeExtratoHTML=function(v){if(!REAL())return fx0(v);
+  const P='veh.'+v.id+'.',H=fipeSerie(v),cur=H[H.length-1],ref=v.fipeRef,pv=preco(v);
+  const btn=ref?`<button class="btn sm" type="button" data-act="v10fipeAtual" data-id="${v.id}">${ic('refresh','sm')} Atualizar pela FIPE</button><button class="btn sm ghost" type="button" data-act="v10fipe" data-id="${v.id}">Trocar modelo</button>`:`<button class="btn sm pri" type="button" data-act="v10fipe" data-id="${v.id}">${ic('search','sm')} Consultar FIPE</button>`;
+  const head=`<header><div class="ht"><h3>Tabela FIPE</h3><p>${ref?esc(ref.nome||'')+(ref.codigo?' · código '+esc(ref.codigo):''):'Consulte pela marca, modelo e ano, ou digite o valor'}</p></div><span class="actions">${btn}</span></header>`;
+  if(!cur)return `<section class="card fipe-card">${head}<div class="bd"><div class="form"><label class="f">Valor FIPE${inp(P+'fipe',v.fipe,{type:'number'})}<small>Use Consultar FIPE para buscar o valor oficial do mês.</small></label></div></div></section>`;
+  const dif=pv&&cur.val?(pv-cur.val)/cur.val*100:0,cls=x=>x>0.0001?'up':x<-0.0001?'down':'flat';
+  const ent=v9FipeEnt(v),ve=ent?(cur.val-ent)/ent*100:0,pc=x=>`${x>0?'+':''}${x.toFixed(1).replace('.',',')}%`;
+  return `<section class="card fipe-card">${head}<div class="bd" style="display:flex;flex-direction:column;gap:16px">
+   <div class="v10-fipe-now"><div><span class="eyebrow">${ref&&ref.mes?'Referência '+esc(ref.mes):'Valor informado'}</span><b>${brl(cur.val)}</b></div>
+    <div><span class="eyebrow">Na entrada do veículo</span><b>${ent?brl(ent):'—'}</b>${ent&&ent!==cur.val?`<span class="fpill ${cls(ve)}">${pc(ve)}</span>`:''}</div>
+    <div><span class="eyebrow">Seu preço de venda</span><b>${pv?brl(pv):'—'}</b>${pv?`<span class="fpill ${dif>=0?'up':'down'}">${pc(dif)} vs. FIPE</span>`:''}</div></div>
+   ${H.length>1?`<div class="tbl-wrap"><table class="tbl"><caption class="sr-only">Valores FIPE registrados</caption><thead><tr><th scope="col">Mês</th><th scope="col" class="n">Valor FIPE</th><th scope="col" class="n">Variação</th></tr></thead><tbody>${H.slice().reverse().map((x,i,a)=>`<tr><td>${MESES[x.d.getMonth()]}/${x.d.getFullYear()}</td><td class="n"><b>${brl(x.val)}</b></td><td class="n">${i===a.length-1?'—':`<span class="v9-${x.dv>=0?'up':'down'}">${pc(x.dp)}</span>`}</td></tr>`).join('')}</tbody></table></div>`:'<p class="small muted">O histórico se forma a cada mês em que o valor é atualizado pela FIPE.</p>'}
+   <div class="form"><label class="f">Valor FIPE (editar à mão)${inp(P+'fipe',v.fipe,{type:'number'})}</label></div>
+  </div></section>`};
+}
+Object.assign(UI,{fq:null});
+const V10_TIPO={Carro:'carros',Moto:'motos','Caminhão':'caminhoes'};
+const v10norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+async function v10get(path){return srvApi('GET','/api/fipe'+path)}
+function v10best(list,txt){const w=v10norm(txt).split(' ').filter(x=>x.length>1);let best=null,bs=0;list.forEach(o=>{const n=v10norm(o.nome),ws=n.split(' ');const s=w.reduce((a,x)=>a+(ws.includes(x)?2:n.includes(x)?1:0),0);if(s>bs){bs=s;best=o}});return best}
+function v10fqPaint(){
+ const Q=UI.fq,el=document.getElementById('fq-body');if(!Q||!el)return;
+ const sel=(k,lab,list,val,dis,cls='')=>`<label class="f ${cls}">${lab}<select class="inp" data-fq="${k}" id="fq-${k}" ${dis?'disabled':''}><option value="">${dis?'…':'Selecione'}</option>${list.map(o=>`<option value="${esc(o.codigo)}"${String(o.codigo)===String(val)?' selected':''}>${esc(o.nome)}</option>`).join('')}</select></label>`;
+ const fil=Q.modeloQ?Q.modelos.filter(o=>v10norm(o.nome).includes(v10norm(Q.modeloQ))||String(o.codigo)===String(Q.modelo)):Q.modelos;
+ el.innerHTML=`<div class="form">
+  <label class="f">Tipo<select class="inp" data-fq="tipo" id="fq-tipo">${opts([['carros','Carros'],['motos','Motos'],['caminhoes','Caminhões']],Q.tipo)}</select></label>
+  ${sel('marca','Marca',Q.marcas,Q.marca,!Q.marcas.length)}
+  <label class="f wide">Filtrar modelos<input class="inp" type="search" data-fq="modeloQ" id="fq-q" value="${esc(Q.modeloQ)}" placeholder="Digite parte do nome" ${Q.marca?'':'disabled'}></label>
+  ${sel('modelo',`Modelo e versão (${fil.length})`,fil,Q.modelo,!Q.marca||!Q.modelos.length,'wide')}
+  ${sel('ano','Ano modelo e combustível',Q.anos,Q.ano,!Q.modelo||!Q.anos.length)}
+ </div>
+ <div aria-live="polite" class="v10-fq-st">${Q.load?`<p class="muted">${esc(Q.load)}</p>`:''}${Q.err?`<p class="v9-down">${esc(Q.err)}</p>`:''}
+ ${Q.res?`<div class="v10-fipe-res"><span class="eyebrow">${esc(Q.res.mes)} · código ${esc(Q.res.codigo)}</span><b>${brl(Q.res.valor)}</b><span class="small muted">${esc(Q.res.marca)} ${esc(Q.res.modelo)} · ${Q.res.ano||''} · ${esc(Q.res.combustivel)}</span></div>`:''}</div>`;
+ const b=document.getElementById('fq-usar');if(b)b.disabled=!Q.res;
+}
+async function v10fqStep(k){
+ const Q=UI.fq;if(!Q)return;Q.err='';
+ try{
+  if(k==='tipo'){Q.marcas=[];Q.marca='';Q.modelos=[];Q.modelo='';Q.anos=[];Q.ano='';Q.res=null;Q.load='Carregando marcas…';v10fqPaint();Q.marcas=await v10get(`/${Q.tipo}/marcas`);if(Q.v){const b=v10best(Q.marcas,Q.v.marca);if(b){Q.marca=b.codigo;Q.load='';return v10fqStep('marca')}}}
+  else if(k==='marca'){Q.modelos=[];Q.modelo='';Q.anos=[];Q.ano='';Q.res=null;if(!Q.marca){Q.load='';return v10fqPaint()}Q.load='Carregando modelos…';v10fqPaint();Q.modelos=await v10get(`/${Q.tipo}/marcas/${Q.marca}/modelos`);if(Q.v&&!Q.modeloQ)Q.modeloQ=String(Q.v.modelo||'').split(' ')[0];if(Q.v){const b=v10best(Q.modelos,Q.v.modelo+' '+Q.v.versao);if(b){Q.modelo=b.codigo;Q.load='';return v10fqStep('modelo')}}}
+  else if(k==='modelo'){Q.anos=[];Q.ano='';Q.res=null;if(!Q.modelo){Q.load='';return v10fqPaint()}Q.load='Carregando anos…';v10fqPaint();Q.anos=await v10get(`/${Q.tipo}/marcas/${Q.marca}/modelos/${Q.modelo}/anos`);if(Q.v){const y=String(Q.v.anoMod||''),comb=v10norm(Q.v.combustivel).split(' ')[0];const c=Q.anos.filter(o=>String(o.codigo).startsWith(y+'-'));const b=c.find(o=>comb&&v10norm(o.nome).includes(comb))||c[0];if(b){Q.ano=b.codigo;Q.load='';return v10fqStep('ano')}}}
+  else if(k==='ano'){Q.res=null;if(!Q.ano){Q.load='';return v10fqPaint()}Q.load='Consultando valor…';v10fqPaint();Q.res=await v10get(`/${Q.tipo}/marcas/${Q.marca}/modelos/${Q.modelo}/anos/${Q.ano}`)}
+ }catch(e){Q.err=e.message||'Não foi possível consultar a FIPE agora.'}
+ Q.load='';v10fqPaint();
+}
+document.addEventListener('change',e=>{const t=e.target;if(!t.dataset||!t.dataset.fq||!UI.fq)return;const k=t.dataset.fq;if(k==='modeloQ')return;UI.fq[k]=t.value;v10fqStep(k)});
+document.addEventListener('input',e=>{const t=e.target;if(!t.dataset||t.dataset.fq!=='modeloQ'||!UI.fq)return;UI.fq.modeloQ=t.value;const pos=t.selectionStart;v10fqPaint();const n=document.getElementById('fq-q');if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}});
+function v10usarFipe(v,r,ref){
+ v.fipe=r.valor;v.fipeRef=Object.assign({},ref,{codigo:r.codigo,mes:r.mes,nome:`${r.marca} ${r.modelo} ${r.ano||''}`.trim()});
+ v10FipeReg(v,r.valor,r.mes);
+ if(!(+v.fipeEntrada>0)&&(!v.entrada||String(v.entrada).slice(0,7)===v10Mes()))v.fipeEntrada=r.valor;
+ touch(v,'precificacao',`Atualizou a FIPE: ${brl(r.valor)} (${r.mes})`);
+}
+Object.assign(ACT,{
+ v10fipe(d){if(!REAL()){toast('A consulta à FIPE funciona no sistema publicado');return}const v=S.veh[d.id]||null;
+  UI.fq={vid:v?v.id:null,v,tipo:(v&&V10_TIPO[v.tipo])||'carros',marcas:[],marca:'',modeloQ:'',modelos:[],modelo:'',anos:[],ano:'',res:null,load:'',err:''};
+  openModal('Consultar Tabela FIPE','<div id="fq-body"></div>',`<button class="btn" type="button" data-act="closeModal">Cancelar</button><button class="btn pri" type="button" id="fq-usar" data-act="v10fipeUsar" disabled>Usar este valor</button>`);
+  v10fqStep('tipo')},
+ v10fipeUsar(){const Q=UI.fq;if(!Q||!Q.res)return;const v=Q.vid&&S.veh[Q.vid];if(!v){closeModal();return}
+  v10usarFipe(v,Q.res,{tipo:Q.tipo,marca:Q.marca,modelo:Q.modelo,ano:Q.ano});save();closeModal();toast('Valor FIPE atualizado');render()},
+ async v10fipeAtual(d){const v=S.veh[d.id],r0=v&&v.fipeRef;if(!r0)return ACT.v10fipe(d);
+  try{toast('Consultando a FIPE…');const r=await v10get(`/${r0.tipo}/marcas/${r0.marca}/modelos/${r0.modelo}/anos/${r0.ano}`);v10usarFipe(v,r,r0);save();toast(`FIPE ${r.mes}: ${brl(r.valor)}`);render()}catch(e){toast(e.message)}}
+});
+/* fecha o estado da consulta ao fechar a janela */
+{const cm=closeModal;closeModal=function(){UI.fq=null;return cm()}}
+
+/* ---------- importar veículos por planilha (CSV) ----------
+   Para trazer o estoque de outro sistema ou de uma planilha própria. Excel: Arquivo › Salvar como › CSV.
+   Aceita ponto e vírgula, vírgula ou tabulação; UTF-8 ou o padrão do Excel no Windows. */
+const V10_IMP=[
+ ['placa','Placa',['placa']],
+ ['marca','Marca',['marca','fabricante','montadora'],1],
+ ['modelo','Modelo',['modelo'],1],
+ ['versao','Versão',['versao','descricao do modelo','versao motor']],
+ ['ano','Ano (fab/modelo)',['ano','ano fab mod','ano fabricacao modelo','ano modelo fab','ano fab modelo']],
+ ['anoFab','Ano de fabricação',['ano fabricacao','ano de fabricacao','ano fab','fabricacao']],
+ ['anoMod','Ano modelo',['ano modelo','ano mod','modelo ano']],
+ ['km','Quilometragem',['km','quilometragem','kilometragem','odometro']],
+ ['cor','Cor',['cor']],
+ ['combustivel','Combustível',['combustivel']],
+ ['cambio','Câmbio',['cambio','transmissao']],
+ ['tipo','Tipo (carro, moto, caminhão)',['tipo','tipo de veiculo','categoria']],
+ ['venda','Preço de venda',['preco','preco de venda','valor de venda','venda','valor','preco venda','valor venda']],
+ ['promo','Preço promocional',['promocao','preco promocional','valor promocional']],
+ ['compra','Valor de compra',['compra','valor de compra','custo','preco de compra','valor compra']],
+ ['fipe','Valor FIPE',['fipe','valor fipe','tabela fipe']],
+ ['entrada','Data de entrada',['entrada','data de entrada','data entrada','dt entrada','cadastro','data de cadastro']],
+ ['estoque','Estoque (showroom/atacado)',['estoque','tipo de estoque','showroom atacado']],
+ ['neg','Origem (próprio/consignado)',['origem','negociacao','proprio consignado','consignado']],
+ ['chassi','Chassi',['chassi']],
+ ['renavam','Renavam',['renavam']],
+ ['portas','Portas',['portas']],
+ ['descricao','Descrição / observações',['descricao','observacoes','obs']]
+];
+Object.assign(UI,{imp:null});
+function v10csv(txt){
+ txt=String(txt||'').replace(/^﻿/,'');
+ const first=txt.split(/\r?\n/).find(l=>l.trim())||'';
+ const cnt=c=>first.split(c).length-1,d=[';','\t',','].sort((a,b)=>cnt(b)-cnt(a))[0];
+ const rows=[];let row=[],cell='',q=false;
+ for(let i=0;i<txt.length;i++){const c=txt[i];
+  if(q){if(c==='"'){if(txt[i+1]==='"'){cell+='"';i++}else q=false}else cell+=c;continue}
+  if(c==='"'){q=true;continue}
+  if(c===d){row.push(cell);cell='';continue}
+  if(c==='\n'||c==='\r'){if(c==='\r'&&txt[i+1]==='\n')i++;row.push(cell);cell='';if(row.some(x=>x.trim()))rows.push(row);row=[];continue}
+  cell+=c}
+ row.push(cell);if(row.some(x=>x.trim()))rows.push(row);
+ return rows.map(r=>r.map(x=>x.trim()));
+}
+function v10num(s){s=String(s??'').trim();if(!s)return 0;s=s.replace(/[^\d,.\-]/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');else if(/^-?\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');const n=Number(s);return Number.isFinite(n)?n:0}
+function v10data(s){s=String(s||'').trim();let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];const d=`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return isNaN(new Date(d+'T12:00'))?'':d}m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''}
+function v10impAutoMap(head){const H=head.map(h=>v10norm(h));const map={};V10_IMP.forEach(([k,,syn])=>{const i=H.findIndex(h=>syn.includes(h));if(i>=0)map[k]=String(i)});
+ if(map.ano&&(map.anoFab||map.anoMod))delete map.ano;return map}
+function v10impRow(r,map){
+ const g=k=>map[k]!==undefined&&map[k]!==''?String(r[+map[k]]??'').trim():'';
+ let fab=0,mod=0;const ano=g('ano');
+ if(ano){const m=ano.match(/(\d{4})\s*[\/\-]\s*(\d{2,4})/);if(m){fab=+m[1];mod=m[2].length===2?+(m[1].slice(0,2)+m[2]):+m[2]}else fab=mod=parseInt(ano)||0}
+ if(g('anoFab'))fab=parseInt(g('anoFab'))||fab;if(g('anoMod'))mod=parseInt(g('anoMod'))||mod;if(!fab)fab=mod;if(!mod)mod=fab;
+ const placa=g('placa').toUpperCase().replace(/[^A-Z0-9]/g,'');
+ const o={placa,marca:g('marca'),modelo:g('modelo'),versao:g('versao'),anoFab:fab,anoMod:mod,km:Math.round(v10num(g('km'))),cor:g('cor'),
+  combustivel:g('combustivel')||'Flex',cambio:/aut|cvt|dsg|tiptronic/i.test(g('cambio'))?'Automático':'Manual',
+  tipo:/moto/i.test(g('tipo'))?'Moto':/caminh/i.test(g('tipo'))?'Caminhão':'Carro',
+  venda:v10num(g('venda')),promo:v10num(g('promo')),compra:v10num(g('compra')),fipe:v10num(g('fipe')),
+  entrada:v10data(g('entrada'))||TODAY_ISO,estoque:/atac/i.test(g('estoque'))?'atacado':'showroom',neg:/consig/i.test(g('neg'))?'consignado':'proprio',
+  chassi:g('chassi').toUpperCase(),renavam:g('renavam').replace(/\D/g,''),portas:parseInt(g('portas'))||4,descricao:g('descricao')};
+ const err=[];const Y=TODAY.getFullYear()+1;
+ if(!o.marca)err.push('sem marca');if(!o.modelo)err.push('sem modelo');
+ if(!(o.anoMod>=1950&&o.anoMod<=Y))err.push('ano inválido');
+ if(o.placa&&!/^[A-Z]{3}\d[A-Z0-9]\d{2}$/.test(o.placa))err.push('placa inválida');
+ if(o.entrada>TODAY_ISO)o.entrada=TODAY_ISO;
+ return {o,err};
+}
+function v10impAnalisa(){
+ const I=UI.imp,placas=new Set(vehList().filter(v=>v.status==='estoque'&&v.placa).map(v=>v.placa)),vistas=new Set();
+ return I.rows.map((r,i)=>{const x=v10impRow(r,I.map);if(x.o.placa){if(placas.has(x.o.placa))x.err.push('placa já está no estoque');else if(vistas.has(x.o.placa))x.err.push('placa repetida na planilha');vistas.add(x.o.placa)}x.n=i+2;return x});
+}
+function v10impPaint(){
+ const I=UI.imp,el=document.getElementById('imp-body'),btn=document.getElementById('imp-go');if(!I||!el)return;
+ if(I.step===1){
+  el.innerHTML=`<p>Traga o estoque de outro sistema ou da sua planilha. No Excel, use <b>Arquivo › Salvar como › CSV</b>.</p>
+  <div class="form"><label class="f wide">Arquivo CSV<input class="inp" type="file" accept=".csv,.txt,text/csv" data-imp="arq" id="imp-arq"></label>
+  <label class="f wide">ou cole aqui as linhas copiadas da planilha (com o cabeçalho)<textarea class="inp" rows="5" id="imp-txt" placeholder="Placa;Marca;Modelo;Versão;Ano;KM;Preço"></textarea></label></div>
+  <p class="small"><button type="button" class="lk v10-lk" data-act="v10impModelo">Baixar planilha modelo</button> · até 2.000 veículos por vez</p>
+  ${I.err?`<p class="v9-down" role="alert">${esc(I.err)}</p>`:''}`;
+  if(btn){btn.textContent='Continuar';btn.disabled=false}return}
+ if(I.step===2){
+  const A=v10impAnalisa(),ok=A.filter(x=>!x.err.length),bad=A.filter(x=>x.err.length);
+  const optsH=[['','Não importar']].concat(I.head.map((h,i)=>[String(i),h||`Coluna ${i+1}`]));
+  el.innerHTML=`<p><b>${I.rows.length}</b> linhas lidas. Confira qual coluna da planilha corresponde a cada campo do Pátio.</p>
+  <div class="v10-imp-map">${V10_IMP.map(([k,l,,req])=>`<label class="f"><span>${l}${req?' <b aria-hidden="true">*</b><span class="sr-only"> (obrigatório)</span>':''}</span><select class="inp" data-imp="map" data-k="${k}" id="imp-m-${k}">${opts(optsH,I.map[k]??'')}</select></label>`).join('')}</div>
+  <div class="v10-imp-opt"><label class="check"><input type="checkbox" data-imp="prep" ${I.prep?'checked':''}> Veículos já preparados (sem pendência de avaliação, perícia e recebimento)</label>
+  <label class="check"><input type="checkbox" data-imp="site" ${I.site?'checked':''}> Publicar no site da loja os que têm preço</label></div>
+  <h4 style="margin:14px 0 6px">Prévia</h4>
+  <div class="tbl-wrap"><table class="tbl"><caption class="sr-only">Prévia dos primeiros veículos</caption><thead><tr><th scope="col">Linha</th><th scope="col">Placa</th><th scope="col">Veículo</th><th scope="col">Ano</th><th scope="col" class="n">KM</th><th scope="col" class="n">Venda</th><th scope="col">Situação</th></tr></thead><tbody>
+  ${A.slice(0,8).map(x=>`<tr><td>${x.n}</td><td>${esc(x.o.placa||'—')}</td><td>${esc(x.o.marca+' '+x.o.modelo)} <span class="small muted">${esc(x.o.versao)}</span></td><td>${x.o.anoFab}/${x.o.anoMod}</td><td class="n">${numf(x.o.km)}</td><td class="n">${x.o.venda?brl(x.o.venda):'—'}</td><td>${x.err.length?chip(x.err.join(', '),'bad'):chip('Pronto','ok')}</td></tr>`).join('')}</tbody></table></div>
+  <p role="status" style="margin-top:10px"><b>${ok.length}</b> prontos para importar${bad.length?` · <span class="v9-down">${bad.length} com problema</span> (ficam de fora): linhas ${bad.slice(0,12).map(x=>x.n).join(', ')}${bad.length>12?'…':''}`:''}</p>`;
+  if(btn){btn.textContent=`Importar ${ok.length} veículo${ok.length===1?'':'s'}`;btn.disabled=!ok.length}return}
+ if(I.step===3){el.innerHTML=`<div class="v10-breve"><span class="chip ok">Concluído</span><p><b>${I.feitos}</b> veículos importados${I.fora?` e ${I.fora} linhas ficaram de fora`:''}. Eles já estão na tela de Veículos.</p></div>`;if(btn){btn.textContent='Ver veículos';btn.disabled=false}}
+}
+function v10impLer(txt){const I=UI.imp;const R=v10csv(txt);
+ if(R.length<2){I.err='Não encontrei linhas de dados. Confira se a primeira linha é o cabeçalho.';return v10impPaint()}
+ if(R.length>2001){I.err='A planilha tem mais de 2.000 veículos. Divida em partes.';return v10impPaint()}
+ const w=Math.max(...R.map(r=>r.length));I.head=R[0].concat(Array(Math.max(0,w-R[0].length)).fill(''));I.rows=R.slice(1);I.map=v10impAutoMap(I.head);I.err='';I.step=2;v10impPaint();
+ const s=document.querySelector('[data-imp="map"]');if(s)s.focus()}
+function v10impCria(o,prep,site){
+ const id=nextId(),u=me()||{nome:'Importação'};
+ const v={id,placa:o.placa,zeroKm:o.km===0,marca:o.marca,modelo:o.modelo,versao:o.versao,anoFab:o.anoFab,anoMod:o.anoMod,cor:o.cor,km:o.km,cambio:o.cambio,combustivel:o.combustivel,carroceria:'',portas:o.portas,opcionais:[],renavam:o.renavam,chassi:o.chassi,tipo:o.tipo,estoque:o.estoque,neg:o.neg,status:'estoque',entrada:o.entrada,saida:null,compra:o.compra,venda:o.venda,promo:o.promo&&o.promo<o.venda?o.promo:0,fipe:o.fipe,negEntrada:prep,clienteId:null,
+  pericia:{status:prep?'aprovado':'pendente',data:prep?o.entrada:'',forn:'',obs:prep?'Importado da planilha: veículo já estava em estoque':''},
+  receb:{manual:prep?'entregue':'pendente',chave:prep?'entregue':'pendente',certificado:prep?'entregue':'pendente',seguranca:prep?'entregue':'pendente'},
+  garantia:CFG().loja.garantiaPadrao,
+  aval:{done:prep,data:o.entrada,avaliador:u.nome,solicitante:u.nome,testDrive:false,rodas:'Liga leve',chaveReserva:true,fotos:{},itens:{},serv:{},feedback:prep?'Importado da planilha':''},
+  servicos:[],fotos:0,pubs:Object.fromEntries(['site'].concat(PORTAIS_CAT.map(p=>p[0])).map(k=>[k,false])),descricao:o.descricao,importado:TODAY_ISO};
+ if(site&&o.venda>0)v.pubs.site=true;
+ if(o.fipe>0){v.fipeEntrada=o.fipe;v.fipeReg=[{m:String(o.entrada).slice(0,7),val:o.fipe,ref:'informado na importação'}]}
+ S.veh[id]=v;try{touch(v,'ficha','Importou o veículo da planilha')}catch(e){}
+ return v;
+}
+Object.assign(ACT,{
+ v10imp(){UI.imp={step:1,rows:[],head:[],map:{},prep:true,site:false,err:''};
+  openModal('Importar veículos de planilha','<div id="imp-body"></div>',`<button class="btn" type="button" data-act="closeModal">Cancelar</button><button class="btn pri" type="button" id="imp-go" data-act="v10impGo">Continuar</button>`,true);v10impPaint()},
+ v10impGo(){const I=UI.imp;if(!I)return;
+  if(I.step===1){const t=document.getElementById('imp-txt');if(t&&t.value.trim())return v10impLer(t.value);I.err='Escolha um arquivo CSV ou cole as linhas da planilha.';return v10impPaint()}
+  if(I.step===2){const A=v10impAnalisa(),ok=A.filter(x=>!x.err.length);if(!ok.length)return;
+   ok.forEach(x=>v10impCria(x.o,I.prep,I.site));I.feitos=ok.length;I.fora=A.length-ok.length;I.step=3;save();v10impPaint();toast(`${ok.length} veículos importados`);return}
+  if(I.step===3){closeModal();UI.vf9=vf9Default();go('veiculos')}},
+ v10impModelo(){const h='Placa;Marca;Modelo;Versão;Ano;KM;Cor;Combustível;Câmbio;Preço de venda;Valor de compra;Valor FIPE;Data de entrada;Estoque;Origem;Chassi;Renavam;Descrição';
+  const ex='ABC1D23;Chevrolet;Onix;1.0 Turbo LTZ;2022/2023;35000;Branco;Flex;Automático;89.900,00;76.000,00;84.500,00;01/11/2026;Showroom;Próprio;;;Único dono, revisado';
+  baixarArquivo('modelo-importacao-veiculos.csv',new Blob(['﻿'+h+'\r\n'+ex+'\r\n'],{type:'text/csv;charset=utf-8'}))}
+});
+document.addEventListener('change',async e=>{const t=e.target,I=UI.imp;if(!I||!t.dataset||!t.dataset.imp)return;const k=t.dataset.imp;
+ if(k==='arq'){const f=t.files&&t.files[0];if(!f)return;if(f.size>5*1024*1024){I.err='Arquivo grande demais (máximo 5 MB).';return v10impPaint()}
+  const buf=await f.arrayBuffer();let txt;try{txt=new TextDecoder('utf-8',{fatal:true}).decode(buf)}catch(_){txt=new TextDecoder('windows-1252').decode(buf)}return v10impLer(txt)}
+ if(k==='map'){I.map[t.dataset.k]=t.value;const id=t.id;v10impPaint();const n=document.getElementById(id);if(n)n.focus();return}
+ if(k==='prep'||k==='site'){I[k]=t.checked;return}
+});
+{const cm=closeModal;closeModal=function(){UI.imp=null;return cm()}}
+
 /* ================= v7: modo servidor (os dados da loja ficam no servidor do Pátio) =================
    Só age quando a página é aberta pelo servidor (window.PATIO_BOOT existe). Fora dele, o protótipo
    continua salvando no navegador como antes.
@@ -8611,7 +8892,7 @@ function srvEmpty(S){
  (C.quadros||[]).forEach(q=>{q.equipe=[];q.ptr=0;if(q.padrao)q.nome=co.name||q.nome});
  (C.custos||[]).forEach(c=>{c.forn=null});
  const cb=(C.contasBanc||[])[0];C.contasBanc=[{id:cb?cb.id:1,nome:'Caixa da loja',banco:'',saldoIni:0,ativo:true}];
- C.exports=[];C.nfeParam=[];C.cert=null;C.numeracao={modelo:'unica',serie:'1',ultimo:0};
+ (C.portais||[]).forEach(p=>{p.ativo=false});C.exports=[];C.nfeParam=[];C.cert=null;C.numeracao={modelo:'unica',serie:'1',ultimo:0};
  return S;
 }
 function srvMe(){

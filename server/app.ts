@@ -11,6 +11,7 @@ import { appraisalRoutes } from './routes/appraisals.ts';
 import { authRoutes, companyInfo, isPlatform, type AuthOptions } from './routes/auth.ts';
 import { customerRoutes } from './routes/customers.ts';
 import { financeRoutes } from './routes/finance.ts';
+import { fipeRoutes } from './routes/fipe.ts';
 import { leadRoutes } from './routes/leads.ts';
 import { platformRoutes } from './routes/platform.ts';
 import { publicRoutes } from './routes/public.ts';
@@ -27,10 +28,12 @@ export interface AppOptions extends AuthOptions {
   appHtml?: string;
   /** Valor do "trust proxy" do Express (ex.: 1 atrás do proxy da hospedagem). */
   trustProxy?: string | number | boolean;
+  /** Consulta FIPE (trocável nos testes). Uma só para todas as empresas, com cache compartilhado. */
+  fipe?: Router;
 }
 
 /** Rotas internas de uma empresa, montadas sobre o banco dela (as mesmas regras para todas). */
-function tenantApi(t: Tenant, tenants: Tenants, uploadDir: string): Router {
+function tenantApi(t: Tenant, tenants: Tenants, uploadDir: string, fipe: Router): Router {
   const db = t.db;
   const id = t.company.id;
   const api = Router();
@@ -45,6 +48,7 @@ function tenantApi(t: Tenant, tenants: Tenants, uploadDir: string): Router {
   api.use('/finance', financeRoutes(db));
   api.use('/reports', reportRoutes(db));
   api.use('/store', storeRoutes(db, uploadDir));
+  api.use('/fipe', fipe);
   return api;
 }
 
@@ -52,6 +56,7 @@ const routerOf = (t: Tenant, key: string, make: () => Router) => (t.routers[key]
 
 export function createApp(tenants: Tenants, opts: AppOptions) {
   const app = express();
+  const fipe = opts.fipe ?? fipeRoutes();
   app.disable('x-powered-by');
   app.set('trust proxy', opts.trustProxy ?? 'loopback');
   app.use(securityHeaders);
@@ -84,7 +89,7 @@ export function createApp(tenants: Tenants, opts: AppOptions) {
     if (!t) return next(new HttpError(401, 'Sessão expirada. Faça login novamente.'));
     if (t.company.status !== 'ativa') return next(new HttpError(403, 'O acesso desta empresa está suspenso. Fale com o suporte do Pátio.'));
     tenants.touch(t.company.id);
-    routerOf(t, 'api', () => tenantApi(t, tenants, opts.uploadDir))(req, res, next);
+    routerOf(t, 'api', () => tenantApi(t, tenants, opts.uploadDir, fipe))(req, res, next);
   });
   app.use('/api', (_req, _res, next) => next(new HttpError(404, 'Rota não encontrada.')));
 
