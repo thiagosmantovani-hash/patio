@@ -29,12 +29,33 @@ export function rateLimiter(max: number, windowMs: number) {
   };
 }
 
-export function securityHeaders(_req: Request, res: Response, next: NextFunction) {
+/** Política de conteúdo: só scripts, dados e quadros do próprio Pátio; fontes do Google; imagens também por https. */
+export const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com data:",
+  "img-src 'self' data: blob: https:",
+  "connect-src 'self'",
+  "frame-src 'self' https://www.google.com https://www.youtube.com",
+  "frame-ancestors 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+].join('; ');
+
+export function securityHeaders(req: Request, res: Response, next: NextFunction) {
+  res.setHeader('Content-Security-Policy', CSP);
+  if (req.secure) res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=()');
   next();
 }
+
+/** Tamanho mínimo de senha em todo o sistema. */
+export const MIN_PASSWORD = 8;
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

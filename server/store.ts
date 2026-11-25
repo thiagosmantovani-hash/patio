@@ -74,6 +74,24 @@ export function allocIds(db: DB, n = 200): { from: number; to: number } {
   });
 }
 
+/** Mantém usuários (perfil, e-mail, situação) e perfis de acesso como estão gravados; o resto da configuração segue. */
+export function guardCfg(stored: any, incoming: string): string {
+  if (!stored || typeof stored !== 'object') return incoming;
+  const next = JSON.parse(incoming);
+  if (!next || typeof next !== 'object') return JSON.stringify(stored);
+  next.perfis = stored.perfis;
+  const before = stored.usuarios && typeof stored.usuarios === 'object' ? stored.usuarios : {};
+  const after = next.usuarios && typeof next.usuarios === 'object' ? next.usuarios : {};
+  const users: Record<string, unknown> = {};
+  for (const id of Object.keys(before)) {
+    const b = before[id] ?? {};
+    const a = after[id] && typeof after[id] === 'object' ? after[id] : {};
+    users[id] = { ...b, ...a, perfil: b.perfil, email: b.email, status: b.status, twofa: b.twofa };
+  }
+  next.usuarios = users;
+  return JSON.stringify(next);
+}
+
 const IMAGE_EXT: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp' };
 
 export function storeRoutes(db: DB, uploadDir: string) {
@@ -104,6 +122,11 @@ export function storeRoutes(db: DB, uploadDir: string) {
     }
     for (const k of del) if (typeof k !== 'string' || !KEY_RE.test(k)) throw new HttpError(400, 'Registro inválido.');
     const uid = req.user?.id ?? null;
+    // Quem não é administrador não altera usuários nem perfis de acesso pela gravação geral.
+    if (req.user?.role !== 'admin') {
+      if ((del as string[]).includes('v:cfg')) throw new HttpError(403, 'Sem permissão para esta ação.');
+      for (const p of put as [string, string][]) if (p[0] === 'v:cfg') p[1] = guardCfg(storeGet(db, 'v:cfg'), p[1]);
+    }
     tx(db, () => {
       for (const [k, data] of put as [string, string][]) storePut(db, k, data, uid);
       for (const k of del as string[]) storePut(db, k, null, uid);

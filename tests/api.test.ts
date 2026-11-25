@@ -164,9 +164,9 @@ test('cadastro de empresa: dados isolados, e-mail único, vitrine própria e pai
   assert.equal((await call('GET', '/api/public/nao-existe/vehicles')).status, 404);
 
   // usuário criado na empresa B não pode reusar e-mail da A; login da B funciona
-  assert.equal((await call('POST', '/api/users', { name: 'V', email: 'vend@t.com', password: 'abcdef', role: 'vendedor' }, b.cookie)).status, 409);
-  assert.equal((await call('POST', '/api/users', { name: 'Caio', email: 'caio@b.com', password: 'abcdef', role: 'vendedor' }, b.cookie)).status, 201);
-  const caio = await login('caio@b.com', 'abcdef');
+  assert.equal((await call('POST', '/api/users', { name: 'V', email: 'vend@t.com', password: 'abcdef12', role: 'vendedor' }, b.cookie)).status, 409);
+  assert.equal((await call('POST', '/api/users', { name: 'Caio', email: 'caio@b.com', password: 'abcdef12', role: 'vendedor' }, b.cookie)).status, 201);
+  const caio = await login('caio@b.com', 'abcdef12');
   assert.equal((await call('GET', '/api/auth/me', undefined, caio)).body.company.slug, b.body.company.slug);
 
   // exclusão de usuário: some o login e a sessão; o e-mail fica livre; ninguém exclui a si mesmo
@@ -279,4 +279,39 @@ test('sistema completo: gravação por itens, mudanças, números, fotos, vitrin
   const html = await page.text();
   assert.ok(html.includes('window.PATIO_BOOT='), 'página com os dados da loja');
   assert.ok(!html.includes('"password_hash"'), 'nenhum hash de senha na página');
+});
+
+test('segurança: cabeçalhos, perfis protegidos na configuração e senha redefinida derruba sessões', async () => {
+  const h = await fetch(base + '/api/health');
+  assert.match(h.headers.get('content-security-policy') ?? '', /default-src 'self'/);
+  assert.match(h.headers.get('content-security-policy') ?? '', /object-src 'none'/);
+
+  const admin = await login('admin@t.com', 'segredo1');
+  const vend = await login('vend@t.com', 'segredo2');
+  const cfg = { loja: { fantasia: 'Loja' }, perfis: { vendedor: { nome: 'Vendedor', mods: ['veiculos'] } }, usuarios: { '1': { id: 1, email: 'vend@t.com', perfil: 'vendedor', status: 'ativo', nome: 'Vend' } } };
+  assert.equal((await call('POST', '/api/store/save', { put: [['v:cfg', JSON.stringify(cfg)]] }, admin)).status, 200);
+
+  // vendedor tenta se promover e criar outro usuário pela gravação geral
+  const hack = structuredClone(cfg) as any;
+  hack.perfis.vendedor.mods.push('configuracoes', 'financeiro');
+  hack.usuarios['1'].perfil = 'revenda';
+  hack.usuarios['1'].nome = 'Vendedor Novo Nome';
+  hack.usuarios['99'] = { id: 99, email: 'x@x.com', perfil: 'revenda', status: 'ativo' };
+  hack.loja.fantasia = 'Loja Atualizada';
+  assert.equal((await call('POST', '/api/store/save', { put: [['v:cfg', JSON.stringify(hack)]] }, vend)).status, 200);
+  const saved = (await call('GET', '/api/store', undefined, admin)).body.items.find((i: any) => i[0] === 'v:cfg');
+  const got = JSON.parse(saved[1]);
+  assert.deepEqual(got.perfis.vendedor.mods, ['veiculos']);
+  assert.equal(got.usuarios['1'].perfil, 'vendedor');
+  assert.equal(got.usuarios['1'].nome, 'Vendedor Novo Nome');
+  assert.equal(got.usuarios['99'], undefined);
+  assert.equal(got.loja.fantasia, 'Loja Atualizada');
+  assert.equal((await call('POST', '/api/store/save', { del: ['v:cfg'] }, vend)).status, 403);
+
+  // senha curta é recusada; senha redefinida pelo admin encerra a sessão do vendedor
+  const vid = (db.prepare("SELECT id FROM users WHERE email = 'vend@t.com'").get() as { id: number }).id;
+  const put = (password: string) => call('PUT', `/api/users/${vid}`, { name: 'Vendedor', email: 'vend@t.com', role: 'vendedor', commission_rate: 2, active: true, password }, admin);
+  assert.equal((await put('curta')).status, 400);
+  assert.equal((await put('segredo22')).status, 200);
+  assert.equal((await call('GET', '/api/store', undefined, vend)).status, 401);
 });

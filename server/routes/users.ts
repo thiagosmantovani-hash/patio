@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { DB } from '../db.ts';
 import { hashPassword, requireRole, sessionToken, verifyPassword } from '../auth.ts';
 import { HttpError, idParam, notFound, num, oneOf, str } from '../http.ts';
-import { EMAIL_RE } from '../security.ts';
+import { EMAIL_RE, MIN_PASSWORD } from '../security.ts';
 
 const ROLES = ['admin', 'gerente', 'vendedor'] as const;
 const PUBLIC_FIELDS = 'id, name, email, role, commission_rate, active, created_at';
@@ -26,7 +26,7 @@ export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
   r.post('/me/password', (req, res) => {
     const current = str(req.body, 'current', { required: true, label: 'senha atual' })!;
     const next = str(req.body, 'password', { required: true, label: 'nova senha' })!;
-    if (next.length < 6) throw new HttpError(400, 'A nova senha deve ter pelo menos 6 caracteres.');
+    if (next.length < MIN_PASSWORD) throw new HttpError(400, `A nova senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
     const row = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(req.user!.id) as { password_hash: string };
     if (!verifyPassword(current, row.password_hash)) throw new HttpError(400, 'Senha atual incorreta.');
     db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(next), req.user!.id);
@@ -42,20 +42,21 @@ export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
 
   r.post('/', (req, res) => {
     const password = str(req.body, 'password', { required: true, label: 'senha' })!;
-    if (password.length < 6) throw new HttpError(400, 'A senha deve ter pelo menos 6 caracteres.');
+    if (password.length < MIN_PASSWORD) throw new HttpError(400, `A senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
     const email = str(req.body, 'email', { required: true, label: 'e-mail' })!.toLowerCase();
     if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Informe um e-mail válido.');
     if (db.prepare('SELECT 1 FROM users WHERE email = ?').get(email)) throw new HttpError(409, 'Já existe um usuário com este e-mail.');
+    const name = str(req.body, 'name', { required: true, label: 'nome' });
+    const role = oneOf(req.body, 'role', ROLES, 'vendedor');
+    const rate = num(req.body, 'commission_rate', { min: 0 }) ?? 0;
     accounts.claim(email);
-    const info = db
-      .prepare('INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES (?, ?, ?, ?, ?)')
-      .run(
-        str(req.body, 'name', { required: true, label: 'nome' }),
-        email,
-        hashPassword(password),
-        oneOf(req.body, 'role', ROLES, 'vendedor'),
-        num(req.body, 'commission_rate', { min: 0 }) ?? 0,
-      );
+    let info;
+    try {
+      info = db.prepare('INSERT INTO users (name, email, password_hash, role, commission_rate) VALUES (?, ?, ?, ?, ?)').run(name, email, hashPassword(password), role, rate);
+    } catch (err) {
+      accounts.release(email);
+      throw err;
+    }
     res.status(201).json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(info.lastInsertRowid));
   });
 
@@ -84,8 +85,10 @@ export function userRoutes(db: DB, accounts: AccountHooks = noHooks) {
     );
     const password = str(req.body, 'password');
     if (password) {
-      if (password.length < 6) throw new HttpError(400, 'A senha deve ter pelo menos 6 caracteres.');
+      if (password.length < MIN_PASSWORD) throw new HttpError(400, `A senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
       db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(password), id);
+      // Senha redefinida pelo administrador: quem estava conectado com a senha antiga precisa entrar de novo.
+      if (id !== req.user!.id) db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
     }
     if (!active) db.prepare('DELETE FROM sessions WHERE user_id = ?').run(id);
     res.json(db.prepare(`SELECT ${PUBLIC_FIELDS} FROM users WHERE id = ?`).get(id));

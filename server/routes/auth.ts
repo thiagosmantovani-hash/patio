@@ -1,8 +1,9 @@
+import { randomBytes } from 'node:crypto';
 import { Router, type Request, type Response } from 'express';
 import { hashPassword, createSession, destroySession, SESSION_COOKIE, sessionCompany, sessionToken, sessionUser, sessionValue, verifyPassword } from '../auth.ts';
 import { tx } from '../db.ts';
 import { HttpError, str } from '../http.ts';
-import { EMAIL_RE, rateLimiter } from '../security.ts';
+import { EMAIL_RE, MIN_PASSWORD, rateLimiter } from '../security.ts';
 import type { Tenant, Tenants } from '../tenants.ts';
 import { readSettings } from './settings.ts';
 
@@ -28,6 +29,8 @@ function setSession(res: Response, opts: AuthOptions, t: Tenant, userId: number)
 }
 
 const ip = (req: Request) => req.ip ?? 'desconhecido';
+/** Hash descartável: o login gasta o mesmo tempo com e-mail existente ou não. */
+const DUMMY_HASH = hashPassword(randomBytes(16).toString('hex'));
 
 export function authRoutes(tenants: Tenants, opts: AuthOptions) {
   const r = Router();
@@ -42,7 +45,8 @@ export function authRoutes(tenants: Tenants, opts: AuthOptions) {
     const user = t?.db.prepare('SELECT id, name, email, role, password_hash, active FROM users WHERE email = ?').get(email) as
       | { id: number; name: string; email: string; role: string; password_hash: string; active: number }
       | undefined;
-    if (!t || !user || !user.active || !verifyPassword(password, user.password_hash)) {
+    const ok = user ? verifyPassword(password, user.password_hash) : verifyPassword(password, DUMMY_HASH);
+    if (!t || !user || !user.active || !ok) {
       throw new HttpError(401, 'E-mail ou senha incorretos.');
     }
     if (t.company.status !== 'ativa') throw new HttpError(403, 'O acesso desta empresa está suspenso. Fale com o suporte do Pátio.');
@@ -64,7 +68,7 @@ export function authRoutes(tenants: Tenants, opts: AuthOptions) {
     const phone = str(req.body, 'phone');
     if (companyName.length > 80 || name.length > 80) throw new HttpError(400, 'Nome muito longo.');
     if (!EMAIL_RE.test(email)) throw new HttpError(400, 'Informe um e-mail válido.');
-    if (password.length < 8) throw new HttpError(400, 'A senha deve ter pelo menos 8 caracteres.');
+    if (password.length < MIN_PASSWORD) throw new HttpError(400, `A senha deve ter pelo menos ${MIN_PASSWORD} caracteres.`);
     if (req.body.accept_terms !== true) throw new HttpError(400, 'É preciso aceitar os termos de uso e a política de privacidade.');
     if (tenants.companyForEmail(email)) throw new HttpError(409, 'Este e-mail já tem uma conta no Pátio. Use a opção Entrar.');
 

@@ -62,6 +62,8 @@ docker run -d --name patio --restart unless-stopped -p 3000:3000 -v /srv/patio:/
 | `COOKIE_SECURE` | `1` em produção | `0` só se for testar sem HTTPS |
 | `TRUST_PROXY` | `1` em produção | Quantos proxies há na frente do servidor (para identificar o IP real) |
 
+> **Importante (segurança):** o cadastro não confirma o e-mail. Logo depois de publicar, e antes de divulgar o link de cadastro, crie a sua conta com o mesmo e-mail que está em `PLATFORM_ADMINS`. Assim ninguém consegue cadastrar esse e-mail antes de você e ganhar acesso ao menu Plataforma.
+
 ## Onde ficam os dados
 
 ```
