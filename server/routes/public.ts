@@ -28,12 +28,58 @@ interface Veh {
   opcionais?: string[];
   pubs?: Record<string, boolean>;
   site?: { prioridade?: string; desc?: string };
+  placa?: string;
+  chassi?: string;
+  tipo?: string;
+  carroceria?: string;
+  zeroKm?: boolean;
+  entrada?: string;
   galeria?: { img?: string }[];
   bloqueado?: unknown;
 }
 
 const preco = (v: Veh) => (Number(v.promo) > 0 ? Number(v.promo) : Number(v.venda) || 0);
 const noSite = (v: Veh) => v.status === 'estoque' && v.pubs?.site !== false && !v.bloqueado && preco(v) > 0;
+/** Carro marcado para um canal (portal) e pronto para anunciar. */
+const noCanal = (canal: string) => (v: Veh) => v.status === 'estoque' && v.pubs?.[canal] === true && !v.bloqueado && preco(v) > 0;
+const CANAL_RE = /^[a-z0-9]{2,20}$/;
+
+/** Guarda quando cada portal leu o feed (aparece no sistema como "lido pela última vez"). */
+export function logFeedRead(db: DB, canal: string, ua: string, itens: number) {
+  const k = `feedlog:${canal}`;
+  const prev = db.prepare('SELECT value FROM settings WHERE key = ?').get(k) as { value: string } | undefined;
+  let n = 0;
+  try {
+    n = Number(JSON.parse(prev?.value ?? '{}').n) || 0;
+  } catch {}
+  const v = JSON.stringify({ at: new Date().toISOString(), ua: ua.slice(0, 120), itens, n: n + 1 });
+  db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(k, v);
+}
+
+// Valores aceitos pelo catálogo automotivo da Meta (Facebook e Instagram).
+const metaFuel = (f: unknown) => {
+  const s = String(f ?? '').toLowerCase();
+  if (/flex/.test(s)) return 'FLEX';
+  if (/diesel/.test(s)) return 'DIESEL';
+  if (/el[eé]tric/.test(s)) return 'ELECTRIC';
+  if (/h[ií]brid/.test(s)) return 'HYBRID';
+  if (/gasolina/.test(s)) return 'GASOLINE';
+  return 'OTHER';
+};
+const metaBody = (c: unknown, tipo: unknown) => {
+  const s = String(c ?? '').toLowerCase();
+  if (/caminh/.test(String(tipo ?? '').toLowerCase())) return 'TRUCK';
+  if (/hatch/.test(s)) return 'HATCHBACK';
+  if (/sed/.test(s)) return 'SEDAN';
+  if (/suv|utilit/.test(s)) return 'SUV';
+  if (/picape|pick|caminhonete/.test(s)) return 'PICKUP';
+  if (/perua|wagon|sw/.test(s)) return 'WAGON';
+  if (/minivan|monovolume/.test(s)) return 'MINIVAN';
+  if (/cup[eê]|coupe/.test(s)) return 'COUPE';
+  if (/convers|cabrio/.test(s)) return 'CONVERTIBLE';
+  if (/van|furg/.test(s)) return 'VAN';
+  return 'OTHER';
+};
 
 export function publicRoutes(db: DB) {
   const r = Router();
@@ -149,12 +195,15 @@ export function publicRoutes(db: DB) {
     res.status(201).json({ ok: true });
   });
 
-  /** Feed XML de estoque para portais/agregadores que importam por URL. */
-  r.get('/feed.xml', (req, res) => {
+  /** Feed XML de estoque para portais/agregadores que importam por URL.
+   *  /feed.xml: carros do site da loja. /feed/<portal>.xml: só os carros marcados para aquele portal. */
+  const feed = (req: any, res: any, canal: string) => {
     const base = `${req.protocol}://${req.get('host')}`;
     const L = cfg().loja ?? {};
     const dest = site();
-    const items = vitrine()
+    const lista = canal === 'site' ? vitrine() : storeCollection<Veh>(db, 'veh').filter(noCanal(canal));
+    logFeedRead(db, canal, String(req.get('user-agent') ?? ''), lista.length);
+    const items = lista
       .map((row) => {
         const v = shape(row, dest);
         return `  <veiculo>
@@ -180,6 +229,64 @@ export function publicRoutes(db: DB) {
 <estoque loja="${escapeXml(L.fantasia || L.nome || '')}" gerado_em="${new Date().toISOString()}">
 ${items}
 </estoque>
+`);
+  };
+  r.get('/feed.xml', (req, res) => feed(req, res, 'site'));
+  r.get('/feed/:canal.xml', (req, res) => {
+    const canal = String(req.params.canal);
+    if (!CANAL_RE.test(canal)) throw new HttpError(404, 'Feed não encontrado.');
+    feed(req, res, canal);
+  });
+
+  /** Catálogo de veículos para a Meta (anúncios de estoque no Facebook e no Instagram).
+   *  Formato XML de "Automotive Inventory Ads"; entram os carros marcados para "Facebook e Instagram". */
+  r.get('/meta.xml', (req, res) => {
+    const base = `${req.protocol}://${req.get('host')}`;
+    const slug = String(req.baseUrl.split('/').pop() ?? '');
+    const L = cfg().loja ?? {};
+    const [cidade, uf] = String(L.cidade ?? '').split(/\s*[-/]\s*(?=[A-Za-z]{2}$)/);
+    const lista = storeCollection<Veh>(db, 'veh').filter(noCanal('facebook'));
+    logFeedRead(db, 'facebook', String(req.get('user-agent') ?? ''), lista.length);
+    const x = escapeXml;
+    const items = lista
+      .map((v) => {
+        const fotos = (v.galeria ?? []).map((g) => g?.img).filter((u): u is string => typeof u === 'string' && u.startsWith('/uploads/'));
+        const titulo = `${v.marca ?? ''} ${v.modelo ?? ''} ${v.versao ?? ''} ${v.anoMod ?? ''}`.replace(/\s+/g, ' ').trim();
+        const promo = Number(v.promo) > 0 && Number(v.promo) < Number(v.venda);
+        return `  <listing>
+    <vehicle_id>${v.id}</vehicle_id>
+    <title>${x(titulo)}</title>
+    <description>${x((v.site?.desc || v.descricao || titulo).slice(0, 5000))}</description>
+    <url>${x(`${base}/v/${slug}/${v.id}`)}</url>
+    <make>${x(v.marca)}</make>
+    <model>${x(v.modelo)}</model>
+    <year>${x(v.anoMod)}</year>
+    <mileage><unit>KM</unit><value>${Number(v.km) || 0}</value></mileage>
+${fotos.slice(0, 20).map((p) => `    <image><url>${x(base + p)}</url></image>`).join('\n')}
+    <transmission>${/aut|cvt/i.test(String(v.cambio ?? '')) ? 'AUTOMATIC' : 'MANUAL'}</transmission>
+    <fuel_type>${metaFuel(v.combustivel)}</fuel_type>
+    <body_style>${metaBody(v.carroceria, v.tipo)}</body_style>
+    <drivetrain>OTHER</drivetrain>
+    <condition>${v.zeroKm ? 'EXCELLENT' : 'GOOD'}</condition>
+    <state_of_vehicle>${v.zeroKm ? 'NEW' : 'USED'}</state_of_vehicle>
+    <price>${Number(v.venda) || preco(v)} BRL</price>
+${promo ? `    <sale_price>${Number(v.promo)} BRL</sale_price>\n` : ''}    <exterior_color>${x(v.cor)}</exterior_color>
+${v.chassi ? `    <vin>${x(v.chassi)}</vin>\n` : ''}${v.placa ? `    <vehicle_registration_plate>${x(v.placa)}</vehicle_registration_plate>\n` : ''}    <availability>AVAILABLE</availability>
+${v.entrada ? `    <date_first_on_lot>${x(v.entrada)}</date_first_on_lot>\n` : ''}    <address format="simple">
+      <component name="addr1">${x(L.endereco)}</component>
+      <component name="city">${x((cidade ?? '').trim())}</component>
+      <component name="region">${x((uf ?? '').trim())}</component>
+      <component name="postal_code">${x(L.cep ?? '')}</component>
+      <component name="country">BR</component>
+    </address>
+  </listing>`;
+      })
+      .join('\n');
+    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>
+<listings>
+  <title>${x(L.fantasia || L.nome || 'Estoque')}</title>
+${items}
+</listings>
 `);
   });
 
