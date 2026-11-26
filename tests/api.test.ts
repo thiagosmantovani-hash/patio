@@ -459,3 +459,38 @@ test('gravações simultâneas do mesmo registro são juntadas e backup copia fo
   assert.ok(readdirSync(join(dir, 'bk', 'fotos')).includes('1-abc.jpg'));
   assert.equal(backupAll(tenants, join(dir, 'bk'), 3, up).photos, 0, 'foto já copiada não é copiada de novo');
 });
+
+test('canais de anúncio: feed por portal, catálogo da Meta e registro de leitura', async () => {
+  const a = await login('admin@t.com', 'segredo1');
+  const base1 = { marca: 'Fiat', modelo: 'Pulse', versao: 'Drive 1.3', anoFab: 2023, anoMod: 2024, km: 18000, cambio: 'Automático', combustivel: 'Flex', carroceria: 'SUV', cor: 'Prata', placa: 'ABC1D23', status: 'estoque', venda: 99900, compra: 80000, galeria: [{ id: 'g1', img: '/uploads/p.jpg' }] };
+  const put = [
+    ['m:veh:20001', JSON.stringify({ ...base1, id: 20001, pubs: { site: true, napista: true, facebook: true } })],
+    ['m:veh:20002', JSON.stringify({ ...base1, id: 20002, modelo: 'Argo', pubs: { site: true, chavesnamao: true } })],
+    ['m:veh:20003', JSON.stringify({ ...base1, id: 20003, modelo: 'Toro', status: 'vendido', pubs: { napista: true, facebook: true } })],
+    ['v:cfg', JSON.stringify({ loja: { fantasia: 'Loja Teste', cidade: 'Umuarama-PR', cep: '87500-000', endereco: 'Av. Brasil, 100' } })],
+  ];
+  assert.equal((await call('POST', '/api/store/save', { put, del: [] }, a)).status, 200);
+
+  const get = async (p: string, ua = 'teste') => { const r = await fetch(base + `/api/public/${slug}${p}`, { headers: { 'user-agent': ua } }); return { status: r.status, type: r.headers.get('content-type') ?? '', text: await r.text() }; };
+  const np = await get('/feed/napista.xml', 'NaPistaBot/1.0');
+  assert.equal(np.status, 200);
+  assert.match(np.type, /xml/);
+  assert.ok(np.text.includes('Pulse') && !np.text.includes('Argo') && !np.text.includes('Toro'), 'só os marcados no canal e em estoque');
+  assert.ok(!np.text.includes('80000'), 'preço de compra não vaza');
+  const cm = await get('/feed/chavesnamao.xml');
+  assert.ok(cm.text.includes('Argo') && !cm.text.includes('Pulse'));
+  assert.equal((await get('/feed/..%2Fx.xml')).status, 404);
+  assert.equal((await get('/feed/A_B.xml')).status, 404);
+
+  const meta = await get('/meta.xml');
+  assert.equal(meta.status, 200);
+  for (const tag of ['<vehicle_id>20001</vehicle_id>', '<make>Fiat</make>', '<price>99900 BRL</price>', '<state_of_vehicle>USED</state_of_vehicle>', '<transmission>AUTOMATIC</transmission>', '<fuel_type>FLEX</fuel_type>', '<body_style>SUV</body_style>', '<component name="city">Umuarama</component>', '<component name="region">PR</component>', '<component name="country">BR</component>', `/v/${slug}/20001</url>`])
+    assert.ok(meta.text.includes(tag), 'meta.xml sem ' + tag);
+  assert.ok(!meta.text.includes('Toro') && !meta.text.includes('Argo'));
+
+  const feeds = (await call('GET', '/api/store/feeds', undefined, a)).body;
+  assert.equal(feeds.napista.itens, 1);
+  assert.equal(feeds.napista.ua, 'NaPistaBot/1.0');
+  assert.equal(feeds.facebook.itens, 1);
+  assert.equal((await call('GET', '/api/store/feeds')).status, 401);
+});

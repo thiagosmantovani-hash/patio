@@ -3072,6 +3072,7 @@ body.g-dragging,body.g-dragging *{cursor:grabbing!important;user-select:none!imp
 .v10-imp-opt{display:flex;flex-direction:column;gap:6px;margin-top:12px}
 .v10-lk{background:none;border:0;padding:0;cursor:pointer;font:inherit;text-decoration:underline;color:var(--green-strong)}
 .v10-vazio{display:flex;flex-direction:column;align-items:center;gap:8px;padding:36px 20px;text-align:center}.v10-vazio p{margin:0}.v10-vazio .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.v10-canais .bd{display:flex;flex-direction:column;gap:14px}.v10-canal{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}.v10-canal p{margin:0}.v10-canal-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.v10-feed{display:flex;gap:8px}.v10-feed .inp{flex:1;font-family:ui-monospace,monospace;font-size:12px}
 /* v9: contraste mínimo de 4,5:1 nos selos e textos de apoio */
 .chip.warn{color:var(--warn-ink,var(--warn))}.chip.bad{color:var(--bad-ink,var(--bad))}.chip.info{color:var(--info-ink,var(--info))}
 .card > header .ht p,.card > header .chip.warn,.card > header .chip.bad,.card > header .chip.info{color:var(--hd-mut,rgba(255,255,255,.72))}
@@ -3248,7 +3249,7 @@ const PERFIS_PADRAO={
 const U_STATUS={ativo:['Ativo','ok'],suspenso:['Suspenso','bad'],aguardando:['Aguardando ativação','warn']};
 
 /* catálogos mapeados das configurações */
-const PORTAIS_CAT=[['047carros','047 Carros','#e3364a'],['agenciauto','AgenciAuto RS','#3b8a3e'],['autoline','Autoline','#d12e3a'],['carrosnaserra','Carros na Serra','#1b7a63'],['catarina','Catarina Carros','#f07b1d'],['chavesnamao','Chaves na Mão','#e32c3b'],['comprecar','Comprecar','#1f3b73'],['drivematch','DriveMatch','#b0283d'],['icarros','iCarros','#f26a1b'],['litoralcar','Litoral Car','#164a8a'],['mercadolivre','Mercado Livre','#e6c200'],['mobiauto','Mobiauto','#1aa5d8'],['napista','Na Pista','#13294b'],['olx','OLX','#6e0ad6'],['seminovosbh','Seminovos BH','#5b6670'],['seminovoshonda','Seminovos Honda','#c4122f'],['shopcar','ShopCar','#d6262d'],['socarrao','SóCarrão','#2c6e2f'],['spinz','Spinz','#ee4d2d'],['usados','Usadosbr','#1f7a4a'],['velo','Velô Autos','#0f6d74'],['webmotors','Webmotors','#e1192d']];
+const PORTAIS_CAT=[['047carros','047 Carros','#e3364a'],['agenciauto','AgenciAuto RS','#3b8a3e'],['autoline','Autoline','#d12e3a'],['carrosnaserra','Carros na Serra','#1b7a63'],['catarina','Catarina Carros','#f07b1d'],['chavesnamao','Chaves na Mão','#e32c3b'],['comprecar','Comprecar','#1f3b73'],['drivematch','DriveMatch','#b0283d'],['facebook','Facebook e Instagram','#1877f2'],['icarros','iCarros','#f26a1b'],['litoralcar','Litoral Car','#164a8a'],['mercadolivre','Mercado Livre','#e6c200'],['mobiauto','Mobiauto','#1aa5d8'],['napista','Na Pista','#13294b'],['olx','OLX','#6e0ad6'],['seminovosbh','Seminovos BH','#5b6670'],['seminovoshonda','Seminovos Honda','#c4122f'],['shopcar','ShopCar','#d6262d'],['socarrao','SóCarrão','#2c6e2f'],['spinz','Spinz','#ee4d2d'],['usados','Usadosbr','#1f7a4a'],['velo','Velô Autos','#0f6d74'],['webmotors','Webmotors','#e1192d']];
 const CRM_INT_CAT=[['carchat','CarChat','#e23d2f'],['duotalk','Duotalk','#1f4fa8'],['easychannel','Easy Channel','#334155'],['facebook','Facebook','#1877f2'],['fbleadads','Facebook Lead Ads','#1877f2'],['leadsok','Leads Ok','#0e7490'],['napista','Na Pista','#13294b'],['olx','OLX','#6e0ad6'],['rdstation','RD Station','#0b2f4e'],['usados','Usadosbr','#1f7a4a'],['webmotors','Webmotors','#e1192d']];
 const ORIGENS_SIS=['Ads','Aniversariante','Aniversariantes','App','Autocarro','Autoline','Automotivo Shopping','Avaliação','Banco BV','Bip','Bip Avaliação','Bip Contato','Bip Facebook','Bip Financiamento','Bip Instagram','Bip Reserva','BNI','Busca Ativa','C7','CarChat','Carmillion','Carros na Serra','CarroSP','Carteira','Carteira de clientes','Carteira Pré Venda','Catarina Carros','Catálogo WhatsApp','Chat','Chaves na Mão','Compre Blindados','Comprecar','Conexão','Consórcio','Crm','Drive Match','Duotalk','E-Completo','Easy Channel','Email Marketing','Eu Quero Carros','Facebook','Facebook Ads','Feirão','Financiamento','Financiamento Integrado','Formulário WhatsApp','Google','Google Ads','Half-page','iCarros','Indicação','Instagram','Instagram Ads','Insucessos','Jornal','Karvi','Landing Page','LeadFy','Leads Ok','LitoralCar','Loja','Marketplace','Mensagem Instagram','Mercado Livre','Messenger','Meta','Meubot','Meu Carro Novo','ML Financiamento','ML Ligação','ML WhatsApp','Mobiauto','Na Pista','Olx','Orgânico','Outdoor','Passante','PhoneTrack','Pista','Portais de anúncios','Portal Auto Shopping','Prospecção','RD Station','ReciclaLead','Rádio','Sbs Carros','Seminovos BH','Shopcar','Site','Sms','Sulrevendas','SóCarrão','Telefone','TikTok','Totex Motors','Tv','Uber','Usadosbr','Vale Auto Shopping','Velô Autos','Vrum','WebMotors','WhatsApp','Zul'];
 const ORIGENS_ATIVAS=['Aniversariante','Carteira','Chat','Crm','Email Marketing','Facebook','Financiamento','Google','Instagram','Landing Page','Loja','Na Pista','Olx','Prospecção','Site','Sms','Telefone','Usadosbr','WebMotors','WhatsApp','Indicação'];
@@ -3679,12 +3680,12 @@ function etapa(v,k){
 function pendencias(v){
  if(v.status!=='estoque')return [];
  const p=[];
- if(!v.aval.done)p.push('avaliacao');
+ if(!(v.aval||{}).done)p.push('avaliacao');
  else{
   if(!(v.venda>0))p.push('precificacao');
   if(!v.negEntrada)p.push('negociacao');
-  if(v.pericia.status!=='aprovado')p.push('pericia');
-  REC.forEach(([k])=>{if(v.receb[k]==='pendente')p.push(k)});
+  if((v.pericia||{}).status!=='aprovado')p.push('pericia');
+  REC.forEach(([k])=>{if((v.receb||{})[k]==='pendente')p.push(k)});
   if(v.servicos.some(s=>!s.feito))p.push('servico');
   if(v.fotos<(+CFG().loja.kmMinFotos||8))p.push('foto');
   if(!pubCount(v))p.push('anuncio');
@@ -8617,16 +8618,50 @@ ACT.v10verif=async function(){try{const r=await srvApi('POST','/api/auth/verify/
   if(v.bloqueado&&!v.pubs[k]){toast('Veículo bloqueado: desbloqueie antes de anunciar');return}
   v.pubs[k]=!v.pubs[k];
   touch(v,'anuncios',(v.pubs[k]?'Marcou como anunciado no ':'Marcou como retirado do ')+N);
-  toast(k==='site'?(v.pubs[k]?'Publicado no site da loja':'Retirado do site da loja'):(v.pubs[k]?`Marcado como anunciado no ${N}. Publique também no painel do portal.`:`Marcado como retirado do ${N}. Retire também no painel do portal.`));
+  const fd=V10_CANAIS[k]&&V10_CANAIS[k].tipo==='feed';
+  toast(k==='site'?(v.pubs[k]?'Publicado no site da loja':'Retirado do site da loja'):fd?(v.pubs[k]?`Incluído no feed do ${N}: aparece lá na próxima leitura do portal.`:`Retirado do feed do ${N}: sai de lá na próxima leitura do portal.`):(v.pubs[k]?`Marcado como anunciado no ${N}. Publique também no painel do portal.`:`Marcado como retirado do ${N}. Retire também no painel do portal.`));
   save();render()};
  ACT.pubAll=function(d){if(!REAL())return all0(d);const v=vehAt(d);v.fila=v.fila||{};let n=0;
   portaisAtivos().forEach(([k])=>{delete v.fila[k];if(d.v==='1'&&!v.pubs[k]&&!v.bloqueado){v.pubs[k]=true;n++}if(d.v!=='1'&&v.pubs[k]){v.pubs[k]=false;n++}});
   touch(v,'anuncios',d.v==='1'?`Marcou como anunciado em ${n} canais`:`Marcou como retirado de ${n} canais`);save();toast(n?`${n} canais atualizados`:'Nada a alterar');render()};
 }
-const V10_NOTA_PORTAIS='<b>Controle manual dos portais.</b> O Pátio ainda não envia os anúncios para OLX, Webmotors e os outros portais: publique no painel de cada portal e marque aqui onde o carro está anunciado. O <b>Site da loja</b> e o <b>feed XML</b> já funcionam de verdade.';
+const V10_NOTA_PORTAIS='<b>Como marcar:</b> nos canais com feed automático (Site, Facebook e Instagram, Na Pista, Chaves na Mão), marcar o carro já coloca ele no feed que o portal lê. Nos demais, publique no painel do portal e marque aqui onde o carro está anunciado.';
 {const va=VIEWS.anuncios;VIEWS.anuncios=function(){const h=va();if(!REAL())return h;
   return v10afterHead(h.replace('Publicar e atualizar entram na fila do portal.','Marque onde o carro está anunciado.'),`<div class="v10-nota" role="note">${V10_NOTA_PORTAIS}</div>`)}}
 
+
+/* ---------- canais de anúncio: como cada um recebe o estoque ----------
+   feed: o portal lê um endereço do Pátio (sem senha) de tempos em tempos;
+   api: precisa do credenciamento do Pátio como integrador (em andamento);
+   o resto: controle manual. */
+const V10_CANAIS={
+ site:{tipo:'feed',feed:'feed.xml',como:'Site da loja e o feed XML geral.'},
+ facebook:{tipo:'feed',feed:'meta.xml',como:'No Gerenciador de Comércio da Meta: Catálogo › Fontes de dados › Feed de dados › Agendado, cole o endereço abaixo e escolha atualização diária. Depois crie anúncios de estoque automotivo no Gerenciador de Anúncios.'},
+ napista:{tipo:'feed',feed:'feed/napista.xml',como:'Envie o endereço abaixo para o atendimento do Na Pista pedindo a integração do estoque por XML.'},
+ chavesnamao:{tipo:'feed',feed:'feed/chavesnamao.xml',como:'Envie o endereço abaixo para o atendimento do Chaves na Mão pedindo a integração do estoque por XML.'},
+ webmotors:{tipo:'api',como:'Integração pela API do Cockpit Webmotors: o Pátio está pedindo o credenciamento como integrador. Até lá, publique no Cockpit e marque aqui.'},
+ olx:{tipo:'api',como:'Integração pela API da OLX para lojistas profissionais: o Pátio está pedindo o credenciamento como integrador. Até lá, publique na OLX e marque aqui.'}
+};
+const v10FeedUrl=k=>{const c=V10_CANAIS[k];const B=window.PATIO_BOOT||{};return c&&c.feed&&B.company?`${location.origin}/api/public/${encodeURIComponent(B.company.slug)}/${c.feed}`:''};
+Object.assign(UI,{feeds:null,feedsAt:0});
+async function v10LoadFeeds(){if(!REAL()||Date.now()-UI.feedsAt<60000)return;UI.feedsAt=Date.now();try{UI.feeds=await srvApi('GET','/api/store/feeds');render()}catch(e){}}
+function v10CanaisHTML(){
+ if(!REAL())return '';v10LoadFeeds();
+ const ativos=portaisAtivos().map(p=>p[0]);
+ const lista=['site','facebook','napista','chavesnamao','webmotors','olx'].concat(ativos.filter(k=>!V10_CANAIS[k])).filter((k,i,a)=>a.indexOf(k)===i);
+ const nomeK=k=>k==='site'?'Site da loja':portalNome(k);
+ const linha=k=>{const c=V10_CANAIS[k]||{tipo:'manual',como:'Publique no painel do portal e marque aqui onde o carro está anunciado.'};const on=k==='site'||ativos.includes(k);
+  const n=vehList().filter(v=>v.status==='estoque'&&v.pubs&&v.pubs[k]).length;const lg=UI.feeds&&UI.feeds[k];const url=v10FeedUrl(k);
+  const tipo=c.tipo==='feed'?chip('Feed automático','ok'):c.tipo==='api'?chip('Credenciamento em andamento','warn'):chip('Manual','line');
+  return `<div class="v10-canal"><div class="v10-canal-h"><b>${esc(nomeK(k))}</b>${tipo}${on?'':chip('Desligado','line')}<span class="small muted">${n} ${n===1?'carro marcado':'carros marcados'}</span></div>
+   <p class="small">${esc(c.como)}</p>
+   ${url?`<div class="v10-feed"><input class="inp" readonly value="${esc(url)}" aria-label="Endereço do feed ${esc(nomeK(k))}" id="feed-${k}"><button class="btn sm" type="button" data-act="v10copiaFeed" data-k="${k}">Copiar</button></div>
+   <p class="small ${lg?'':'muted'}">${lg?`Lido pela última vez em ${esc(new Date(lg.at).toLocaleString('pt-BR'))} (${lg.itens} ${lg.itens===1?'carro':'carros'})`:'Ainda não foi lido por ninguém.'}</p>`:''}
+   ${!on&&k!=='site'?`<p class="small muted">Ligue este canal em Configurações › Anúncios para marcar carros nele.</p>`:''}</div>`};
+ return `<section class="card v10-canais"><header><div class="ht"><h3>Como cada canal recebe o estoque</h3><p>Feeds automáticos, credenciamentos e controle manual</p></div></header><div class="bd">${lista.map(linha).join('')}</div></section>`;
+}
+ACT.v10copiaFeed=d=>{const el=document.getElementById('feed-'+d.k);copyText(el?el.value:v10FeedUrl(d.k),el)};
+{const va=VIEWS.anuncios;VIEWS.anuncios=function(){const h=va();if(!REAL())return h;return h.replace('<div class="v10-nota" role="note">',v10CanaisHTML()+'<div class="v10-nota" role="note">')}}
 /* ---------- consulta de mercado e consulta veicular: em breve ---------- */
 {const ms0=mercStats,mh0=mercadoHTML,bc0=baseCompraHTML;
  mercStats=function(v){return REAL()?null:ms0(v)};

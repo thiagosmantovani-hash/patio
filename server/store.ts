@@ -135,6 +135,17 @@ const IMAGE_EXT: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '
 
 export function storeRoutes(db: DB, uploadDir: string) {
   const r = Router();
+  /** Quando cada portal leu o feed da loja pela última vez. */
+  r.get('/feeds', (_req, res) => {
+    const rows = db.prepare("SELECT key, value FROM settings WHERE key LIKE 'feedlog:%'").all() as { key: string; value: string }[];
+    const out: Record<string, unknown> = {};
+    for (const row of rows) {
+      try {
+        out[row.key.slice(8)] = JSON.parse(row.value);
+      } catch {}
+    }
+    res.json(out);
+  });
   mkdirSync(uploadDir, { recursive: true });
 
   r.get('/', (_req, res) => {
